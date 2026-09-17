@@ -39,7 +39,7 @@ services:
       - key: DEBUG
         value: "false"
       - key: CORS_ORIGINS
-        value: https://kisan-kraya-web.onrender.com,http://localhost:8081,http://localhost:19006
+        value: https://kisan-kraya-web.onrender.com,https://nuke-iiitk.github.io,http://localhost:8081,http://localhost:19006
       - key: REQUIRE_OFFICER_AUTH
         value: "false" # demo mode — flip to true to protect queue mutations
       - key: MINUTES_PER_FARMER
@@ -60,9 +60,6 @@ services:
       - key: EXPO_PUBLIC_API_URL
         value: https://kisan-kraya-api.onrender.com
       - key: EXPO_PUBLIC_USE_BACKEND
-        value: "true"
-    # Expo static export emits one HTML file per route, so deep links resolve
-    # natively; nothing to rewrite.<tool_call>editor<arg_key>new_text</arg_key><arg_value>      - key: EXPO_PUBLIC_USE_BACKEND
         value: "true"
     # Expo static export emits one HTML file per route, so deep links resolve
     # natively; nothing to rewrite.

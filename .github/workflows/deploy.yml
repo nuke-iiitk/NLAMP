@@ -33,7 +33,10 @@ jobs:
       - name: Static export (Expo web)
         run: npx expo export --platform web
         env:
-          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || 'https://projector-statewide-david-carries.trycloudflare.com' }}
+          # Pages hosts the site under the repo sub-path → asset URLs must be
+          # prefixed (app.config.js reads EXPO_PUBLIC_BASE_PATH).
+          EXPO_PUBLIC_BASE_PATH: /sih-farmer-queue
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || 'https://kisan-kraya-api.onrender.com' }}
           EXPO_PUBLIC_USE_BACKEND: ${{ vars.EXPO_PUBLIC_USE_BACKEND || 'true' }}
 
       - name: Upload Pages artifact
