@@ -8,6 +8,7 @@ import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import { Colors, Spacing, SystemFonts } from '../constants/theme';
 import { analyticsSummary } from '../data/mockData';
+import { PORTAL_NOTICES } from '../data/notices';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 
@@ -22,7 +23,7 @@ export default function HomeScreen() {
       <View style={styles.noticeStrip}>
         <View style={styles.noticeIcon}>
           <Ionicons name="megaphone" size={12} color={Colors.white} />
-          <Text style={styles.noticeIconText}>NEW</Text>
+          <Text style={styles.noticeIconText}>{t('landing.newTag').toUpperCase()}</Text>
         </View>
         <Text style={[styles.noticeText, { fontSize: fs(13) }]}>
           {t('landing.noticeStrip')}
@@ -56,22 +57,22 @@ export default function HomeScreen() {
           <View style={styles.statusBox}>
             <View style={styles.statusHeader}>
               <Ionicons name="speedometer" size={15} color={Colors.white} />
-              <Text style={[styles.statusTitle, { fontSize: fs(13) }]}>Current Procurement Cycle</Text>
+              <Text style={[styles.statusTitle, { fontSize: fs(13) }]}>{t('landing.cycleTitle')}</Text>
               <DemoBadge />
             </View>
             <View style={styles.statusContent}>
               <View style={styles.statusRow}>
                 <View style={styles.statusRowLeft}>
                   <Ionicons name="checkmark-circle" size={15} color={Colors.green} />
-                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>Status</Text>
+                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.statusLabel')}</Text>
                 </View>
-                <Text style={[styles.statusValue, { fontSize: fs(14), color: Colors.green }]}>ACTIVE</Text>
+                <Text style={[styles.statusValue, { fontSize: fs(14), color: Colors.green }]}>{t('landing.statusActive')}</Text>
               </View>
               <View style={styles.divider} />
               <View style={styles.statusRow}>
                 <View style={styles.statusRowLeft}>
                   <Ionicons name="people" size={15} color={Colors.primary} />
-                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>Farmers Served</Text>
+                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.farmersServed')}</Text>
                 </View>
                 <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.farmersProcessed}</Text>
               </View>
@@ -79,7 +80,7 @@ export default function HomeScreen() {
               <View style={styles.statusRow}>
                 <View style={styles.statusRowLeft}>
                   <Ionicons name="pie-chart" size={15} color={Colors.saffronDark} />
-                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>Capacity Utilisation</Text>
+                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.capacityUse')}</Text>
                 </View>
                 <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.capacityUsedPercent}%</Text>
               </View>
@@ -113,7 +114,7 @@ export default function HomeScreen() {
               },
               {
                 title: t('nav.centres'),
-                desc: 'View procurement centres and capacities.',
+                desc: t('landing.centresDesc'),
                 href: path.centres,
               },
             ].map((srv, idx) => (
@@ -167,14 +168,8 @@ export default function HomeScreen() {
               <Text style={[styles.nbHeaderText, { fontSize: fs(11) }]}>{t('notice.subject')}</Text>
               <Text style={[styles.nbHeaderText, { fontSize: fs(11), width: 80, textAlign: 'right' }]}>{t('notice.date')}</Text>
             </View>
-            {[
-              { title: 'Procurement schedule updated for Kharif season', date: '29 Aug 2026' },
-              { title: 'Slot booking opened for Kottayam district', date: '28 Aug 2026' },
-              { title: 'Guidelines for bringing produce to centres', date: '25 Aug 2026' },
-              { title: 'Registration portal maintenance notice', date: '20 Aug 2026' },
-              { title: 'Revised capacity for major procurement centres', date: '15 Aug 2026' },
-            ].map((n, idx) => (
-              <View key={idx} style={styles.noticeItem}>
+            {PORTAL_NOTICES.slice(0, 5).map((n) => (
+              <View key={n.title} style={styles.noticeItem}>
                 <Ionicons name="document-text" size={15} color={Colors.info} style={styles.noticeItemIcon} />
                 <View style={styles.noticeCopy}>
                   <Text style={[styles.noticeItemTitle, { fontSize: fs(13) }]}>{n.title}</Text>
@@ -344,8 +339,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     flexBasis: '100%',
     // Bootstrap-style smooth state transitions (web)
-    transitionProperty: 'background-color, border-color, box-shadow, transform',
-    transitionDuration: '180ms',
+    transitionProperty: 'background-color, border-color',
+    transitionDuration: '150ms',
     transitionTimingFunction: 'ease-out',
   },
   serviceItemWide: {
@@ -355,18 +350,9 @@ const styles = StyleSheet.create({
   serviceItemHovered: {
     backgroundColor: Colors.surfaceAlt, // Bootstrap list-group-item-action hover
     borderColor: Colors.primary,
-    transform: [{ translateY: -2 }],
-    shadowColor: Colors.primaryDark,
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
   },
   serviceItemPressed: {
     backgroundColor: Colors.surfaceMuted, // Bootstrap active (gray-200)
-    transform: [{ translateY: 0 }],
-    shadowOpacity: 0.05,
-    elevation: 1,
   },
   serviceChevron: {
     marginLeft: 12,

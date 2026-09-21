@@ -33,15 +33,11 @@ export default function AppFooter() {
   ];
 
   const policyLinks = [
-    { label: t('footer.terms'), action: () => Alert.alert(t('footer.terms'), t('common.demoNote')) },
-    { label: t('footer.privacy'), action: () => Alert.alert(t('footer.privacy'), t('common.demoNote')) },
+    { label: t('footer.terms'), action: () => Alert.alert(t('footer.terms'), t('footer.termsBody')) },
+    { label: t('footer.privacy'), action: () => Alert.alert(t('footer.privacy'), t('footer.privacyBody')) },
     { label: t('footer.accessibility'), action: () => router.push(path.help as never) },
     { label: t('footer.sitemap'), action: () => router.push(path.home as never) },
   ];
-
-  function showDemoNotice() {
-    Alert.alert(t('common.demoNote'));
-  }
 
   return (
     <View style={styles.footer}>
@@ -122,9 +118,7 @@ export default function AppFooter() {
             <Text style={[styles.bottomText, { fontSize: fs(11) }]}>
               {t('footer.lastUpdated')}: {LAST_UPDATED}
             </Text>
-            <Pressable onPress={showDemoNotice}>
-              <Text style={[styles.bottomLink, { fontSize: fs(11) }]}>{t('footer.version')}</Text>
-            </Pressable>
+            <Text style={[styles.bottomText, { fontSize: fs(11) }]}>{t('footer.version')}</Text>
           </View>
           <Text style={[styles.bottomText, { fontSize: fs(10) }]}>
             {t('footer.rights')} · {t('footer.mockDisclaimer')}

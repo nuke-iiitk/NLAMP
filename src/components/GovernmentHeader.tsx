@@ -3,8 +3,6 @@ import type { Href } from 'expo-router';
 import { router, usePathname } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
-  Animated,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -65,16 +63,6 @@ export default function GovernmentHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const compact = width < 768;
   const phone = width < 600;
-  const [emblemScale] = useState(() => new Animated.Value(1));
-
-  const springEmblem = (toValue: number) => {
-    Animated.spring(emblemScale, {
-      toValue,
-      useNativeDriver: Platform.OS !== 'web',
-      speed: 45,
-      bounciness: 7,
-    }).start();
-  };
 
   const navigate = (href: Href) => {
     setMenuOpen(false);
@@ -179,23 +167,19 @@ export default function GovernmentHeader() {
       {/* Brand bar with National Emblem (+ Flag & language switch on desktop) */}
       <View style={[styles.brandBar, compact && styles.brandBarCompact, phone && styles.brandBarPhone]}>
         <View style={[styles.brandLeft, compact && styles.brandLeftCompact]}>
-          <Animated.View style={{ transform: [{ scale: emblemScale }] }}>
-            <Pressable
-              onPress={() => navigate(path.home)}
-              onPressIn={() => springEmblem(0.9)}
-              onPressOut={() => springEmblem(1)}
-              accessibilityRole="link"
-              accessibilityLabel="State Emblem of India — back to home"
-              style={({ pressed }) => [styles.emblemBtn, pressed && styles.emblemBtnPressed]}
-            >
-              <Image
-                source={require('../assets/emblem.svg')}
-                style={[styles.emblem, phone && styles.emblemPhone]}
-                contentFit="contain"
-                accessibilityLabel="State Emblem of India"
-              />
-            </Pressable>
-          </Animated.View>
+          <Pressable
+            onPress={() => navigate(path.home)}
+            accessibilityRole="link"
+            accessibilityLabel="State Emblem of India — back to home"
+            style={({ pressed }) => [styles.emblemBtn, pressed && styles.emblemBtnPressed]}
+          >
+            <Image
+              source={require('../assets/emblem.svg')}
+              style={[styles.emblem, phone && styles.emblemPhone]}
+              contentFit="contain"
+              accessibilityLabel="State Emblem of India"
+            />
+          </Pressable>
           {!compact ? <View style={styles.brandDivider} /> : null}
           <View style={[styles.brandText, compact && styles.brandTextCompact]}>
             <Text style={[styles.portalName, { fontSize: fs(phone ? 15 : compact ? 16 : 19) }]} numberOfLines={1}>

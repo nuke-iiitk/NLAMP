@@ -4,47 +4,12 @@ import { Alert, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'r
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import { Colors, Radius, Spacing } from '../constants/theme';
+import { PORTAL_NOTICES } from '../data/notices';
 import { canDownloadPdf, downloadNoticePdf } from '../services/pdfService';
 import { useI18n } from '../i18n';
 
-const NOTICES = [
-  {
-    title: 'Procurement schedule updated for the current cycle',
-    date: '29 Aug 2026',
-    dept: 'Department of Consumer Affairs',
-    tag: 'NEW',
-  },
-  {
-    title: 'Slot booking opened for Kottayam procurement centre',
-    date: '28 Aug 2026',
-    dept: 'Department of Consumer Affairs',
-    tag: null,
-  },
-  {
-    title: 'Guidelines for bringing produce to procurement centres',
-    date: '25 Aug 2026',
-    dept: 'Department of Consumer Affairs',
-    tag: null,
-  },
-  {
-    title: 'Registration portal scheduled maintenance notice',
-    date: '20 Aug 2026',
-    dept: 'Department of Consumer Affairs',
-    tag: null,
-  },
-  {
-    title: 'Revised daily capacity for major procurement centres',
-    date: '15 Aug 2026',
-    dept: 'Department of Consumer Affairs',
-    tag: null,
-  },
-  {
-    title: 'Advisory: Carry booking token (print or mobile) to the centre',
-    date: '10 Aug 2026',
-    dept: 'Department of Consumer Affairs',
-    tag: null,
-  },
-];
+const NOTICES = PORTAL_NOTICES;
+
 
 export default function NoticesScreen() {
   const { t, fs } = useI18n();
