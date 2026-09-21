@@ -8,13 +8,13 @@ import { path } from '../navigation';
 export type Crumb = { label: string; href?: string };
 
 export default function Breadcrumbs({ items }: { items: Crumb[] }) {
-  const { fs } = useI18n();
+  const { fs, t } = useI18n();
   const pathname = usePathname();
 
   return (
     <View style={styles.wrap}>
       <Pressable onPress={() => router.push(path.home)} accessibilityRole="link">
-        <Text style={[styles.link, { fontSize: fs(12) }]}>{'⌂ '}{`Home`}</Text>
+        <Text style={[styles.link, { fontSize: fs(12) }]}>{t('nav.home')}</Text>
       </Pressable>
       {items.map((crumb, index) => {
         const last = index === items.length - 1 || crumb.href === pathname;

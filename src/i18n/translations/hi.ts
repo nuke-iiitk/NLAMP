@@ -217,6 +217,8 @@ export const hi: TranslationDict = {
   'reg.errLand': 'कृपया एकड़ में भूमि क्षेत्र दर्ज करें।',
 
   // ---------- dashboard ----------
+  'dash.kicker': 'किसान डैशबोर्ड',
+  'dash.currentProcurement': 'वर्तमान क्रय',
   'dash.namaste': 'नमस्ते, {name}',
   'dash.subtitle': 'किसान आईडी: {id} · {village}, {district}',
   'dash.activeBooking': 'सक्रिय बुकिंग',

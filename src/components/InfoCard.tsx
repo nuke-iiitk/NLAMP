@@ -57,13 +57,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   label: {
-    fontWeight: '700',
+    fontWeight: '600',
     color: Colors.textMuted,
     marginBottom: 2,
-    textTransform: 'uppercase',
   },
   value: {
-    fontWeight: '600',
+    fontWeight: '500',
     color: Colors.text,
   },
 });

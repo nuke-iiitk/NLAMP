@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.4,
-    textTransform: 'uppercase',
   },
 });
 

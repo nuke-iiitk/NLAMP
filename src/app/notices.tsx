@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
   th: {
     color: Colors.white,
     fontWeight: '700',
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   thSubject: {

@@ -194,7 +194,6 @@ const styles = StyleSheet.create({
     color: Colors.saffronLight,
     fontWeight: '800',
     marginBottom: Spacing.sm,
-    textTransform: 'uppercase',
     letterSpacing: 0.6,
     fontFamily: Fonts.bold,
   },
@@ -221,7 +220,6 @@ const styles = StyleSheet.create({
   counterLabel: {
     color: Colors.textOnDark,
     fontWeight: '700',
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   counterValue: {

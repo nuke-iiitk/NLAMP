@@ -20,6 +20,31 @@ import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
 
+/** Seconds elapsed since the given epoch-millis timestamp. */
+function secondsSince(ts: number): number {
+  return Math.max(0, Math.round((Date.now() - ts) / 1000));
+}
+
+/**
+ * "Updated Ns ago" line — runs its own 10-second timer so the refresh label
+ * stays current without re-rendering the whole queue screen every second.
+ */
+function UpdatedAgo({ since }: { since: number }) {
+  const { t, fs } = useI18n();
+  const [seconds, setSeconds] = useState(() => secondsSince(since));
+  useEffect(() => {
+    const update = () => setSeconds(secondsSince(since));
+    update();
+    const timer = setInterval(update, 10000);
+    return () => clearInterval(timer);
+  }, [since]);
+  return (
+    <Text style={[styles.updatedText, { fontSize: fs(11) }]} accessibilityLiveRegion="polite">
+      <Ionicons name="pulse" size={11} color={Colors.green} /> {t('queue.updated', { n: seconds })}
+    </Text>
+  );
+}
+
 export default function QueueScreen() {
   const { t, fs } = useI18n();
   const { farmer, activeBookingFor, queues, queueSnapshot, centres } = useStore();
@@ -29,12 +54,6 @@ export default function QueueScreen() {
   const booking = farmer ? activeBookingFor(farmer.id) : undefined;
   const snapshot = booking ? queueSnapshot(booking.centreId, booking.token) : undefined;
   const queue = booking ? queues[booking.centreId] : undefined;
-
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => setTick((v) => v + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   if (!booking || !snapshot || !queue) {
     return (
@@ -120,9 +139,7 @@ export default function QueueScreen() {
       <View style={styles.progressCard}>
         <Text style={[styles.progressLabel, { fontSize: fs(13) }]}>{t('dash.queueProgress')}</Text>
         <ProgressTrack progress={progress} />
-        <Text style={[styles.updatedText, { fontSize: fs(11) }]}>
-          <Ionicons name="pulse" size={11} color={Colors.green} /> {t('queue.updated', { n: tick })}
-        </Text>
+        <UpdatedAgo since={booking.createdAt} />
       </View>
 
 {/* Upcoming tokens */}

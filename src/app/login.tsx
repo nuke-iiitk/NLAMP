@@ -190,7 +190,7 @@ export default function LoginScreen() {
           <PrimaryButton label={t('login.btn')} onPress={submit} />
 
           <Pressable onPress={() => undefined}>
-            <Text style={[styles.link, { fontSize: fs(13) }]}>❓ {t('login.forgot')}</Text>
+            <Text style={[styles.link, { fontSize: fs(13) }]}>{t('login.forgot')}</Text>
           </Pressable>
           <Text style={[styles.forgotNote, { fontSize: fs(11) }]}>{t('login.forgotNote')}</Text>
 
@@ -205,7 +205,7 @@ export default function LoginScreen() {
           <Text style={[styles.demoHint, { fontSize: fs(11) }]}>{t('login.demoHint')}</Text>
 
           <Pressable onPress={() => router.push(path.register)} accessibilityRole="link">
-            <Text style={[styles.registerLink, { fontSize: fs(14) }]}>{t('login.newFarmer')} →</Text>
+            <Text style={[styles.registerLink, { fontSize: fs(14) }]}>{t('login.newFarmer')}</Text>
           </Pressable>
           </View>
         </View>

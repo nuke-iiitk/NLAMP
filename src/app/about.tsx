@@ -128,7 +128,6 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontWeight: '800',
     letterSpacing: 1.2,
-    textTransform: 'uppercase',
     marginBottom: Spacing.sm,
   },
   paragraph: {
@@ -174,7 +173,6 @@ const styles = StyleSheet.create({
   statLabel: {
     color: Colors.textMuted,
     fontWeight: '600',
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
     textAlign: 'center',
   },

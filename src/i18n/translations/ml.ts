@@ -216,6 +216,8 @@ export const ml: TranslationDict = {
   'reg.errLand': 'ഏക്കറിൽ ഭൂമിയുടെ വിസ്തീർണ്ണം നൽകുക.',
 
   // ---------- dashboard ----------
+  'dash.kicker': 'കർഷക ഡാഷ്ബോർഡ്',
+  'dash.currentProcurement': 'നിലവിലെ വാങ്ങൽ',
   'dash.namaste': 'നമസ്കാരം, {name}',
   'dash.subtitle': 'കർഷക ഐഡി: {id} · {village}, {district}',
   'dash.activeBooking': 'സജീവ ബുക്കിംഗ്',

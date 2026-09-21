@@ -7,22 +7,22 @@ import type { BookingStatus, CentreStatus, QueueEntryStatus } from '../data/mock
 
 type AnyStatus = BookingStatus | QueueEntryStatus | CentreStatus;
 
-const TONES: Record<AnyStatus, { bg: string; fg: string }> = {
+const TONES: Record<AnyStatus, { bg: string; fg: string; border: string }> = {
   // bookings
-  Upcoming: { bg: Colors.primaryLight, fg: Colors.primary },
-  Waiting: { bg: Colors.saffronLight, fg: Colors.saffronDark },
-  'Your Turn': { bg: Colors.greenLight, fg: Colors.green },
-  Processing: { bg: Colors.infoLight, fg: Colors.info },
-  Completed: { bg: Colors.greenLight, fg: Colors.success },
-  Cancelled: { bg: Colors.dangerLight, fg: Colors.danger },
+  Upcoming: { bg: Colors.primaryLight, fg: Colors.primary, border: Colors.primary },
+  Waiting: { bg: Colors.saffronLight, fg: Colors.saffronDark, border: Colors.saffronDark },
+  'Your Turn': { bg: Colors.greenLight, fg: Colors.green, border: Colors.green },
+  Processing: { bg: Colors.infoLight, fg: Colors.info, border: Colors.info },
+  Completed: { bg: Colors.greenLight, fg: Colors.success, border: Colors.success },
+  Cancelled: { bg: Colors.dangerLight, fg: Colors.danger, border: Colors.danger },
   // queue entries
-  Called: { bg: Colors.infoLight, fg: Colors.info },
-  'On Hold': { bg: Colors.surfaceAlt, fg: Colors.textSecondary },
+  Called: { bg: Colors.infoLight, fg: Colors.info, border: Colors.info },
+  'On Hold': { bg: Colors.surfaceAlt, fg: Colors.textSecondary, border: Colors.textSecondary },
   // centres -> simple Open / Closed colour coding
-  Open: { bg: Colors.greenLight, fg: Colors.green },
-  Busy: { bg: Colors.greenLight, fg: Colors.green },
-  Full: { bg: Colors.warningLight, fg: Colors.warning },
-  Closed: { bg: Colors.surfaceAlt, fg: Colors.textMuted },
+  Open: { bg: Colors.greenLight, fg: Colors.green, border: Colors.green },
+  Busy: { bg: Colors.greenLight, fg: Colors.green, border: Colors.green },
+  Full: { bg: Colors.warningLight, fg: Colors.warning, border: Colors.warning },
+  Closed: { bg: Colors.surfaceAlt, fg: Colors.textMuted, border: Colors.textMuted },
 };
 
 /** Centre statuses are shown as just "Open" or "Closed". */
@@ -67,6 +67,7 @@ export default function StatusBadge({
 const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
+    borderWidth: 1,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.sm,

@@ -62,7 +62,7 @@ export default function NotificationsScreen() {
 
       <InfoCard>
         <Text style={[styles.channelNote, { fontSize: fs(12) }]}>
-          🔌 {t('notif.channelNote')}
+          {t('notif.channelNote')}
         </Text>
       </InfoCard>
 

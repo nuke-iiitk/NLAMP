@@ -127,7 +127,6 @@ const styles = StyleSheet.create({
   cardLabel: {
     color: Colors.textMuted,
     fontWeight: '700',
-    textTransform: 'uppercase',
   },
   cardValue: {
     flexShrink: 1,

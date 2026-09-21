@@ -396,7 +396,6 @@ export default function CentresScreen() {
   panelTitle: {
     color: Colors.primaryDark,
     fontWeight: '800',
-    textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
   panelStep: {
@@ -507,7 +506,6 @@ export default function CentresScreen() {
   resultsTitle: {
     fontWeight: '800',
     color: Colors.primaryDark,
-    textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
   resultsMeta: {

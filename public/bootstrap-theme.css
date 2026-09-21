@@ -78,9 +78,9 @@
 }
 
 /* ────────────────────────────────────────────────────────────
-   Animated header nav buttons (NavButton.web)
+   Header nav buttons (NavButton.web)
    Rectangular Bootstrap outline buttons, side by side with a gap.
-   Press squashes the button. No underline sweep, no pipe.
+   Press feedback is a calm background tint — no scale/squash.
    ──────────────────────────────────────────────────────────── */
 .fpp-nav-btn {
   border-radius: 2px;
@@ -88,23 +88,16 @@
   letter-spacing: 0.3px;
   cursor: pointer;
   transition:
-    transform 0.15s ease,
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-/* Pressed: squash */
-.fpp-nav-btn:active {
-  transform: scale(0.97);
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 /* Focus: the button must look exactly like its resting state whenever it is
    focused but not hovered — a mouse click, a back-navigation focus restore, or
    Tab focus used to leave Bootstrap's blue glow (box-shadow rgba(13,110,253,.5))
    and/or the navy hover fill painted on. Reset every visual axis back to the
-   resting look; the hover/press animations above are untouched. */
+   resting look; the hover tint above is untouched. */
 .fpp-nav-btn:focus,
 .fpp-nav-btn:focus-visible {
   outline: none;
@@ -122,4 +115,22 @@
   text-decoration-color: #0d47a1;
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Reduced motion
+   Honour the OS/browser "reduce motion" preference: collapse all
+   transitions and animations to zero duration. No decorative
+   motion exists in the portal, so this is a safety net for
+   Bootstrap defaults and any user-agent animations.
+   ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

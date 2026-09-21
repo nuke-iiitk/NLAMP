@@ -219,6 +219,8 @@ export const en = {
   'reg.errLand': 'Please enter your land size in acres.',
 
   // ---------- dashboard ----------
+  'dash.kicker': 'Farmer dashboard',
+  'dash.currentProcurement': 'Current procurement',
   'dash.namaste': 'Namaste, {name}',
   'dash.subtitle': 'Farmer ID: {id} · {village}, {district}',
   'dash.activeBooking': 'Active Booking',

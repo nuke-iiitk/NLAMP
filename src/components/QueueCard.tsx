@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: Colors.white,
     fontWeight: '800',
-    textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   statsRow: {
@@ -121,7 +120,6 @@ const styles = StyleSheet.create({
   statLabel: {
     color: Colors.textMuted,
     fontWeight: '700',
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statBig: {
@@ -161,7 +159,6 @@ const styles = StyleSheet.create({
   progressLabel: {
     color: Colors.textMuted,
     fontWeight: '700',
-    textTransform: 'uppercase',
     marginBottom: 6,
   },
   progressWrap: {

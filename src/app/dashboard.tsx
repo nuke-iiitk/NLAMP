@@ -32,7 +32,7 @@ export default function DashboardScreen() {
       {/* Welcome panel — government identity card style */}
       <View style={styles.welcomePanel}>
         <View style={styles.welcomeLeft}>
-          <Text style={[styles.welcomeLabel, { fontSize: fs(12) }]}>FARMER DASHBOARD</Text>
+          <Text style={[styles.welcomeLabel, { fontSize: fs(12) }]}>{t('dash.kicker')}</Text>
           <Text style={[styles.welcomeName, { fontSize: fs(24) }]}>
             {t('dash.namaste', { name })}
           </Text>
@@ -53,7 +53,7 @@ export default function DashboardScreen() {
         <View style={[styles.grid, wide && styles.gridRow]}>
           <View style={[styles.col, wide && styles.colWide]}>
             {/* Current procurement — structured information panel */}
-            <InfoCard title="Current Procurement">
+            <InfoCard title={t('dash.currentProcurement')}>
               <View style={styles.statusRow}>
                 <Text style={[styles.statusLabel, { fontSize: fs(12) }]}>{t('dash.status')}:</Text>
                 <StatusBadge status={booking.status} />
@@ -67,7 +67,7 @@ export default function DashboardScreen() {
               {booking.status === 'Upcoming' || (booking.status === 'Waiting' && !booking.arrived) ? (
                 <View style={styles.spacerSm}>
                   <PrimaryButton
-                    label={`✓ ${t('dash.checkIn')}`}
+                    label={t('dash.checkIn')}
                     onPress={() => markArrived(booking.id)}
                     variant="success"
                     small
@@ -95,7 +95,7 @@ export default function DashboardScreen() {
                   title={t('dash.recentNotifications')}
                   right={
                     <Pressable onPress={() => router.push(path.notifications as never)}>
-                      <Text style={styles.viewAll}>{t('common.viewAll')} →</Text>
+                      <Text style={styles.viewAll}>{t('common.viewAll')}</Text>
                     </Pressable>
                   }
                 />
@@ -170,7 +170,6 @@ const styles = StyleSheet.create({
   welcomeLabel: {
     color: Colors.textMuted,
     fontWeight: '700',
-    letterSpacing: 1,
     marginBottom: 4,
   },
   welcomeName: {
@@ -203,7 +202,6 @@ const styles = StyleSheet.create({
   statusLabel: {
     color: Colors.textSecondary,
     fontWeight: '700',
-    textTransform: 'uppercase',
   },
   spacerSm: {
     height: Spacing.md,

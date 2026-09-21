@@ -139,7 +139,7 @@ export default function BookingScreen() {
                   centre={c}
                   action={
                     <PrimaryButton
-                      label={c.id === centreId ? `${t('book.selected')} ✓` : t('book.selectCentre')}
+                      label={c.id === centreId ? t('book.selected') : t('book.selectCentre')}
                       onPress={() => {
                         setCentreId(c.id);
                         setStep(1);
@@ -436,7 +436,6 @@ const styles = StyleSheet.create({
   dateDay: {
     color: Colors.textMuted,
     fontWeight: '700',
-    textTransform: 'uppercase',
   },
   dateNum: {
     color: Colors.text,

@@ -212,7 +212,6 @@ const styles = StyleSheet.create({
   centreLabel: {
     color: Colors.textOnDark,
     fontWeight: '800',
-    textTransform: 'uppercase',
     letterSpacing: 0.6,
     marginBottom: 6,
   },

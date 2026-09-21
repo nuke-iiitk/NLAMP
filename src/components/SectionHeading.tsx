@@ -3,6 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Colors, Fonts, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 
+/**
+ * Section heading pattern: navy title, optional supporting description.
+ * Content (buttons, links) can be aligned on the same row via `right`.
+ */
 export default function SectionHeading({
   title,
   subtitle,
@@ -16,13 +20,7 @@ export default function SectionHeading({
   return (
     <View style={styles.wrap}>
       <View style={styles.row}>
-        <View style={styles.titleWrap}>
-          <Text style={[styles.title, { fontSize: fs(20) }]}>{title}</Text>
-          <View style={styles.accentRow}>
-            <View style={[styles.accentSeg, { backgroundColor: Colors.saffron, width: 30 }]} />
-            <View style={[styles.accentSeg, { backgroundColor: Colors.green, width: 14 }]} />
-          </View>
-        </View>
+        <Text style={[styles.title, { fontSize: fs(20) }]}>{title}</Text>
         {right}
       </View>
       {subtitle ? <Text style={[styles.subtitle, { fontSize: fs(14) }]}>{subtitle}</Text> : null}
@@ -40,19 +38,6 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     justifyContent: 'space-between',
   },
-  titleWrap: {
-    flexShrink: 1,
-  },
-  accentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 7,
-  },
-  accentSeg: {
-    height: 4,
-    borderRadius: 2,
-  },
   title: {
     fontWeight: '800',
     color: Colors.primaryDark,
@@ -62,7 +47,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: Colors.textSecondary,
-    marginTop: 8,
+    marginTop: 4,
     fontWeight: '500',
+    lineHeight: 20,
   },
 });

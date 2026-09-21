@@ -280,7 +280,6 @@ const styles = StyleSheet.create({
   statusTitle: {
     color: Colors.white,
     fontWeight: '700',
-    textTransform: 'uppercase',
     flex: 1,
   },
   statusContent: {
@@ -299,7 +298,6 @@ const styles = StyleSheet.create({
   statusLabel: {
     color: Colors.textMuted,
     fontWeight: '700',
-    textTransform: 'uppercase',
   },
   statusValue: {
     color: Colors.text,
@@ -415,7 +413,6 @@ const styles = StyleSheet.create({
   nbHeaderText: {
     color: Colors.textMuted,
     fontWeight: '700',
-    textTransform: 'uppercase',
     flex: 1,
   },
   noticeItem: {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TextStyle } from 'react-native';
 
 import { Colors, Radius, Spacing } from '../constants/theme';
@@ -31,6 +32,7 @@ export default function FormField({
   required,
 }: Props) {
   const { fs } = useI18n();
+  const [focused, setFocused] = useState(false);
 
   return (
     <View style={styles.wrap}>
@@ -48,10 +50,13 @@ export default function FormField({
         maxLength={maxLength}
         multiline={multiline}
         secureTextEntry={secure}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         style={[
           styles.input,
           multiline && styles.multiline,
           { fontSize: fs(16) },
+          focused && !error ? styles.inputFocused : null,
           error ? styles.inputError : null,
         ] as TextStyle[]}
       />
@@ -82,11 +87,15 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 52,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.borderDark,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
     backgroundColor: Colors.white,
     color: Colors.text,
+  },
+  inputFocused: {
+    borderColor: Colors.primary,
+    borderWidth: 2,
   },
   multiline: {
     minHeight: 90,

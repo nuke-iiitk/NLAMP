@@ -171,7 +171,7 @@ export default function GovernmentHeader() {
             onPress={() => navigate(path.home)}
             accessibilityRole="link"
             accessibilityLabel="State Emblem of India — back to home"
-            style={({ pressed }) => [styles.emblemBtn, pressed && styles.emblemBtnPressed]}
+            style={styles.emblemBtn}
           >
             <Image
               source={require('../assets/emblem.svg')}
@@ -232,7 +232,7 @@ export default function GovernmentHeader() {
       </View>
 
       {/* Navigation row: hamburger (mobile) or links + search + login (desktop) */}
-      <View style={styles.navRow}>
+      <View style={styles.navRow} accessibilityRole="header" accessibilityLabel={t('nav.menu')}>
         {compact ? (
           <>
             <Pressable
@@ -305,7 +305,7 @@ export default function GovernmentHeader() {
 
       {/* Mobile drawer — expands inline under the nav row */}
       {compact && menuOpen ? (
-        <View style={styles.mobileMenu}>
+        <View style={styles.mobileMenu} accessibilityRole="header" accessibilityLabel={t('nav.menu')}>
           {NAV_ITEMS.map((item) => {
             const isActive = activeHref(item.href);
             return (
@@ -430,9 +430,6 @@ const styles = StyleSheet.create({
   emblemBtn: {
     padding: 3,
     borderRadius: 8,
-  },
-  emblemBtnPressed: {
-    opacity: 0.75,
   },
   brandDivider: {
     width: 1,
