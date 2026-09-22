@@ -9,6 +9,8 @@ type WebProps = {
   color?: string;
   style?: CSSProperties;
   className?: string;
+  /** Fixed-width icon slot (Bootstrap `fa-fw` equivalent) so icons in a list align vertically. */
+  fixedWidth?: boolean;
 };
 
 /**
@@ -22,8 +24,16 @@ export default function BootstrapIcon({
   color,
   style,
   className,
+  fixedWidth = false,
 }: WebProps) {
-  const merged: CSSProperties = { fontSize: size, lineHeight: 1, ...style };
+  const merged: CSSProperties = {
+    fontSize: size,
+    lineHeight: 1,
+    width: fixedWidth ? '1.5em' : undefined,
+    textAlign: fixedWidth ? 'center' : undefined,
+    flexShrink: 0,
+    ...style,
+  };
   if (color) merged.color = color;
   return (
     <i

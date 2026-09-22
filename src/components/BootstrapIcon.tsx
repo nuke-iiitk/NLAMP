@@ -10,6 +10,9 @@ type NativeProps = {
   color?: string;
   /** Layout applied to the glyph (mirrors the web `<i style>` prop). */
   style?: StyleProp<TextStyle>;
+  /** Accepted for prop parity with the web renderer; ignored on native. */
+  className?: string;
+  fixedWidth?: boolean;
 };
 
 /**
