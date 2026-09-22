@@ -22,7 +22,7 @@ export default function HomeScreen() {
 
   return (
     <ScreenShell>
-      {/* Important Announcement / Notice Strip */}\
+      {/* Important Announcement / Notice Strip */}
       <View style={styles.noticeStrip}>
         <View style={styles.noticeIcon}>
           <AppIcon name={APP_ICONS.megaphone} size={12} color={Colors.white} />
@@ -33,7 +33,7 @@ export default function HomeScreen() {
         </Text>
       </View>
 
-      {/* Main Hero Section */}\
+      {/* Main Hero Section */}
       <View style={[styles.heroBlock, wide && styles.heroRow]}>
         <View style={styles.heroLeft}>
           <View style={styles.heroTitleLines}>
@@ -85,9 +85,9 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Services and Notices Grid */}\
+      {/* Services and Notices Grid */}
       <View style={[styles.mainGrid, wide && styles.mainGridRow]}>
-        {/* Left Column: Services & Process */}\
+        {/* Left Column: Services & Process */}
         <View style={styles.mainCol}>
           <SectionHeading title={t('landing.servicesTitle')} />
           <ServicesList
@@ -146,7 +146,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Right Column: Notices */}\
+        {/* Right Column: Notices */}
         <View style={styles.sideCol}>
           <SectionHeading title={t('notice.title')} />
           <NoticesBoard
