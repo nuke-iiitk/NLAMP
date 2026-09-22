@@ -134,3 +134,14 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ────────────────────────────────────────────────────────────
+   Breadcrumb separator — drop the default Bootstrap "/"
+   between breadcrumb items so the trail reads cleanly.
+   ──────────────────────────────────────────────────────────── */
+.breadcrumb {
+  --bs-breadcrumb-divider: "";
+}
+.breadcrumb-item+.breadcrumb-item {
+  padding-left: 0.35rem;
+}

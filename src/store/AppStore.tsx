@@ -161,14 +161,19 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   // whenever the backend is unreachable, so the UI always keeps working.
 
   const backendOnlineRef = useRef(false);
-  const farmerRef = useRef<Farmer | null>(farmer);
-  farmerRef.current = farmer;
-  const officerCentreRef = useRef<string>(officerCentreId);
-  officerCentreRef.current = officerCentreId;
-  const officerRef = useRef<Officer | null>(officer);
-  officerRef.current = officer;
-  const bookingsRef = useRef<Booking[]>(bookings);
-  bookingsRef.current = bookings;
+  const farmerRef = useRef<Farmer | null>(null);
+  const officerCentreRef = useRef<string>('');
+  const officerRef = useRef<Officer | null>(null);
+  const bookingsRef = useRef<Booking[]>([]);
+
+  // Keep refs current with the latest props without writing to `.current`
+  // during the render phase (which the React lint rules flag).
+  useEffect(() => {
+    farmerRef.current = farmer;
+    officerCentreRef.current = officerCentreId;
+    officerRef.current = officer;
+    bookingsRef.current = bookings;
+  }, [farmer, officerCentreId, officer, bookings]);
 
   /** Fetch the live queue for a centre and swap it into local state. */
   const syncQueueForCentre = useCallback(async (centreId: string) => {
@@ -351,10 +356,26 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   // ----------------------------------------------------- backend lifecycle
   // 1) Baseline fetch on mount. 2) Re-sync farmer data on auth changes.
   // 3) Lightweight polling while connected (WebSocket replaces this later).
+  //
+  // Data-fetching effect: the async calls yield before setState, so the
+  // "setState synchronously in effects" lint rule does not apply here —
+  // no render-blocking state write happens synchronously in the effect body.
   useEffect(() => {
     if (!BACKEND_ENABLED) return;
-    void syncBaseline();
-  }, [syncBaseline]);
+    let cancelled = false;
+    void (async () => {
+      const centresResult = await api.listCentres();
+      if (!centresResult.ok) {
+        if (isNetworkError(centresResult.error)) backendOnlineRef.current = false;
+        return;
+      }
+      backendOnlineRef.current = true;
+      if (!cancelled) setCentres(centresResult.data.map(mapCentre));
+      const slotsResult = await api.listSlotsAll({ from: todayISO(), to: addDaysISO(todayISO(), 7) });
+      if (slotsResult.ok && !cancelled) setSlots(slotsResult.data.map(mapSlot));
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (!BACKEND_ENABLED) return;

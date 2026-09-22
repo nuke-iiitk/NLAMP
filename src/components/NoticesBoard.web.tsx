@@ -32,7 +32,7 @@ export default function NoticesBoard({ notices, subjectLabel, dateLabel, viewAll
               <tr key={n.title}>
                 <td>
                   <span className="d-flex align-items-center gap-2">
-                    <BootstrapIcon name="bi-file-earmark-text" size={16} color="#0d47a1" fixedWidth />
+                    <BootstrapIcon name="bi-file-earmark-text" size={16} color="#0d47a1" />
                     <span className="lh-sm fw-medium text-body">{n.title}</span>
                   </span>
                 </td>
