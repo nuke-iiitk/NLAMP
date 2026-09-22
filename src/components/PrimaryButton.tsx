@@ -1,9 +1,9 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 
 import { Fonts, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 import { VARIANTS, type AppButtonProps, type ButtonVariant } from './buttonShared';
+import { AppIcon } from './AppIcon';
 
 export type { ButtonVariant, AppButtonProps };
 
@@ -39,7 +39,7 @@ export function PrimaryButton({
       ) : (
         <View style={styles.row}>
           {icon ? (
-            <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={18} color={tone.fg} />
+            <AppIcon name={icon} size={18} color={tone.fg} />
           ) : null}
           <Text style={[styles.label, { color: tone.fg, fontSize: fs(small ? 14 : 16) }]}>
             {label}

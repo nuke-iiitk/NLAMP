@@ -1,9 +1,9 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 import { TONES, type AlertBannerProps, type Tone } from './alertShared';
+import BootstrapIcon from './BootstrapIcon';
 
 export type { Tone };
 
@@ -21,11 +21,7 @@ export default function AlertBanner({
       style={[styles.banner, { backgroundColor: colors.bg, borderColor: colors.border }]}
       accessibilityLiveRegion="polite"
     >
-      <Ionicons
-        name={(icon ?? colors.icon) as keyof typeof Ionicons.glyphMap}
-        size={20}
-        color={colors.fg}
-      />
+      <BootstrapIcon name={icon ?? colors.bi} size={20} color={colors.fg} />
       <View style={styles.textWrap}>
         {title ? (
           <Text style={[styles.title, { color: colors.fg, fontSize: fs(14) }]}>{title}</Text>

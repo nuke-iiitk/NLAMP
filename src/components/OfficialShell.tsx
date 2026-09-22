@@ -1,16 +1,16 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, usePathname } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { Colors, MaxContentWidth, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 import { useStore } from '../store/AppStore';
+import { APP_ICONS, AppIcon } from './AppIcon';
 
 const NAV = [
-  { href: '/official', labelKey: 'off.dash.title' as const, icon: 'speedometer' as const, exact: true },
-  { href: '/official/queue', labelKey: 'off.queue.title' as const, icon: 'pulse' as const },
-  { href: '/official/slots', labelKey: 'off.slots.title' as const, icon: 'grid' as const },
-  { href: '/official/analytics', labelKey: 'off.analytics.title' as const, icon: 'bar-chart' as const },
+  { href: '/official', labelKey: 'off.dash.title' as const, icon: APP_ICONS.speedometer, exact: true },
+  { href: '/official/queue', labelKey: 'off.queue.title' as const, icon: APP_ICONS.pulse },
+  { href: '/official/slots', labelKey: 'off.slots.title' as const, icon: APP_ICONS.grid },
+  { href: '/official/analytics', labelKey: 'off.analytics.title' as const, icon: APP_ICONS.barChart },
 ];
 
 /** Government-admin chrome for the procurement officer portal. */
@@ -28,7 +28,7 @@ export default function OfficialShell({ children }: { children: React.ReactNode 
       <View style={styles.topBar}>
                 <Pressable style={styles.brand} onPress={() => router.push('/official' as never)} accessibilityRole="link">
           <View style={styles.emblem}>
-            <Ionicons name="shield-checkmark" size={20} color={Colors.white} />
+            <AppIcon name={APP_ICONS.shieldCheckmark} size={20} color={Colors.white} />
           </View>
           <View>
             <Text style={[styles.portalTitle, { fontSize: fs(15) }]}>{t('off.portal')}</Text>
@@ -47,7 +47,7 @@ export default function OfficialShell({ children }: { children: React.ReactNode 
             style={styles.logoutBtn}
             accessibilityRole="button"
           >
-            <Ionicons name="log-out-outline" size={14} color={Colors.white} />
+            <AppIcon name={APP_ICONS.logOut} size={14} color={Colors.white} />
             <Text style={[styles.logoutText, { fontSize: fs(12) }]}>{t('nav.logout')}</Text>
           </Pressable>
         </View>
@@ -74,8 +74,7 @@ export default function OfficialShell({ children }: { children: React.ReactNode 
                   accessibilityState={{ selected: active }}
                   style={[styles.sideItem, active && styles.sideItemActive]}
                 >
-                  <Ionicons
-                    name={item.icon}
+                  <AppIcon name={item.icon}
                     size={16}
                     color={active ? Colors.saffron : Colors.textOnDark}
                   />
@@ -93,7 +92,7 @@ export default function OfficialShell({ children }: { children: React.ReactNode 
             })}
             <View style={styles.sideDivider} />
                         <Pressable onPress={() => router.push('/')} style={styles.sideItem}>
-              <Ionicons name="globe" size={16} color={Colors.textOnDark} />
+              <AppIcon name={APP_ICONS.globe} size={16} color={Colors.textOnDark} />
               <Text style={[styles.sideItemText, { fontSize: fs(13) }]}>{t('landing.heroTitle')}</Text>
             </Pressable>
           </View>
@@ -113,7 +112,7 @@ export default function OfficialShell({ children }: { children: React.ReactNode 
                       style={[styles.mobileItem, active && styles.mobileItemActive]}
                       accessibilityRole="tab"
                     >
-                      <Ionicons name={item.icon} size={13} color={active ? Colors.primary : Colors.white} />
+                      <AppIcon name={item.icon} size={13} color={active ? Colors.primary : Colors.white} />
                       <Text
                         style={[
                           styles.mobileItemText,

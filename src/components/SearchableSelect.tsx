@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Modal,
@@ -14,6 +13,7 @@ import {
 
 import { Colors, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
+import { APP_ICONS, AppIcon, type AppIconName } from './AppIcon';
 
 export type SelectOption = { value: string; label: string };
 
@@ -27,7 +27,7 @@ type Props = {
   onClear?: () => void;
   disabled?: boolean;
   /** Small monochrome label icon, e.g. `flag`, `location`, `business`. */
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: AppIconName;
   error?: string;
   hint?: string;
   required?: boolean;
@@ -176,8 +176,7 @@ export default function SearchableSelect({
         ]}
       >
         {icon ? (
-          <Ionicons
-            name={icon}
+          <AppIcon name={icon}
             size={16}
             color={disabled ? Colors.textMuted : Colors.primary}
             style={styles.triggerIcon}
@@ -207,11 +206,10 @@ export default function SearchableSelect({
               }}
               style={({ pressed }) => [styles.clearBtn, pressed && styles.clearBtnPressed]}
             >
-              <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
+              <AppIcon name={APP_ICONS.closeCircle} size={18} color={Colors.textMuted} />
             </Pressable>
           ) : null}
-          <Ionicons
-            name="chevron-down"
+          <AppIcon name={APP_ICONS.chevronDown}
             size={16}
             color={disabled ? Colors.borderDark : Colors.textSecondary}
           />
@@ -247,7 +245,7 @@ export default function SearchableSelect({
             style={[styles.panel, wide ? styles.panelWide : styles.panelMobile]}
           >
             <View style={styles.panelHeader}>
-              <Ionicons name="search" size={16} color={Colors.textMuted} />
+              <AppIcon name={APP_ICONS.search} size={16} color={Colors.textMuted} />
               <TextInput
                 ref={inputRef}
                 value={query}
@@ -265,7 +263,7 @@ export default function SearchableSelect({
                 hitSlop={10}
                 style={styles.closeBtn}
               >
-                <Ionicons name="close" size={20} color={Colors.textSecondary} />
+                <AppIcon name={APP_ICONS.close} size={20} color={Colors.textSecondary} />
               </Pressable>
             </View>
             {filtered.length === 0 ? (
@@ -308,7 +306,7 @@ export default function SearchableSelect({
                         {option.label}
                       </Text>
                       {isSelected ? (
-                        <Ionicons name="checkmark" size={16} color={Colors.primary} />
+                        <AppIcon name={APP_ICONS.checkmark} size={16} color={Colors.primary} />
                       ) : null}
                     </Pressable>
                   );

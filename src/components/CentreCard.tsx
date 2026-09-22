@@ -1,10 +1,10 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 import { useStore } from '../store/AppStore';
 import type { ProcurementCentre } from '../data/mockData';
+import { APP_ICONS, AppIcon, type AppIconName } from './AppIcon';
 
 type Props = {
   centre: ProcurementCentre;
@@ -26,19 +26,19 @@ export default function CentreCard({ centre, action }: Props) {
   // Simplify "Open | Busy | Full" -> Open, otherwise Closed.
   const isOpen = centre.status === 'Open' || centre.status === 'Busy' || centre.status === 'Full';
   const statusTone = isOpen ? Colors.green : Colors.textMuted;
-  const statusIcon: keyof typeof Ionicons.glyphMap = isOpen ? 'checkmark-circle' : 'close-circle';
+  const statusIcon: AppIconName = isOpen ? APP_ICONS.checkmarkCircle : APP_ICONS.closeCircle;
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.titleWrap}>
-          <Ionicons name="business" size={18} color={Colors.primary} />
+          <AppIcon name={APP_ICONS.business} size={18} color={Colors.primary} />
           <Text style={[styles.name, { fontSize: fs(16) }]} numberOfLines={2}>
             {centre.name}
           </Text>
         </View>
         <View style={styles.statusPill}>
-          <Ionicons name={statusIcon} size={13} color={statusTone} />
+          <AppIcon name={statusIcon} size={13} color={statusTone} />
           <Text style={[styles.statusText, { color: statusTone, fontSize: fs(12) }]}>
             {isOpen ? t('centres.open') : t('centres.closed')}
           </Text>
@@ -46,25 +46,25 @@ export default function CentreCard({ centre, action }: Props) {
       </View>
 
       <Text style={[styles.location, { fontSize: fs(13) }]}>
-        <Ionicons name="location" size={12} color={Colors.textMuted} /> {centre.address},{' '}
+        <AppIcon name={APP_ICONS.location} size={12} color={Colors.textMuted} /> {centre.address},{' '}
         {centre.district}, {centre.state} · {centre.distanceKm} {t('common.km')}
       </Text>
 
       <View style={styles.metrics}>
         <View style={styles.metric}>
-          <Ionicons name="time" size={14} color={Colors.primary} style={styles.metricIcon} />
+          <AppIcon name={APP_ICONS.time} size={14} color={Colors.primary} style={styles.metricIcon} />
           <Text style={[styles.metricValue, { fontSize: fs(18), color: Colors.green }]}>{openSlots}</Text>
           <Text style={[styles.metricLabel, { fontSize: fs(11) }]}>{t('centres.slotsLeft')}</Text>
         </View>
         <View style={styles.metric}>
-          <Ionicons name="people" size={14} color={Colors.saffronDark} style={styles.metricIcon} />
+          <AppIcon name={APP_ICONS.people} size={14} color={Colors.saffronDark} style={styles.metricIcon} />
           <Text style={[styles.metricValue, { fontSize: fs(18), color: Colors.saffronDark }]}>
             {snapshot.waitingCount}
           </Text>
           <Text style={[styles.metricLabel, { fontSize: fs(11) }]}>{t('centres.queueNow')}</Text>
         </View>
         <View style={styles.metric}>
-          <Ionicons name="archive" size={14} color={Colors.primary} style={styles.metricIcon} />
+          <AppIcon name={APP_ICONS.archive} size={14} color={Colors.primary} style={styles.metricIcon} />
           <Text style={[styles.metricValue, { fontSize: fs(18), color: Colors.primary }]}>
             {centre.capacityPerDay}
           </Text>
@@ -73,10 +73,10 @@ export default function CentreCard({ centre, action }: Props) {
       </View>
 
       <Text style={[styles.hours, { fontSize: fs(12) }]}>
-        <Ionicons name="time" size={12} color={Colors.textMuted} /> {t('book.hours')}: {centre.openingHours}
+        <AppIcon name={APP_ICONS.time} size={12} color={Colors.textMuted} /> {t('book.hours')}: {centre.openingHours}
       </Text>
       <Text style={[styles.crops, { fontSize: fs(12) }]}>
-        <Ionicons name="leaf" size={12} color={Colors.green} /> {centre.crops.join(' · ')}
+        <AppIcon name={APP_ICONS.leaf} size={12} color={Colors.green} /> {centre.crops.join(' · ')}
       </Text>
 
       {action ? <View style={styles.action}>{action}</View> : null}

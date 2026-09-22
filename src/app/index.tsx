@@ -1,12 +1,12 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import DemoBadge from '../components/DemoBadge';
-import { PrimaryButton, SecondaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
+import { AppIcon, APP_ICONS } from '../components/AppIcon';
+import InfoCard from '../components/InfoCard';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
-import { Colors, Spacing, SystemFonts } from '../constants/theme';
+import { Colors, Spacing } from '../constants/theme';
 import { analyticsSummary } from '../data/mockData';
 import { PORTAL_NOTICES } from '../data/notices';
 import { useI18n } from '../i18n';
@@ -19,10 +19,10 @@ export default function HomeScreen() {
 
   return (
     <ScreenShell>
-      {/* Important Announcement / Notice Strip */}
+      {/* Important Announcement / Notice Strip */}\
       <View style={styles.noticeStrip}>
         <View style={styles.noticeIcon}>
-          <Ionicons name="megaphone" size={12} color={Colors.white} />
+          <AppIcon name={APP_ICONS.megaphone} size={12} color={Colors.white} />
           <Text style={styles.noticeIconText}>{t('landing.newTag').toUpperCase()}</Text>
         </View>
         <Text style={[styles.noticeText, { fontSize: fs(13) }]}>
@@ -30,7 +30,7 @@ export default function HomeScreen() {
         </Text>
       </View>
 
-      {/* Main Hero Section */}
+      {/* Main Hero Section */}\
       <View style={[styles.heroBlock, wide && styles.heroRow]}>
         <View style={styles.heroLeft}>
           <View style={styles.heroTitleLines}>
@@ -42,148 +42,146 @@ export default function HomeScreen() {
           <Text style={[styles.portalDesc, { fontSize: fs(14) }]}>{t('landing.heroDesc')}</Text>
 
           <View style={styles.heroButtons}>
-            <PrimaryButton
-              label={t('landing.ctaBook')}
-              onPress={() => router.push(path.booking)}
-            />
-            <SecondaryButton
+            <Button label={t('landing.ctaBook')} onPress={() => router.push(path.booking)} />
+            <Button
               label={t('landing.ctaTrack')}
+              variant="secondary"
               onPress={() => router.push(path.queue)}
             />
           </View>
         </View>
-        
+
         <View style={styles.heroRight}>
-          <View style={styles.statusBox}>
-            <View style={styles.statusHeader}>
-              <Ionicons name="speedometer" size={15} color={Colors.white} />
-              <Text style={[styles.statusTitle, { fontSize: fs(13) }]}>{t('landing.cycleTitle')}</Text>
-              <DemoBadge />
+          <InfoCard title={t('landing.cycleTitle')}>
+            <View style={styles.statusRow}>
+              <View style={styles.statusRowLeft}>
+                <AppIcon name={APP_ICONS.checkmarkCircle} size={15} color={Colors.green} />
+                <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.statusLabel')}</Text>
+              </View>
+              <Text style={[styles.statusValue, { fontSize: fs(14), color: Colors.green }]}>
+                {t('landing.statusActive')}
+              </Text>
             </View>
-            <View style={styles.statusContent}>
-              <View style={styles.statusRow}>
-                <View style={styles.statusRowLeft}>
-                  <Ionicons name="checkmark-circle" size={15} color={Colors.green} />
-                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.statusLabel')}</Text>
-                </View>
-                <Text style={[styles.statusValue, { fontSize: fs(14), color: Colors.green }]}>{t('landing.statusActive')}</Text>
+            <View style={styles.divider} />
+            <View style={styles.statusRow}>
+              <View style={styles.statusRowLeft}>
+                <AppIcon name={APP_ICONS.people} size={15} color={Colors.primary} />
+                <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.farmersServed')}</Text>
               </View>
-              <View style={styles.divider} />
-              <View style={styles.statusRow}>
-                <View style={styles.statusRowLeft}>
-                  <Ionicons name="people" size={15} color={Colors.primary} />
-                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.farmersServed')}</Text>
-                </View>
-                <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.farmersProcessed}</Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.statusRow}>
-                <View style={styles.statusRowLeft}>
-                  <Ionicons name="pie-chart" size={15} color={Colors.saffronDark} />
-                  <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.capacityUse')}</Text>
-                </View>
-                <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.capacityUsedPercent}%</Text>
-              </View>
+              <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.farmersProcessed}</Text>
             </View>
-          </View>
+            <View style={styles.divider} />
+            <View style={styles.statusRow}>
+              <View style={styles.statusRowLeft}>
+                                <AppIcon name={APP_ICONS.pieChart} size={15} color={Colors.saffronDark} />
+                <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.capacityUse')}</Text>
+              </View>
+              <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.capacityUsedPercent}%</Text>
+            </View>
+          </InfoCard>
         </View>
       </View>
 
-      {/* Services and Notices Grid */}
+      {/* Services and Notices Grid */}\
       <View style={[styles.mainGrid, wide && styles.mainGridRow]}>
-        
-        {/* Left Column: Services & Process */}
+        {/* Left Column: Services & Process */}\
         <View style={styles.mainCol}>
           <SectionHeading title={t('landing.servicesTitle')} />
-          <View style={styles.serviceList}>
-            {[
-              {
-                title: t('nav.register'),
-                desc: t('landing.step1Body'),
-                href: path.register,
-              },
-              {
-                title: t('nav.booking'),
-                desc: t('landing.step3Body'),
-                href: path.booking,
-              },
-              {
-                title: t('nav.queue'),
-                desc: t('landing.step5Body'),
-                href: path.queue,
-              },
-              {
-                title: t('nav.centres'),
-                desc: t('landing.centresDesc'),
-                href: path.centres,
-              },
-            ].map((srv, idx) => (
-              <Pressable
-                key={idx}
-                style={({ pressed, hovered }) => [
-                  styles.serviceItem,
-                  wide && styles.serviceItemWide,
-                  hovered && styles.serviceItemHovered,
-                  pressed && styles.serviceItemPressed,
-                ]}
-                onPress={() => router.push(srv.href as never)}
-              >
-                <View style={styles.serviceCopy}>
-                  <Text style={[styles.serviceTitle, { fontSize: fs(14) }]}>{srv.title}</Text>
-                  <Text style={[styles.serviceDesc, { fontSize: fs(12) }]}>{srv.desc}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={16} color={Colors.primary} style={styles.serviceChevron} />
-              </Pressable>
-            ))}
-          </View>
+          {[{
+            title: t('nav.register'),
+            desc: t('landing.step1Body'),
+            href: path.register,
+          }, {
+            title: t('nav.booking'),
+            desc: t('landing.step3Body'),
+            href: path.booking,
+          }, {
+            title: t('nav.queue'),
+            desc: t('landing.step5Body'),
+            href: path.queue,
+          }, {
+            title: t('nav.centres'),
+            desc: t('landing.centresDesc'),
+            href: path.centres,
+          }].map((srv) => (
+            <Button
+              key={srv.title}
+              label={srv.title}
+              href={srv.href}
+              variant="link"
+              after={<AppIcon name={APP_ICONS.chevronForward} size={14} color={Colors.primary} />}
+            />
+          ))}
 
           <View style={{ marginTop: Spacing.xl }}>
             <SectionHeading title={t('landing.stepsTitle')} subtitle={t('landing.stepsSub')} />
-            <View style={styles.processBox}>
-              {[
-                { step: 1, label: t('landing.step1'), icon: 'person-add' as const },
-                { step: 2, label: t('landing.step2'), icon: 'location' as const },
-                { step: 3, label: t('landing.step3'), icon: 'calendar' as const },
-                { step: 4, label: t('landing.step4'), icon: 'ticket' as const },
-                { step: 5, label: t('landing.step5'), icon: 'pulse' as const },
-                { step: 6, label: t('landing.step6'), icon: 'checkmark-done' as const },
-              ].map((item, idx) => (
-                <View key={idx} style={styles.processRow}>
+            <InfoCard>
+              {[{
+                step: 1,
+                label: t('landing.step1'),
+                icon: APP_ICONS.personAdd,
+              }, {
+                step: 2,
+                label: t('landing.step2'),
+                icon: APP_ICONS.location,
+              }, {
+                step: 3,
+                label: t('landing.step3'),
+                icon: APP_ICONS.calendar,
+              }, {
+                step: 4,
+                label: t('landing.step4'),
+                icon: APP_ICONS.ticket,
+              }, {
+                step: 5,
+                label: t('landing.step5'),
+                icon: APP_ICONS.speedometer,
+              }, {
+                step: 6,
+                label: t('landing.step6'),
+                icon: APP_ICONS.checkmarkDone,
+              }].map((item) => (
+                <View key={item.step} style={styles.processRow}>
                   <View style={styles.processNum}>
                     <Text style={styles.processNumText}>{item.step}</Text>
                   </View>
-                  <Ionicons name={item.icon} size={16} color={Colors.primary} />
+                  <AppIcon name={item.icon} size={16} color={Colors.primary} />
                   <Text style={[styles.processLabel, { fontSize: fs(13) }]}>{item.label}</Text>
                 </View>
               ))}
-            </View>
+            </InfoCard>
           </View>
         </View>
 
-        {/* Right Column: Notices */}
+        {/* Right Column: Notices */}\
         <View style={styles.sideCol}>
           <SectionHeading title={t('notice.title')} />
-          <View style={styles.noticeBoard}>
+          <InfoCard>
             <View style={styles.noticeBoardHeader}>
               <Text style={[styles.nbHeaderText, { fontSize: fs(11) }]}>{t('notice.subject')}</Text>
-              <Text style={[styles.nbHeaderText, { fontSize: fs(11), width: 80, textAlign: 'right' }]}>{t('notice.date')}</Text>
+              <Text style={[styles.nbHeaderText, { fontSize: fs(11), width: 80, textAlign: 'right' }]}>
+                {t('notice.date')}
+              </Text>
             </View>
             {PORTAL_NOTICES.slice(0, 5).map((n) => (
               <View key={n.title} style={styles.noticeItem}>
-                <Ionicons name="document-text" size={15} color={Colors.info} style={styles.noticeItemIcon} />
+                <AppIcon name={APP_ICONS.documentText} size={15} color={Colors.info} style={styles.noticeItemIcon} />
                 <View style={styles.noticeCopy}>
                   <Text style={[styles.noticeItemTitle, { fontSize: fs(13) }]}>{n.title}</Text>
                 </View>
-                <Text style={[styles.noticeItemDate, { fontSize: fs(11), width: 80, textAlign: 'right' }]}>{n.date}</Text>
+                <Text style={[styles.noticeItemDate, { fontSize: fs(11), width: 80, textAlign: 'right' }]}>
+                  {n.date}
+                </Text>
               </View>
             ))}
-            <Pressable style={styles.noticeMoreBtn} onPress={() => router.push(path.notices as never)}>
-              <Text style={[styles.noticeMoreText, { fontSize: fs(12) }]}>{t('common.viewAll')}</Text>
-              <Ionicons name="arrow-forward" size={14} color={Colors.primary} />
-            </Pressable>
-          </View>
+            <Button
+              label={t('common.viewAll')}
+              href={path.notices}
+              variant="link"
+              small
+            />
+          </InfoCard>
         </View>
-
       </View>
     </ScreenShell>
   );
@@ -238,7 +236,6 @@ const styles = StyleSheet.create({
   },
   portalTitle: {
     color: Colors.primaryDark,
-    fontFamily: SystemFonts.serif,
     fontWeight: '400',
     textAlign: 'left',
     letterSpacing: 0.3,
@@ -263,27 +260,6 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 320,
     marginTop: Spacing.lg,
-  },
-  statusBox: {
-    backgroundColor: Colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  statusHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 6,
-    padding: Spacing.md,
-    backgroundColor: Colors.primaryDark,
-  },
-  statusTitle: {
-    color: Colors.white,
-    fontWeight: '700',
-    flex: 1,
-  },
-  statusContent: {
-    padding: Spacing.md,
   },
   statusRow: {
     flexDirection: 'row',
@@ -321,134 +297,62 @@ const styles = StyleSheet.create({
   sideCol: {
     flex: 1,
   },
-  serviceList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
-  },
-  serviceItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 8, // Bootstrap "rounded-3"
-    backgroundColor: Colors.white,
-    flexBasis: '100%',
-    // Bootstrap-style smooth state transitions (web)
-    transitionProperty: 'background-color, border-color',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'ease-out',
-  },
-  serviceItemWide: {
-    flexBasis: '46%',
-    flexGrow: 1,
-  },
-  serviceItemHovered: {
-    backgroundColor: Colors.surfaceAlt, // Bootstrap list-group-item-action hover
-    borderColor: Colors.primary,
-  },
-  serviceItemPressed: {
-    backgroundColor: Colors.surfaceMuted, // Bootstrap active (gray-200)
-  },
-  serviceChevron: {
-    marginLeft: 12,
-    transitionProperty: 'transform',
-    transitionDuration: '180ms',
-    transitionTimingFunction: 'ease-out',
-  },
-  serviceCopy: {
-    flex: 1,
-  },
-  serviceTitle: {
-    color: Colors.primaryDark,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  serviceDesc: {
-    color: Colors.textSecondary,
-  },
-  processBox: {
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.lg,
-  },
   processRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    marginBottom: Spacing.md,
+    paddingVertical: 8,
   },
   processNum: {
-    width: 24,
-    height: 24,
-    backgroundColor: Colors.saffron,
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: Spacing.md,
   },
   processNumText: {
     color: Colors.white,
     fontWeight: '800',
-    fontSize: 12,
+    fontSize: 13,
   },
   processLabel: {
     color: Colors.text,
-    fontWeight: '600',
-  },
-  noticeBoard: {
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    fontWeight: '500',
   },
   noticeBoardHeader: {
     flexDirection: 'row',
-    backgroundColor: Colors.surfaceAlt,
-    padding: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    backgroundColor: Colors.primaryDark,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
   },
   nbHeaderText: {
-    color: Colors.textMuted,
+    color: Colors.white,
     fontWeight: '700',
-    flex: 1,
+    letterSpacing: 0.5,
   },
   noticeItem: {
     flexDirection: 'row',
-    padding: Spacing.sm,
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-    alignItems: 'center',
   },
   noticeItemIcon: {
-    marginRight: Spacing.sm,
-    alignSelf: 'center',
+    width: 24,
   },
   noticeCopy: {
     flex: 1,
-    paddingRight: Spacing.sm,
   },
   noticeItemTitle: {
     color: Colors.info,
     fontWeight: '600',
-    lineHeight: 18,
+    lineHeight: 20,
   },
   noticeItemDate: {
     color: Colors.textSecondary,
-    fontWeight: '500',
-  },
-  noticeMoreBtn: {
-    padding: Spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 6,
-    backgroundColor: Colors.surfaceMuted,
-  },
-  noticeMoreText: {
-    color: Colors.primary,
-    fontWeight: '700',
+    fontWeight: '600',
   },
 });

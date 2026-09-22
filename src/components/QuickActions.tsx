@@ -1,13 +1,13 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { type Href, router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
+import { APP_ICONS, type AppIconName, AppIcon } from './AppIcon';
 
 type Action = {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: AppIconName;
   labelKey:
     | 'dash.qaBook'
     | 'dash.qaTrack'
@@ -20,12 +20,12 @@ type Action = {
 };
 
 const ACTIONS: Action[] = [
-  { icon: 'calendar', labelKey: 'dash.qaBook', href: path.booking, tone: 'saffron' },
-  { icon: 'pulse', labelKey: 'dash.qaTrack', href: path.queue, tone: 'navy' },
-  { icon: 'list', labelKey: 'dash.qaBookings', href: path.bookings, tone: 'navy' },
-  { icon: 'notifications', labelKey: 'dash.qaNotifications', href: path.notifications, tone: 'navy' },
-  { icon: 'business', labelKey: 'dash.qaCentres', href: path.centres, tone: 'green' },
-  { icon: 'help-circle', labelKey: 'dash.qaHelp', href: path.help, tone: 'navy' },
+  { icon: APP_ICONS.calendar, labelKey: 'dash.qaBook', href: path.booking, tone: 'saffron' },
+  { icon: APP_ICONS.pulse, labelKey: 'dash.qaTrack', href: path.queue, tone: 'navy' },
+  { icon: APP_ICONS.list, labelKey: 'dash.qaBookings', href: path.bookings, tone: 'navy' },
+  { icon: APP_ICONS.notifications, labelKey: 'dash.qaNotifications', href: path.notifications, tone: 'navy' },
+  { icon: APP_ICONS.business, labelKey: 'dash.qaCentres', href: path.centres, tone: 'green' },
+  { icon: APP_ICONS.language, labelKey: 'dash.qaHelp', href: path.help, tone: 'navy' },
 ];
 
 const ICON_COLORS = {
@@ -50,7 +50,7 @@ export default function QuickActions() {
           ]}
         >
           <View style={[styles.iconWrap, { backgroundColor: action.tone === 'saffron' ? Colors.saffronLight : action.tone === 'green' ? Colors.greenLight : Colors.primaryLight }]}>
-            <Ionicons name={action.icon} size={24} color={ICON_COLORS[action.tone]} />
+            <AppIcon name={action.icon} size={24} color={ICON_COLORS[action.tone]} />
           </View>
           <Text style={[styles.label, { fontSize: fs(13) }]}>{t(action.labelKey)}</Text>
         </Pressable>

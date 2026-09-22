@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Alert, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import ScreenShell from '../components/ScreenShell';
@@ -7,6 +6,7 @@ import { Colors, Radius, Spacing } from '../constants/theme';
 import { PORTAL_NOTICES } from '../data/notices';
 import { canDownloadPdf, downloadNoticePdf } from '../services/pdfService';
 import { useI18n } from '../i18n';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
 const NOTICES = PORTAL_NOTICES;
 
@@ -57,7 +57,7 @@ export default function NoticesScreen() {
                 accessibilityLabel={`${t('notice.pdf')}: ${notice.title}`}
                 onPress={() => handlePdf(notice)}
               >
-                <Ionicons name="download" size={16} color={Colors.danger} />
+                <AppIcon name={APP_ICONS.download} size={16} color={Colors.danger} />
                 <Text style={[styles.pdfText, { fontSize: fs(11) }]}>{t('notice.pdf')}</Text>
               </Pressable>
             </View>
@@ -82,7 +82,7 @@ export default function NoticesScreen() {
                   accessibilityLabel={`${t('notice.pdf')}: ${notice.title}`}
                   onPress={() => handlePdf(notice)}
                 >
-                  <Ionicons name="download" size={14} color={Colors.danger} />
+                  <AppIcon name={APP_ICONS.download} size={14} color={Colors.danger} />
                   <Text style={[styles.pdfText, { fontSize: fs(11) }]}>{t('notice.pdf')}</Text>
                 </Pressable>
               </View>
@@ -92,7 +92,7 @@ export default function NoticesScreen() {
       )}
 
             <View style={styles.note}>
-        <Ionicons name="download" size={14} color={Colors.info} />
+        <AppIcon name={APP_ICONS.download} size={14} color={Colors.info} />
         <Text style={[styles.noteText, { fontSize: fs(12) }]}>
           PDF documents are generated and downloaded locally in your browser — no server required.
         </Text>

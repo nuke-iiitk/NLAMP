@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
@@ -19,6 +18,7 @@ import { formatDateLong, slotRange } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
 /** Seconds elapsed since the given epoch-millis timestamp. */
 function secondsSince(ts: number): number {
@@ -40,7 +40,7 @@ function UpdatedAgo({ since }: { since: number }) {
   }, [since]);
   return (
     <Text style={[styles.updatedText, { fontSize: fs(11) }]} accessibilityLiveRegion="polite">
-      <Ionicons name="pulse" size={11} color={Colors.green} /> {t('queue.updated', { n: seconds })}
+      <AppIcon name={APP_ICONS.pulse} size={11} color={Colors.green} /> {t('queue.updated', { n: seconds })}
     </Text>
   );
 }
@@ -60,7 +60,7 @@ export default function QueueScreen() {
       <ScreenShell breadcrumbs={[{ label: t('nav.queue') }]}>
         <SectionHeading title={t('queue.title')} />
         <EmptyState
-          icon="ticket"
+          icon={APP_ICONS.ticket}
           title={t('queue.noActive')}
           message={t('queue.noActiveBody')}
           action={
@@ -129,7 +129,7 @@ export default function QueueScreen() {
           tone="success"
           title={t('status.Your Turn')}
           message={t('queue.yourTurn')}
-          icon="megaphone"
+          icon={APP_ICONS.megaphone}
         />
       ) : (
         <AlertBanner tone="neutral" message={t('queue.notice')} />

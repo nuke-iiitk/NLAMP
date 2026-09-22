@@ -1,20 +1,22 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
+import Button from '../components/Button';
 import DataTable from '../components/DataTable';
 import EmptyState from '../components/EmptyState';
 import InfoCard, { MetaRow } from '../components/InfoCard';
-import { SecondaryButton } from '../components/PrimaryButton';
+import Link from '../components/Link';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import StatusBadge from '../components/StatusBadge';
+import { Colors, Spacing } from '../constants/theme';
 import { formatDateLong, slotRange, type Booking, type BookingStatus } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
-import { Colors, Spacing } from '../constants/theme';
 import { canDownloadPdf, downloadTokenPdf } from '../services/pdfService';
 import { useStore } from '../store/AppStore';
+import { APP_ICONS } from '../components/AppIcon';
 
 const FILTERS: ('All' | BookingStatus)[] = ['All', 'Upcoming', 'Waiting', 'Processing', 'Completed', 'Cancelled'];
 
@@ -67,28 +69,24 @@ export default function BookingsScreen() {
         {FILTERS.map((status) => {
           const active = filter === status;
           return (
-            <Pressable
+            <Button
               key={status}
+              label={status === 'All' ? t('bookings.filterAll') : t(`status.${status}` as never)}
               onPress={() => setFilter(status)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-              style={[styles.filterChip, active && styles.filterChipActive]}
-            >
-              <Text style={[styles.filterText, active && styles.filterTextActive, { fontSize: fs(12) }]}>
-                {status === 'All' ? t('bookings.filterAll') : t(`status.${status}` as never)}
-              </Text>
-            </Pressable>
+              variant={active ? 'primary' : 'outline-secondary'}
+              small
+            />
           );
         })}
       </View>
 
 {mine.length === 0 ? (
         <EmptyState
-          icon="list"
+          icon={APP_ICONS.list}
           title={t('bookings.empty')}
           message={t('bookings.emptyBody')}
           action={
-            <SecondaryButton label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
+                        <Button variant="outline-primary" label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
           }
         />
       ) : (
@@ -144,21 +142,9 @@ export default function BookingsScreen() {
               render: (b) => (
                 <View style={styles.actionsRow}>
                   {b.status === 'Upcoming' || b.status === 'Waiting' ? (
-                    <Pressable onPress={() => handleCancel(b)}>
-                      <Text style={[styles.cancelLink, { fontSize: fs(12) }]}>{t('bookings.cancel')}</Text>
-                    </Pressable>
+                    <Button variant="link" label={t('bookings.cancel')} onPress={() => handleCancel(b)} small />
                   ) : null}
-                  <Pressable
-                    onPress={() =>
-                      router.push(
-                        b.status === 'Completed'
-                          ? (path.bookings as never)
-                          : (path.queue as never)
-                      )
-                    }
-                  >
-                    <Text style={[styles.viewLink, { fontSize: fs(12) }]}>{t('bookings.view')}</Text>
-                  </Pressable>
+                  <Link href={b.status === 'Completed' ? path.bookings : path.queue} label={t('bookings.view')} variant="muted" />
                 </View>
               ),
             },
@@ -166,13 +152,7 @@ export default function BookingsScreen() {
               key: 'pdf',
               header: t('token.pdfShort'),
               render: (b) => (
-                <Pressable
-                  onPress={() => handleTokenPdf(b)}
-                  accessibilityRole="link"
-                  accessibilityLabel={`${t('token.pdfBtn')} ${b.token}`}
-                >
-                  <Text style={[styles.pdfLink, { fontSize: fs(12) }]}>{t('token.pdfShort')}</Text>
-                </Pressable>
+                <Button variant="link" label={t('token.pdfShort')} onPress={() => handleTokenPdf(b)} small />
               ),
             },
           ]}

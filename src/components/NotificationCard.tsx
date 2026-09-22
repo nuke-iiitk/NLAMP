@@ -1,15 +1,15 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 import type { AppNotification } from '../data/mockData';
+import { APP_ICONS, type AppIconName, AppIcon } from './AppIcon';
 
-const ICONS: Record<AppNotification['type'], keyof typeof Ionicons.glyphMap> = {
-  success: 'checkmark-circle',
-  info: 'information-circle',
-  warning: 'warning',
-  error: 'alert-circle',
+const ICONS: Record<AppNotification['type'], AppIconName> = {
+  success: APP_ICONS.checkmarkCircle,
+  info: APP_ICONS.infoCircle,
+  warning: APP_ICONS.warning,
+  error: APP_ICONS.alertCircle,
 };
 
 const COLORS: Record<AppNotification['type'], string> = {
@@ -32,7 +32,7 @@ export default function NotificationCard({
   return (
     <View style={[styles.card, !notification.read && styles.unread]}>
       <View style={[styles.iconWrap, { backgroundColor: `${color}22` }]}>
-        <Ionicons name={ICONS[notification.type]} size={22} color={color} />
+        <AppIcon name={ICONS[notification.type]} size={22} color={color} />
       </View>
       <View style={styles.body}>
         <View style={styles.titleRow}>

@@ -1,16 +1,16 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
+import { APP_ICONS, type AppIconName, AppIcon } from './AppIcon';
 
 export default function EmptyState({
-  icon = 'file-tray',
+  icon = APP_ICONS.fileTray,
   title,
   message,
   action,
 }: {
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: AppIconName;
   title: string;
   message?: string;
   action?: React.ReactNode;
@@ -18,7 +18,7 @@ export default function EmptyState({
   const { fs } = useI18n();
   return (
     <View style={styles.wrap}>
-      <Ionicons name={icon} size={44} color={Colors.borderDark} />
+      <AppIcon name={icon} size={44} color={Colors.borderDark} />
       <Text style={[styles.title, { fontSize: fs(18) }]}>{title}</Text>
       {message ? <Text style={[styles.message, { fontSize: fs(14) }]}>{message}</Text> : null}
       {action ? <View style={styles.action}>{action}</View> : null}

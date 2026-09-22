@@ -6,6 +6,8 @@
     "@expo-google-fonts/open-sans": "^0.4.2",
     "@expo/ui": "~57.0.13",
     "@expo/vector-icons": "^15.0.2",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
     "expo": "~57.0.16",
     "expo-constants": "~57.0.14",
     "expo-device": "~57.0.1",

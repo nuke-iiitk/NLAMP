@@ -1,11 +1,13 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Alert, Linking, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Alert, Linking, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { Colors, Fonts, MaxContentWidth, Spacing } from '../constants/theme';
 import { HELPLINE, HELP_EMAIL } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
+import Button from './Button';
+import Link from './Link';
 
 /** Static demo metadata shown in the footer (classic gov-portal elements). */
 const LAST_UPDATED = '29 Aug 2026';
@@ -66,38 +68,39 @@ export default function AppFooter() {
 
           <View style={styles.column}>
             <Text style={[styles.heading, { fontSize: fs(13) }]}>{t('footer.quickLinks')}</Text>
-            {quickLinks.map((link) => (
-              <Pressable key={link.href as string} onPress={() => router.push(link.href as never)}>
-                <Text style={[styles.link, { fontSize: fs(12) }]}>{link.label}</Text>
-              </Pressable>
+                                    {quickLinks.map((link) => (
+              <Link key={String(link.href)} href={link.href} variant="footer" label={link.label} />
             ))}
           </View>
 
           <View style={styles.column}>
             <Text style={[styles.heading, { fontSize: fs(13) }]}>{t('footer.services')}</Text>
-            {serviceLinks.map((link) => (
-              <Pressable key={link.href as string} onPress={() => router.push(link.href as never)}>
-                <Text style={[styles.link, { fontSize: fs(12) }]}>{link.label}</Text>
-              </Pressable>
+                                    {serviceLinks.map((link) => (
+              <Link key={String(link.href)} href={link.href} variant="footer" label={link.label} />
             ))}
           </View>
 
           <View style={styles.column}>
             <Text style={[styles.heading, { fontSize: fs(13) }]}>{t('footer.policies')}</Text>
-            {policyLinks.map((link) => (
-              <Pressable key={link.label} onPress={link.action}>
-                <Text style={[styles.link, { fontSize: fs(12) }]}>{link.label}</Text>
-              </Pressable>
+                        {policyLinks.map((link) => (
+              <Button
+                key={link.label}
+                variant="link"
+                label={link.label}
+                onPress={link.action}
+                small
+              />
             ))}
           </View>
 
           <View style={styles.column}>
             <Text style={[styles.heading, { fontSize: fs(13) }]}>{t('footer.contact')}</Text>
-            <Pressable onPress={() => Linking.openURL(`tel:${HELPLINE.replace(/[^0-9]/g, '')}`)}>
-              <Text style={[styles.link, { fontSize: fs(12) }]}>
-                {t('footer.helpline')}: {HELPLINE}
-              </Text>
-            </Pressable>
+                        <Link
+              href={`tel:${HELPLINE.replace(/[^0-9]/g, '')}`}
+              variant="footer"
+              onPress={() => Linking.openURL(`tel:${HELPLINE.replace(/[^0-9]/g, '')}`)}
+              label={`${t('footer.helpline')}: ${HELPLINE}`}
+            />
             <Text style={[styles.body, { fontSize: fs(11) }]}>{t('footer.helplineHours')}</Text>
             <Text style={[styles.body, { fontSize: fs(11) }]}>
               {t('footer.email')}: {HELP_EMAIL}

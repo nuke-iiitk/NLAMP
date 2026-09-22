@@ -1,6 +1,5 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-
 import { BOOTSTRAP_TONE, TONES, type AlertBannerProps, type Tone } from './alertShared';
+import BootstrapIcon from './BootstrapIcon';
 
 export type { Tone };
 
@@ -20,12 +19,7 @@ export default function AlertBanner({
       role="alert"
       className={`${BOOTSTRAP_TONE[tone]} d-flex align-items-start gap-3`}
     >
-      <Ionicons
-        name={(icon ?? colors.icon) as keyof typeof Ionicons.glyphMap}
-        size={20}
-        color={colors.fg}
-        style={{ marginTop: 2 }}
-      />
+      <BootstrapIcon name={icon ?? colors.bi} size={20} color={colors.fg} />
       <div className="flex-grow-1">
         {title ? <div className="fw-bold" style={{ marginBottom: 2 }}>{title}</div> : null}
         <div>{message}</div>

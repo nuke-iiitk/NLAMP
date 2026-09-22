@@ -1,8 +1,8 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 
 import { useI18n } from '../i18n';
 import { BOOTSTRAP_VARIANT, WEB_FG, type AppButtonProps, type ButtonVariant } from './buttonShared';
+import { AppIcon } from './AppIcon';
 
 export type { ButtonVariant, AppButtonProps };
 
@@ -52,8 +52,7 @@ export function PrimaryButton({
       ) : (
         <>
           {icon ? (
-            <Ionicons
-              name={icon as keyof typeof Ionicons.glyphMap}
+            <AppIcon name={icon}
               size={18}
               color={WEB_FG[variant]}
             />

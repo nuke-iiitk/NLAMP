@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import InfoCard from '../components/InfoCard';
@@ -7,20 +6,21 @@ import SectionHeading from '../components/SectionHeading';
 import { Colors, Radius, Spacing } from '../constants/theme';
 import { analyticsSummary, procurementCentres } from '../data/mockData';
 import { useI18n } from '../i18n';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
 const FEATURES = [
-  { icon: 'person-add' as const, key: 'about.f1' as const },
-  { icon: 'calendar' as const, key: 'about.f2' as const },
-  { icon: 'pulse' as const, key: 'about.f3' as const },
-  { icon: 'time' as const, key: 'about.f4' as const },
-  { icon: 'notifications' as const, key: 'about.f5' as const },
-  { icon: 'desktop' as const, key: 'about.f6' as const },
+  { icon: APP_ICONS.personAdd, key: 'about.f1' as const },
+  { icon: APP_ICONS.calendar, key: 'about.f2' as const },
+  { icon: APP_ICONS.pulse, key: 'about.f3' as const },
+  { icon: APP_ICONS.time, key: 'about.f4' as const },
+  { icon: APP_ICONS.notifications, key: 'about.f5' as const },
+  { icon: APP_ICONS.desktop, key: 'about.f6' as const },
 ];
 
 const APPROACH = [
-  { icon: 'eye' as const, title: 'about.a1t' as const, body: 'about.a1d' as const, accent: Colors.primary, bg: Colors.primaryLight },
-  { icon: 'phone-portrait' as const, title: 'about.a2t' as const, body: 'about.a2d' as const, accent: Colors.saffron, bg: Colors.saffronLight },
-  { icon: 'language' as const, title: 'about.a3t' as const, body: 'about.a3d' as const, accent: Colors.green, bg: Colors.greenLight },
+  { icon: APP_ICONS.eye, title: 'about.a1t' as const, body: 'about.a1d' as const, accent: Colors.primary, bg: Colors.primaryLight },
+  { icon: APP_ICONS.phonePortrait, title: 'about.a2t' as const, body: 'about.a2d' as const, accent: Colors.saffron, bg: Colors.saffronLight },
+  { icon: APP_ICONS.language, title: 'about.a3t' as const, body: 'about.a3d' as const, accent: Colors.green, bg: Colors.greenLight },
 ];
 
 export default function AboutScreen() {
@@ -29,10 +29,10 @@ export default function AboutScreen() {
   const wide = width >= 768;
 
   const stats = [
-    { icon: 'business' as const, value: String(procurementCentres.length), label: t('about.statCentres') },
-    { icon: 'people' as const, value: String(analyticsSummary.farmersProcessed), label: t('about.statFarmers') },
-    { icon: 'map' as const, value: '3', label: t('about.statStates') },
-    { icon: 'language' as const, value: '3', label: t('about.statLangs') },
+    { icon: APP_ICONS.business, value: String(procurementCentres.length), label: t('about.statCentres') },
+    { icon: APP_ICONS.people, value: String(analyticsSummary.farmersProcessed), label: t('about.statFarmers') },
+    { icon: APP_ICONS.map, value: '3', label: t('about.statStates') },
+    { icon: APP_ICONS.language, value: '3', label: t('about.statLangs') },
   ];
 
   return (
@@ -50,7 +50,7 @@ export default function AboutScreen() {
         <View style={styles.col}>
           <InfoCard title={t('about.mission')} accent={Colors.green}>
             <View style={styles.missionRow}>
-              <Ionicons name="flag" size={20} color={Colors.green} />
+              <AppIcon name={APP_ICONS.flag} size={20} color={Colors.green} />
               <Text style={[styles.mission, { fontSize: fs(15) }]}>{t('about.missionBody')}</Text>
             </View>
           </InfoCard>
@@ -61,7 +61,7 @@ export default function AboutScreen() {
       <View style={[styles.statBand, { marginTop: Spacing.lg }]}>
         {stats.map((s) => (
           <View key={s.label} style={styles.statCard}>
-            <Ionicons name={s.icon} size={18} color={Colors.primary} />
+            <AppIcon name={s.icon} size={18} color={Colors.primary} />
             <Text style={[styles.statValue, { fontSize: fs(20) }]}>{s.value}</Text>
             <Text style={[styles.statLabel, { fontSize: fs(11) }]}>{s.label}</Text>
           </View>
@@ -74,7 +74,7 @@ export default function AboutScreen() {
         {APPROACH.map((a) => (
           <View key={a.title} style={[styles.approachCard, wide && styles.approachCardWide]}>
             <View style={[styles.approachIcon, { backgroundColor: a.bg }]}>
-              <Ionicons name={a.icon} size={20} color={a.accent} />
+              <AppIcon name={a.icon} size={20} color={a.accent} />
             </View>
             <Text style={[styles.approachTitle, { fontSize: fs(15) }]}>{t(a.title)}</Text>
             <Text style={[styles.approachBody, { fontSize: fs(13) }]}>{t(a.body)}</Text>
@@ -88,7 +88,7 @@ export default function AboutScreen() {
         {FEATURES.map((feature) => (
           <View key={feature.key} style={[styles.featureRow, wide && styles.featureRowWide]}>
             <View style={styles.featureIcon}>
-              <Ionicons name={feature.icon} size={18} color={Colors.primary} />
+              <AppIcon name={feature.icon} size={18} color={Colors.primary} />
             </View>
             <Text style={[styles.featureText, { fontSize: fs(14) }]}>{t(feature.key)}</Text>
           </View>
@@ -98,7 +98,7 @@ export default function AboutScreen() {
       {/* Governance alignment */}
       <View style={styles.govBox}>
         <View style={styles.govIcon}>
-          <Ionicons name="shield-checkmark" size={20} color={Colors.white} />
+          <AppIcon name={APP_ICONS.shieldCheckmark} size={20} color={Colors.white} />
         </View>
         <View style={styles.govCopy}>
           <Text style={[styles.govTitle, { fontSize: fs(14) }]}>{t('about.govTitle')}</Text>
@@ -107,7 +107,7 @@ export default function AboutScreen() {
       </View>
 
       <View style={styles.disclaimer}>
-        <Ionicons name="information-circle" size={16} color={Colors.warning} />
+        <AppIcon name={APP_ICONS.infoCircle} size={16} color={Colors.warning} />
         <Text style={[styles.disclaimerText, { fontSize: fs(12) }]}>{t('about.disclaimer')}</Text>
       </View>
     </ScreenShell>

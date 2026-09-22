@@ -96,7 +96,7 @@ export const en = {
   'footer.sitemap': 'Sitemap',
 
   // ---------- landing (home) notice strip ----------
-  'landing.noticeStrip': 'Slot booking for the current procurement season is now open at all registered centres.',
+  'landing.noticeStrip': 'Slot booking schedule: registered centres accept advance bookings as per the published procurement calendar.',
   // ---------- landing ----------
   'landing.badge': 'Digital India · Farmer First',
   'landing.heroTitle': 'National Farmer Procurement Portal',

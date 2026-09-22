@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
@@ -16,6 +15,7 @@ import { formatDateLong, slotRange } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
 export default function DashboardScreen() {
   const { t, fs } = useI18n();
@@ -108,11 +108,11 @@ export default function DashboardScreen() {
                     >
                       <View style={styles.notifIcon}>
                         {b.status === 'Completed' ? (
-                          <Ionicons name="checkmark-circle" size={18} color={Colors.green} />
+                          <AppIcon name={APP_ICONS.checkmarkCircle} size={18} color={Colors.green} />
                         ) : b.status === 'Cancelled' ? (
-                          <Ionicons name="close-circle" size={18} color={Colors.danger} />
+                          <AppIcon name={APP_ICONS.closeCircle} size={18} color={Colors.danger} />
                         ) : (
-                          <Ionicons name="time" size={18} color={Colors.saffronDark} />
+                          <AppIcon name={APP_ICONS.time} size={18} color={Colors.saffronDark} />
                         )}
                       </View>
                       <View style={styles.notifBody}>

@@ -215,7 +215,7 @@ export default function GovernmentHeader() {
               accessibilityLabel={t('header.search')}
               style={({ pressed }) => [styles.headerIconBtn, pressed && styles.headerIconBtnPressed]}
             >
-              <BootstrapIcon name="bi-search" fallback="search" size={15} color={Colors.primaryDark} />
+              <BootstrapIcon name="bi-search" size={15} color={Colors.primaryDark} />
             </Pressable>
             <Pressable
               onPress={() => navigate(path.login)}
@@ -223,7 +223,7 @@ export default function GovernmentHeader() {
               style={({ pressed }) => [styles.loginBtnSm, pressed && styles.loginBtnSmPressed]}
             >
               <View style={styles.loginRow}>
-                <BootstrapIcon name="bi-box-arrow-in-right" fallback="log-in" size={12} color={Colors.white} />
+                <BootstrapIcon name="bi-box-arrow-in-right" size={12} color={Colors.white} />
                 <Text style={[styles.loginBtnText, { fontSize: fs(11) }]}>{t('nav.login')}</Text>
               </View>
             </Pressable>
@@ -244,7 +244,6 @@ export default function GovernmentHeader() {
             >
               <BootstrapIcon
                 name={menuOpen ? 'bi-x-lg' : 'bi-list'}
-                fallback={menuOpen ? 'close' : 'menu'}
                 size={20}
                 color={Colors.primaryDark}
               />
@@ -284,7 +283,7 @@ export default function GovernmentHeader() {
                   accessibilityLabel={t('header.search')}
                 />
                 <Pressable onPress={submitSearch} style={styles.searchBtn} accessibilityRole="button">
-                  <BootstrapIcon name="bi-search" fallback="search" size={12} color={Colors.white} />
+                  <BootstrapIcon name="bi-search" size={12} color={Colors.white} />
                   <Text style={[styles.searchBtnText, { fontSize: fs(12) }]}>{t('header.searchBtn')}</Text>
                 </Pressable>
               </View>
@@ -294,7 +293,7 @@ export default function GovernmentHeader() {
                 accessibilityRole="button"
               >
                 <View style={styles.loginRow}>
-                  <BootstrapIcon name="bi-box-arrow-in-right" fallback="log-in" size={13} color={Colors.white} />
+                  <BootstrapIcon name="bi-box-arrow-in-right" size={13} color={Colors.white} />
                   <Text style={[styles.loginBtnText, { fontSize: fs(13) }]}>{t('nav.login')}</Text>
                 </View>
               </Pressable>

@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -13,6 +12,7 @@ import { DEMO_MOBILE } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
 const CAPTCHA_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -167,7 +167,7 @@ export default function LoginScreen() {
                 accessibilityLabel={t('login.captchaRefresh')}
                 style={styles.captchaRefresh}
               >
-                <Ionicons name="refresh" size={18} color={Colors.primary} />
+                <AppIcon name={APP_ICONS.refresh} size={18} color={Colors.primary} />
               </Pressable>
             </View>
             <FormField

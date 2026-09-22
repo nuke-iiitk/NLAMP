@@ -1,26 +1,35 @@
 import type { CSSProperties } from 'react';
 
+import type { AppIconName } from './iconGlyphs';
+
 type WebProps = {
   /** Bootstrap Icons glyph class, e.g. 'bi-house-door'. */
-  name: string;
-  /** Ionicons fallback name — ignored on web but keeps props consistent. */
-  fallback?: string;
+  name: AppIconName;
   size?: number;
   color?: string;
+  style?: CSSProperties;
+  className?: string;
 };
 
 /**
- * Web icon — a real `<i className="bi …">` element so Bootstrap Icons render
- * (the glyph font is declared in /public/bootstrap-icons.css linked from the
- * HTML shell). Metro resolves this file instead of BootstrapIcon.tsx on web.
+ * Web renderer — a real `<i className="bi …">` element so the Bootstrap Icons
+ * font applies. The font CSS is linked from the HTML shell; Metro resolves this
+ * file instead of BootstrapIcon.tsx on web, so no icon JS is bundled.
  */
 export default function BootstrapIcon({
   name,
-  fallback: _fallback,
   size = 16,
   color,
+  style,
+  className,
 }: WebProps) {
-  const style: CSSProperties = { fontSize: size, lineHeight: 1 };
-  if (color) style.color = color;
-  return <i className={`bi ${name}`} style={style} aria-hidden="true" />;
+  const merged: CSSProperties = { fontSize: size, lineHeight: 1, ...style };
+  if (color) merged.color = color;
+  return (
+    <i
+      className={`bi ${name}${className ? ` ${className}` : ''}`}
+      style={merged}
+      aria-hidden="true"
+    />
+  );
 }

@@ -12,6 +12,7 @@ import { useI18n, type TranslationKey } from '../i18n';
 import { router } from 'expo-router';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
+import { APP_ICONS } from '../components/AppIcon';
 
 function relativeTime(ts: number, t: (k: TranslationKey, vars?: Record<string, string | number>) => string): string {
   const diffMin = Math.round((Date.now() - ts) / 60000);
@@ -49,7 +50,7 @@ export default function NotificationsScreen() {
       />
 
       {sorted.length === 0 ? (
-        <EmptyState icon="notifications" title={t('notif.empty')} message={t('notif.emptyBody')} />
+        <EmptyState icon={APP_ICONS.notifications} title={t('notif.empty')} message={t('notif.emptyBody')} />
       ) : (
         sorted.map((notification) => (
           <NotificationCard

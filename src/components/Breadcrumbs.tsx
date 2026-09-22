@@ -1,9 +1,10 @@
-import { router, usePathname } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { usePathname } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
+import Link from './Link';
 
 export type Crumb = { label: string; href?: string };
 
@@ -13,18 +14,18 @@ export default function Breadcrumbs({ items }: { items: Crumb[] }) {
 
   return (
     <View style={styles.wrap}>
-      <Pressable onPress={() => router.push(path.home)} accessibilityRole="link">
-        <Text style={[styles.link, { fontSize: fs(12) }]}>{t('nav.home')}</Text>
-      </Pressable>
+      <Link href={path.home as string} variant="breadcrumb" label={t('nav.home')} />
       {items.map((crumb, index) => {
         const last = index === items.length - 1 || crumb.href === pathname;
         return (
           <View key={`${crumb.label}-${index}`} style={styles.row}>
             <Text style={[styles.sep, { fontSize: fs(12) }]}>›</Text>
             {crumb.href && !last ? (
-              <Pressable onPress={() => router.push(crumb.href as never)} accessibilityRole="link">
-                <Text style={[styles.link, { fontSize: fs(12) }]}>{crumb.label}</Text>
-              </Pressable>
+              <Link
+                href={crumb.href}
+                variant="breadcrumb"
+                label={crumb.label}
+              />
             ) : (
               <Text style={[styles.current, { fontSize: fs(12) }]}>{crumb.label}</Text>
             )}
@@ -56,12 +57,9 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     marginHorizontal: 4,
   },
-  link: {
-    color: Colors.info,
-    fontWeight: '600',
-  },
   current: {
     color: Colors.textSecondary,
     fontWeight: '700',
   },
 });
+

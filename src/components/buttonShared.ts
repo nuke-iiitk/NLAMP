@@ -1,3 +1,4 @@
+import type { AppIconName } from './AppIcon';
 import { Colors } from '../constants/theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost';
@@ -9,8 +10,8 @@ export type AppButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   small?: boolean;
-  /** Ionicons glyph name (typed loosely here; cast at render). */
-  icon?: string;
+  /** Bootstrap Icons glyph class, e.g. APP_ICONS.download. Rendered via AppIcon. */
+  icon?: AppIconName;
   accessibilityHint?: string;
 };
 

@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   Pressable,
   StyleSheet,
@@ -9,6 +8,7 @@ import {
 
 import { Colors, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
+import { APP_ICONS, AppIcon } from './AppIcon';
 
 export type DropdownOption = { value: string; label: string };
 
@@ -63,7 +63,7 @@ export default function DropdownSelect({
                 style={[styles.option, active && styles.optionActive]}
               >
                 <Text style={[styles.optionText, active && styles.optionTextActive, { fontSize: fs(13) }]}>
-                  {active ? <Ionicons name="checkmark" size={12} color={Colors.primary} /> : null}
+                  {active ? <AppIcon name={APP_ICONS.checkmark} size={12} color={Colors.primary} /> : null}
                   {' '}
                   {option.label}
                 </Text>

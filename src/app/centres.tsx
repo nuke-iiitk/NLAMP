@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
@@ -16,6 +15,7 @@ import { crops, type CentreStatus } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
+import { APP_ICONS, AppIcon, type AppIconName } from '../components/AppIcon';
 
 const STATUS_FILTERS: ('All' | CentreStatus)[] = ['All', 'Open', 'Closed'];
 
@@ -156,7 +156,7 @@ export default function CentresScreen() {
         right={
           <View style={styles.liveNotice}>
             <View style={styles.liveDot} />
-            <Ionicons name="time" size={14} color={Colors.green} />
+            <AppIcon name={APP_ICONS.time} size={14} color={Colors.green} />
             <Text style={[styles.liveText, { fontSize: fs(11) }]}>
               {slotsOpenToday} {t('book.availableSlots')}
             </Text>
@@ -167,7 +167,7 @@ export default function CentresScreen() {
       {/* Location search panel */}
       <View style={styles.panel}>
         <View style={styles.panelTitleRow}>
-          <Ionicons name="location" size={15} color={Colors.primary} />
+          <AppIcon name={APP_ICONS.location} size={15} color={Colors.primary} />
           <Text style={[styles.panelTitle, { fontSize: fs(14) }]}>{t('centres.findTitle')}</Text>
           <Text style={[styles.panelStep, { fontSize: fs(12) }]}>{t('centres.stepGuide')}</Text>
         </View>
@@ -177,7 +177,7 @@ export default function CentresScreen() {
             label={t('centres.labelState')}
             placeholder={t('centres.selectState')}
             searchPlaceholder={t('centres.searchState')}
-            icon="flag"
+            icon={APP_ICONS.flag}
             value={draftState}
             options={stateOptions}
             onSelect={handleState}
@@ -188,7 +188,7 @@ export default function CentresScreen() {
             label={t('centres.labelDistrict')}
             placeholder={t('centres.selectDistrict')}
             searchPlaceholder={t('centres.searchDistrict')}
-            icon="location"
+            icon={APP_ICONS.location}
             value={draftDistrict}
             options={districtOptions}
             onSelect={handleDistrict}
@@ -202,7 +202,7 @@ export default function CentresScreen() {
             label={t('centres.labelCentre')}
             placeholder={t('centres.selectCentre')}
             searchPlaceholder={t('centres.searchCentre')}
-            icon="business"
+            icon={APP_ICONS.business}
             value={draftCentre}
             options={centreOptions}
             onSelect={(value) => setDraftCentre(value || null)}
@@ -217,7 +217,7 @@ export default function CentresScreen() {
 
         <View style={styles.searchFieldWrap}>
           <View style={styles.searchWrap}>
-            <Ionicons name="search" size={18} color={Colors.textMuted} style={styles.searchIcon} />
+            <AppIcon name={APP_ICONS.search} size={18} color={Colors.textMuted} style={styles.searchIcon} />
             <FormField
               label={t('centres.searchBy')}
               value={query}
@@ -229,14 +229,14 @@ export default function CentresScreen() {
 
         <View style={[styles.chipRow, !wide && styles.stack]}>
           <FilterChips
-            icon="leaf"
+            icon={APP_ICONS.leaf}
             label={t('centres.filterCrop')}
             options={['All', ...crops]}
             value={cropFilter}
             onChange={setCropFilter}
           />
           <FilterChips
-            icon="clipboard"
+            icon={APP_ICONS.clipboard}
             label={t('centres.filterStatus')}
             options={STATUS_FILTERS}
             value={statusFilter}
@@ -249,14 +249,14 @@ export default function CentresScreen() {
             <PrimaryButton
               label={t('centres.searchBtn')}
               onPress={applySearch}
-              icon="search"
+              icon={APP_ICONS.search}
               accessibilityHint={t('centres.searchBtnHint')}
             />
           </View>
           <SecondaryButton
             label={t('centres.reset')}
             onPress={resetAll}
-            icon="refresh"
+            icon={APP_ICONS.refresh}
             accessibilityHint={t('centres.resetHint')}
           />
         </View>
@@ -265,11 +265,11 @@ export default function CentresScreen() {
       {/* Results */}
       <View style={styles.resultsHeader}>
         <View style={styles.resultsTitleRow}>
-          <Ionicons name="business" size={15} color={Colors.primaryDark} />
+          <AppIcon name={APP_ICONS.business} size={15} color={Colors.primaryDark} />
           <Text style={[styles.resultsTitle, { fontSize: fs(16) }]}>{t('centres.results')}</Text>
         </View>
         <View style={styles.resultsMeta}>
-          <Ionicons name="location" size={13} color={Colors.textMuted} />
+          <AppIcon name={APP_ICONS.location} size={13} color={Colors.textMuted} />
           <Text style={[styles.locationSummary, { fontSize: fs(12) }]}>{locationSummary}</Text>
           <Text style={[styles.resultCount, { fontSize: fs(12) }]}>
             {filtered.length === 1
@@ -281,7 +281,7 @@ export default function CentresScreen() {
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon="search"
+          icon={APP_ICONS.search}
           title={t('centres.noResults')}
           message={t('centres.noResultsBody')}
           action={<SecondaryButton label={t('centres.reset')} onPress={resetAll} small />}
@@ -313,7 +313,7 @@ export default function CentresScreen() {
   value,
   onChange,
 }: {
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: AppIconName;
   label: string;
   options: string[];
   value: string;
@@ -329,7 +329,7 @@ export default function CentresScreen() {
   return (
     <View style={styles.chipGroup}>
       <View style={styles.chipGroupLabel}>
-        {icon ? <Ionicons name={icon} size={13} color={Colors.textMuted} /> : null}
+        {icon ? <AppIcon name={icon} size={13} color={Colors.textMuted} /> : null}
         <Text style={[styles.chipLabel, { fontSize: fs(12) }]}>{label}</Text>
       </View>
       <View style={styles.chipPillRow}>

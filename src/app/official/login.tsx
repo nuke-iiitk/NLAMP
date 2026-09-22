@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -9,6 +8,7 @@ import SectionHeading from '../../components/SectionHeading';
 import { Colors, Radius, Spacing } from '../../constants/theme';
 import { useI18n } from '../../i18n';
 import { useStore } from '../../store/AppStore';
+import { APP_ICONS, AppIcon } from '../../components/AppIcon';
 
 export default function OfficialLoginScreen() {
   const { t, fs } = useI18n();
@@ -39,7 +39,7 @@ export default function OfficialLoginScreen() {
         </View>
         <View style={styles.bannerInner}>
           <View style={styles.emblem}>
-            <Ionicons name="shield-checkmark" size={24} color={Colors.white} />
+            <AppIcon name={APP_ICONS.shieldCheckmark} size={24} color={Colors.white} />
           </View>
           <View>
             <Text style={[styles.bannerTitle, { fontSize: fs(18) }]}>{t('off.portal')}</Text>

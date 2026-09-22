@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
@@ -17,6 +16,7 @@ import { formatDateLong, slotRange } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
 export default function StatusScreen() {
   const { t, fs } = useI18n();
@@ -31,7 +31,7 @@ export default function StatusScreen() {
       <ScreenShell breadcrumbs={[{ label: t('status.title') }]}>
         <SectionHeading title={t('status.title')} />
         <EmptyState
-          icon="flag"
+          icon={APP_ICONS.flag}
           title={t('bookings.empty')}
           action={
             <PrimaryButton label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
@@ -75,7 +75,7 @@ export default function StatusScreen() {
           ) : null}
 
           {booking.status === 'Completed' ? (
-            <AlertBanner tone="success" title={t('status.stage5')} message={t('queue.done')} icon="checkmark-done" />
+            <AlertBanner tone="success" title={t('status.stage5')} message={t('queue.done')} icon={APP_ICONS.checkmarkDone} />
           ) : null}
         </View>
       </View>
@@ -90,7 +90,7 @@ export default function StatusScreen() {
           }
         />
         <Text style={[styles.slipNote, { fontSize: fs(12) }]}>
-          <Ionicons name="receipt" size={12} color={Colors.textMuted} /> {t('status.slipNote')}
+          <AppIcon name={APP_ICONS.receipt} size={12} color={Colors.textMuted} /> {t('status.slipNote')}
         </Text>
       </InfoCard>
 
