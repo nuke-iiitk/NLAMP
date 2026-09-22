@@ -71,6 +71,19 @@
   font-family: inherit;
 }
 
+/* ────────────────────────────────────────────────────────────
+   Breadcrumbs — drop Bootstrap's default "/" separator.
+   The portal renders crumbs as plain sibling items, so we
+   blank the divider and keep only a small gap between them.
+   ──────────────────────────────────────────────────────────── */
+.breadcrumb {
+  --bs-breadcrumb-divider: "";
+}
+.breadcrumb-item + .breadcrumb-item {
+  padding-left: 0.35rem;
+}
+
+
 /* Keep icon fonts intact no matter what Bootstrap sets */
 .oi-icon,
 [data-icon] {
