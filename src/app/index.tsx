@@ -4,8 +4,11 @@ import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Button from '../components/Button';
 import { AppIcon, APP_ICONS } from '../components/AppIcon';
 import InfoCard from '../components/InfoCard';
+import NoticesBoard from '../components/NoticesBoard';
+import ProcessSteps from '../components/ProcessSteps';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
+import ServicesList from '../components/ServicesList';
 import { Colors, Spacing } from '../constants/theme';
 import { analyticsSummary } from '../data/mockData';
 import { PORTAL_NOTICES } from '../data/notices';
@@ -87,100 +90,72 @@ export default function HomeScreen() {
         {/* Left Column: Services & Process */}\
         <View style={styles.mainCol}>
           <SectionHeading title={t('landing.servicesTitle')} />
-          {[{
-            title: t('nav.register'),
-            desc: t('landing.step1Body'),
-            href: path.register,
-          }, {
-            title: t('nav.booking'),
-            desc: t('landing.step3Body'),
-            href: path.booking,
-          }, {
-            title: t('nav.queue'),
-            desc: t('landing.step5Body'),
-            href: path.queue,
-          }, {
-            title: t('nav.centres'),
-            desc: t('landing.centresDesc'),
-            href: path.centres,
-          }].map((srv) => (
-            <Button
-              key={srv.title}
-              label={srv.title}
-              href={srv.href}
-              variant="link"
-              after={<AppIcon name={APP_ICONS.chevronForward} size={14} color={Colors.primary} />}
-            />
-          ))}
+          <ServicesList
+            items={[{
+              title: t('nav.register'),
+              desc: t('landing.step1Body'),
+              href: path.register,
+              icon: APP_ICONS.personAdd,
+            }, {
+              title: t('nav.booking'),
+              desc: t('landing.step3Body'),
+              href: path.booking,
+              icon: APP_ICONS.calendar,
+            }, {
+              title: t('nav.queue'),
+              desc: t('landing.step5Body'),
+              href: path.queue,
+              icon: APP_ICONS.speedometer,
+            }, {
+              title: t('nav.centres'),
+              desc: t('landing.centresDesc'),
+              href: path.centres,
+              icon: APP_ICONS.location,
+            }]}
+          />
 
           <View style={{ marginTop: Spacing.xl }}>
             <SectionHeading title={t('landing.stepsTitle')} subtitle={t('landing.stepsSub')} />
-            <InfoCard>
-              {[{
+            <ProcessSteps
+              steps={[{
                 step: 1,
                 label: t('landing.step1'),
-                icon: APP_ICONS.personAdd,
+                body: t('landing.step1Body'),
               }, {
                 step: 2,
                 label: t('landing.step2'),
-                icon: APP_ICONS.location,
+                body: t('landing.step2Body'),
               }, {
                 step: 3,
                 label: t('landing.step3'),
-                icon: APP_ICONS.calendar,
+                body: t('landing.step3Body'),
               }, {
                 step: 4,
                 label: t('landing.step4'),
-                icon: APP_ICONS.ticket,
+                body: t('landing.step4Body'),
               }, {
                 step: 5,
                 label: t('landing.step5'),
-                icon: APP_ICONS.speedometer,
+                body: t('landing.step5Body'),
               }, {
                 step: 6,
                 label: t('landing.step6'),
-                icon: APP_ICONS.checkmarkDone,
-              }].map((item) => (
-                <View key={item.step} style={styles.processRow}>
-                  <View style={styles.processNum}>
-                    <Text style={styles.processNumText}>{item.step}</Text>
-                  </View>
-                  <AppIcon name={item.icon} size={16} color={Colors.primary} />
-                  <Text style={[styles.processLabel, { fontSize: fs(13) }]}>{item.label}</Text>
-                </View>
-              ))}
-            </InfoCard>
+                body: t('landing.step6Body'),
+              }]}
+            />
           </View>
         </View>
 
         {/* Right Column: Notices */}\
         <View style={styles.sideCol}>
           <SectionHeading title={t('notice.title')} />
-          <InfoCard>
-            <View style={styles.noticeBoardHeader}>
-              <Text style={[styles.nbHeaderText, { fontSize: fs(11) }]}>{t('notice.subject')}</Text>
-              <Text style={[styles.nbHeaderText, { fontSize: fs(11), width: 80, textAlign: 'right' }]}>
-                {t('notice.date')}
-              </Text>
-            </View>
-            {PORTAL_NOTICES.slice(0, 5).map((n) => (
-              <View key={n.title} style={styles.noticeItem}>
-                <AppIcon name={APP_ICONS.documentText} size={15} color={Colors.info} style={styles.noticeItemIcon} />
-                <View style={styles.noticeCopy}>
-                  <Text style={[styles.noticeItemTitle, { fontSize: fs(13) }]}>{n.title}</Text>
-                </View>
-                <Text style={[styles.noticeItemDate, { fontSize: fs(11), width: 80, textAlign: 'right' }]}>
-                  {n.date}
-                </Text>
-              </View>
-            ))}
-            <Button
-              label={t('common.viewAll')}
-              href={path.notices}
-              variant="link"
-              small
-            />
-          </InfoCard>
+          <NoticesBoard
+            notices={PORTAL_NOTICES.slice(0, 5)}
+            subjectLabel={t('notice.subject')}
+            dateLabel={t('notice.date')}
+            viewAllLabel={t('common.viewAll')}
+            viewAllHref={path.notices}
+          />
         </View>
       </View>
     </ScreenShell>
@@ -296,63 +271,5 @@ const styles = StyleSheet.create({
   },
   sideCol: {
     flex: 1,
-  },
-  processRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingVertical: 8,
-  },
-  processNum: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  processNumText: {
-    color: Colors.white,
-    fontWeight: '800',
-    fontSize: 13,
-  },
-  processLabel: {
-    color: Colors.text,
-    fontWeight: '500',
-  },
-  noticeBoardHeader: {
-    flexDirection: 'row',
-    backgroundColor: Colors.primaryDark,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-  },
-  nbHeaderText: {
-    color: Colors.white,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  noticeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  noticeItemIcon: {
-    width: 24,
-  },
-  noticeCopy: {
-    flex: 1,
-  },
-  noticeItemTitle: {
-    color: Colors.info,
-    fontWeight: '600',
-    lineHeight: 20,
-  },
-  noticeItemDate: {
-    color: Colors.textSecondary,
-    fontWeight: '600',
   },
 });
