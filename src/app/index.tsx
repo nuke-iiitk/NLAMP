@@ -19,6 +19,43 @@ export default function HomeScreen() {
   const { t, fs } = useI18n();
   const { width } = useWindowDimensions();
   const wide = width >= 768;
+  /** 16:9 desktop: three balanced columns (services / steps / notices). */
+  const desktop = width >= 1024;
+
+  /** Booking-process steps — shared between the stacked (mobile/tablet) and
+      three-column (16:9 desktop) home layouts. */
+  const stepsBlock = (
+    <>
+      <SectionHeading title={t('landing.stepsTitle')} subtitle={t('landing.stepsSub')} />
+      <ProcessSteps
+        steps={[{
+          step: 1,
+          label: t('landing.step1'),
+          body: t('landing.step1Body'),
+        }, {
+          step: 2,
+          label: t('landing.step2'),
+          body: t('landing.step2Body'),
+        }, {
+          step: 3,
+          label: t('landing.step3'),
+          body: t('landing.step3Body'),
+        }, {
+          step: 4,
+          label: t('landing.step4'),
+          body: t('landing.step4Body'),
+        }, {
+          step: 5,
+          label: t('landing.step5'),
+          body: t('landing.step5Body'),
+        }, {
+          step: 6,
+          label: t('landing.step6'),
+          body: t('landing.step6Body'),
+        }]}
+      />
+    </>
+  );
 
   return (
     <ScreenShell>
@@ -37,12 +74,12 @@ export default function HomeScreen() {
       <View style={[styles.heroBlock, wide && styles.heroRow]}>
         <View style={styles.heroLeft}>
           <View style={styles.heroTitleLines}>
-            <Text style={[styles.portalTitle, { fontSize: fs(30) }]}>{t('landing.heroTitle1')}</Text>
-            <Text style={[styles.portalTitle, { fontSize: fs(30) }]}>{t('landing.heroTitle2')}</Text>
-            <Text style={[styles.portalTitle, { fontSize: fs(30) }]}>{t('landing.heroTitle3')}</Text>
+            <Text style={[styles.portalTitle, { fontSize: fs(desktop ? 34 : 30) }]}>{t('landing.heroTitle1')}</Text>
+            <Text style={[styles.portalTitle, { fontSize: fs(desktop ? 34 : 30) }]}>{t('landing.heroTitle2')}</Text>
+            <Text style={[styles.portalTitle, { fontSize: fs(desktop ? 34 : 30) }]}>{t('landing.heroTitle3')}</Text>
           </View>
 
-          <Text style={[styles.portalDesc, { fontSize: fs(14) }]}>{t('landing.heroDesc')}</Text>
+          <Text style={[styles.portalDesc, { fontSize: fs(desktop ? 15 : 14) }]}>{t('landing.heroDesc')}</Text>
 
           <View style={styles.heroButtons}>
             <Button label={t('landing.ctaBook')} onPress={() => router.push(path.booking)} />
@@ -87,8 +124,8 @@ export default function HomeScreen() {
 
       {/* Services and Notices Grid */}
       <View style={[styles.mainGrid, wide && styles.mainGridRow]}>
-        {/* Left Column: Services & Process */}
-        <View style={styles.mainCol}>
+        {/* Services column (own column on 16:9 desktop) */}
+        <View style={[styles.mainCol, desktop && styles.desktopCol]}>
           <SectionHeading title={t('landing.servicesTitle')} />
           <ServicesList
             items={[{
@@ -113,38 +150,12 @@ export default function HomeScreen() {
               icon: APP_ICONS.location,
             }]}
           />
-
-          <View style={{ marginTop: Spacing.xl }}>
-            <SectionHeading title={t('landing.stepsTitle')} subtitle={t('landing.stepsSub')} />
-            <ProcessSteps
-              steps={[{
-                step: 1,
-                label: t('landing.step1'),
-                body: t('landing.step1Body'),
-              }, {
-                step: 2,
-                label: t('landing.step2'),
-                body: t('landing.step2Body'),
-              }, {
-                step: 3,
-                label: t('landing.step3'),
-                body: t('landing.step3Body'),
-              }, {
-                step: 4,
-                label: t('landing.step4'),
-                body: t('landing.step4Body'),
-              }, {
-                step: 5,
-                label: t('landing.step5'),
-                body: t('landing.step5Body'),
-              }, {
-                step: 6,
-                label: t('landing.step6'),
-                body: t('landing.step6Body'),
-              }]}
-            />
-          </View>
+          {/* Below desktop the steps stack under services in the left column */}
+          {!desktop ? <View style={styles.stepsStack}>{stepsBlock}</View> : null}
         </View>
+
+        {/* Process steps column — own column on 16:9 desktop only */}
+        {desktop ? <View style={styles.desktopCol}>{stepsBlock}</View> : null}
 
         {/* Right Column: Notices */}
         <View style={styles.sideCol}>
@@ -233,8 +244,9 @@ const styles = StyleSheet.create({
   },
   heroRight: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 380,
     marginTop: Spacing.lg,
+    minWidth: 280,
   },
   statusRow: {
     flexDirection: 'row',
@@ -271,5 +283,14 @@ const styles = StyleSheet.create({
   },
   sideCol: {
     flex: 1,
+  },
+  /** 16:9 desktop — three equal columns (services / steps / notices). */
+  desktopCol: {
+    flex: 1,
+    minWidth: 0,
+  },
+  /** Steps stacked under services below desktop. */
+  stepsStack: {
+    marginTop: Spacing.xl,
   },
 });

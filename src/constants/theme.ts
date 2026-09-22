@@ -145,7 +145,8 @@ export const FontSize = {
   display: 42,
 };
 
-export const MaxContentWidth = 1080;
+/** Desktop content width — tuned for 16:9 displays (1920×1080, 1366×768). */
+export const MaxContentWidth = 1280;
 export const MaxTextWidth = 880;
 export const BottomTabInset = 76;
 
