@@ -17,38 +17,12 @@ type Props = {
  */
 export default function SectionHeading({ title, subtitle, right }: Props) {
   return (
-    <div className="mt-4 mb-3">
+    <div className="mt-4 mb-3 border-bottom pb-2">
       <div className="d-flex align-items-center justify-content-between gap-3">
-        <div className="d-flex align-items-center gap-2">
-          <span
-            aria-hidden="true"
-            style={{
-              width: 5,
-              height: 22,
-              borderRadius: 3,
-              background: '#d97c0a',
-              flexShrink: 0,
-            }}
-          />
-          <h2
-            className="mb-0 fw-bold"
-            style={{
-              fontFamily: "'Fraunces', Georgia, serif",
-              color: '#1e2a52',
-              fontSize: '1.35rem',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            {title}
-          </h2>
-        </div>
+        <h2 className="h5 fw-bold text-primary-emphasis mb-0">{title}</h2>
         {right ? <div className="flex-shrink-0 ms-2">{right}</div> : null}
       </div>
-      {subtitle ? (
-        <p className="text-body-secondary mb-0 mt-1" style={{ paddingLeft: 15, fontSize: '0.925rem' }}>
-          {subtitle}
-        </p>
-      ) : null}
+      {subtitle ? <p className="text-body-secondary small mb-0 mt-1">{subtitle}</p> : null}
     </div>
   );
 }

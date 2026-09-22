@@ -112,11 +112,10 @@ export default function Button({
         active && styles.btnActive,
         small && styles.btnSmall,
         iconOnly && styles.btnIconOnly,
-        variant === 'primary' && !small && !active && styles.btnHero,
         {
           backgroundColor: active ? Colors.primaryLight : tone.bg,
           borderColor: tone.border,
-          opacity: inactive ? 0.45 : pressed && !active ? 0.9 : 1,
+          opacity: inactive ? 0.45 : pressed && !active ? 0.85 : 1,
         },
       ]}
     >
@@ -163,35 +162,26 @@ export default function Button({
 
 const styles = StyleSheet.create({
   btn: {
-    minHeight: 44,
-    borderRadius: Radius.md,
-    borderWidth: 0,
+    minHeight: 40,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
   },
-  btnSmall: { minHeight: 36, paddingHorizontal: Spacing.md },
+  btnSmall: { minHeight: 34, paddingHorizontal: Spacing.sm },
   btnIconOnly: { paddingHorizontal: Spacing.sm, minWidth: 40 },
   btnActive: {
-    borderWidth: 0,
-  },
-  /** Tactile lift for the dominant CTA — the one button that matters. */
-  btnHero: {
-    shadowColor: Colors.primaryDark,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.28,
-    shadowRadius: 8,
-    elevation: 4,
+    borderWidth: 2,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: Spacing.xs,
   },
   label: {
     fontWeight: '700',
     fontFamily: Fonts.semiBold,
-    letterSpacing: 0.2,
   },
   stack: {
     alignItems: 'flex-start',

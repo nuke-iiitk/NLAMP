@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Spacing } from '../constants/theme';
+import { Colors, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 
 /** Horizontal progress stepper used by multi-step flows (booking, registration). */
@@ -52,44 +52,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dot: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 30,
+    height: 30,
+    borderRadius: Radius.sm,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.surface,
   },
   dotDone: {
     backgroundColor: Colors.green,
+    borderColor: Colors.green,
   },
   dotActive: {
-    backgroundColor: Colors.saffron,
+    borderColor: Colors.saffron,
+    backgroundColor: Colors.saffronLight,
   },
   dotText: {
     color: Colors.textMuted,
-    fontWeight: '700',
-  },
-  dotTextActive: {
-    color: Colors.white,
     fontWeight: '800',
   },
+  dotTextActive: {
+    color: Colors.primaryDark,
+  },
   label: {
-    marginTop: 8,
+    marginTop: 6,
     textAlign: 'center',
     color: Colors.textMuted,
     fontWeight: '600',
   },
   labelActive: {
-    color: Colors.saffronDark,
+    color: Colors.primary,
     fontWeight: '800',
   },
   connector: {
     position: 'absolute',
-    top: 17,
+    top: 15,
     left: '50%',
     right: '-50%',
-    height: 3,
-    borderRadius: 2,
+    height: 2,
     backgroundColor: Colors.border,
     zIndex: -1,
   },

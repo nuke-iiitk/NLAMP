@@ -1,13 +1,12 @@
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import { Colors, Radius, Spacing } from '../constants/theme';
+import { Colors, Spacing } from '../constants/theme';
 import DemoBadge from './DemoBadge';
 import { useI18n } from '../i18n';
 
 /**
- * Premium token card — the object farmers screenshot and show at the gate.
- * Saffron header ribbon, giant tabular token digits, cream footer. No heavy
- * admit-card borders; identity comes from colour and type scale.
+ * Official examination-admit-card style token display.
+ * Strong double border, header strip, rectangular layout.
  */
 export default function TokenDisplay({
   token,
@@ -22,13 +21,13 @@ export default function TokenDisplay({
   const { width } = useWindowDimensions();
   const compact = width < 480;
   // Scale the giant token number so it never overflows a 360–400px phone.
-  const tokenSize = fs(compact ? 38 : 56);
+  const tokenSize = fs(compact ? 34 : 52);
   const tokenLetter = compact ? 2 : 4;
   return (
     <View style={styles.wrap}>
-      {/* Saffron ribbon header */}
+      {/* Header strip */}
       <View style={styles.headerStrip}>
-        <Text style={[styles.headerText, { fontSize: fs(12) }]}>
+        <Text style={[styles.headerText, { fontSize: fs(13) }]}>
           {label ?? 'PROCUREMENT TOKEN'}
         </Text>
       </View>
@@ -57,17 +56,12 @@ export default function TokenDisplay({
 const styles = StyleSheet.create({
   wrap: {
     backgroundColor: Colors.white,
-    borderRadius: Radius.xl,
-    overflow: 'hidden',
-    shadowColor: Colors.primaryDeep,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.14,
-    shadowRadius: 18,
-    elevation: 6,
+    borderWidth: 2,
+    borderColor: Colors.primaryDark,
     marginBottom: Spacing.lg,
   },
   headerStrip: {
-    backgroundColor: Colors.saffron,
+    backgroundColor: Colors.primaryDark,
     paddingVertical: Spacing.sm,
     alignItems: 'center',
   },
@@ -75,7 +69,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 2.4,
+    letterSpacing: 2,
   },
   body: {
     alignItems: 'center',
@@ -83,10 +77,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   token: {
-    color: Colors.primaryDeep,
+    color: Colors.primaryDark,
     fontWeight: '800',
     letterSpacing: 4,
-    fontVariant: ['tabular-nums'],
   },
   subtitle: {
     color: Colors.textSecondary,
@@ -98,13 +91,15 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
   },
   footerStrip: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
     backgroundColor: Colors.surfaceAlt,
-    paddingVertical: 8,
+    paddingVertical: 6,
     alignItems: 'center',
   },
   footerText: {
     color: Colors.textMuted,
-    fontWeight: '700',
+    fontWeight: '600',
     letterSpacing: 0.8,
   },
 });

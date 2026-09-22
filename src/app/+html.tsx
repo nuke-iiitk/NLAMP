@@ -4,9 +4,9 @@ import type { PropsWithChildren } from 'react';
 
 /**
  * Web-only HTML shell.
- * Loads the portal brand theme from /public (never bundled into JS).
- * Fonts: 'Noto Sans' body + 'Fraunces' display (both variable, self-hosted
- * fallback stacks keep Hindi/Malayalam rendering on system Noto faces).
+ * Loads Bootstrap 5 + Bootstrap Icons + the portal brand theme from /public
+ * (never bundled into JS). Arial is a system font, so no font downloads are
+ * needed — the head stays lean and paints immediately.
  *
  * On GitHub Pages the site is served under the repo path (experiments.baseUrl
  * in app.json, e.g. /sih-farmer-queue), so the asset hrefs must be prefixed
@@ -22,13 +22,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="theme-color" content="#141d3d" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&display=swap"
-        />
+        <meta name="theme-color" content="#0d47a1" />
         <ScrollViewStyleReset />
         <link rel="stylesheet" href={`${BASE_URL}/bootstrap.min.css`} />
         <link rel="stylesheet" href={`${BASE_URL}/bootstrap-icons.css`} />

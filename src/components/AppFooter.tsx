@@ -137,20 +137,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryDark,
   },
   tricolour: {
-    height: 3,
+    height: 4,
     flexDirection: 'row',
   },
   triSaffron: {
     flex: 1,
-    backgroundColor: '#d97c0a',
+    backgroundColor: '#FF9933',
   },
   triWhite: {
     flex: 1,
-    backgroundColor: '#f3ede1',
+    backgroundColor: '#FFFFFF',
   },
   triGreen: {
     flex: 1,
-    backgroundColor: '#2e7d4f',
+    backgroundColor: '#138808',
   },
   inner: {
     alignSelf: 'center',
