@@ -1,7 +1,7 @@
 /**
- * Demo data model for the Farmer Procurement Portal prototype.
+ * Local data model for the Farmer Procurement Portal.
  *
- * All names, centres, numbers and IDs are fictional demo data.
+ * All names, centres, numbers and IDs are sample records for development.
  * In production this module is replaced by the FastAPI backend
  * (see src/services/api.ts for the intended endpoint mapping).
  */
