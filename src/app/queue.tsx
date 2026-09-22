@@ -7,7 +7,7 @@ import DemoBadge from '../components/DemoBadge';
 import EmptyState from '../components/EmptyState';
 import InfoCard from '../components/InfoCard';
 import ProgressTrack from '../components/ProgressTrack';
-import { PrimaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import StatusBadge from '../components/StatusBadge';
@@ -64,7 +64,7 @@ export default function QueueScreen() {
           title={t('queue.noActive')}
           message={t('queue.noActiveBody')}
           action={
-            <PrimaryButton label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
+            <Button label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
           }
         />
       </ScreenShell>
@@ -179,9 +179,9 @@ export default function QueueScreen() {
         </InfoCard>
       </View>
 
-      <PrimaryButton label={t('dash.viewQueue')} onPress={() => router.back()} small />
+      <Button label={t('dash.viewQueue')} onPress={() => router.back()} small />
       <View style={styles.spacer} />
-      <PrimaryButton label={t('book.backDash')} onPress={() => router.push(path.dashboard as never)} small />
+      <Button label={t('book.backDash')} onPress={() => router.push(path.dashboard as never)} small />
     </ScreenShell>
   );
 }

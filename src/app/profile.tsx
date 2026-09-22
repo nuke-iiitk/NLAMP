@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
+import ChoiceChips from '../components/ChoiceChips';
 import InfoCard, { MetaRow } from '../components/InfoCard';
-import { PrimaryButton, SecondaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import { Colors, Radius, Spacing } from '../constants/theme';
@@ -25,7 +26,7 @@ export default function ProfileScreen() {
         <InfoCard>
           <Text style={[styles.body, { fontSize: fs(15) }]}>{t('profile.needLogin')}</Text>
           <View style={styles.spacer} />
-          <PrimaryButton label={t('nav.login')} onPress={() => router.push(path.login as never)} />
+          <Button label={t('nav.login')} onPress={() => router.push(path.login as never)} />
         </InfoCard>
       </ScreenShell>
     );
@@ -63,54 +64,26 @@ export default function ProfileScreen() {
 
           <InfoCard title={t('profile.preferences')}>
             <Text style={[styles.section, { fontSize: fs(13) }]}>{t('profile.language')}</Text>
-            <View style={styles.optionsRow}>
-              {LANGUAGES.map((lang) => {
-                const active = language === lang.code;
-                return (
-                  <Pressable
-                    key={lang.code}
-                    onPress={() => setLanguage(lang.code as LanguageCode)}
-                    style={[styles.option, active && styles.optionActive]}
-                    accessibilityRole="button"
-                  >
-                    <Text style={[styles.optionText, active && styles.optionTextActive, { fontSize: fs(13) }]}>
-                      {lang.native}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <ChoiceChips
+              items={LANGUAGES.map((lang) => ({ id: lang.code, label: lang.native }))}
+              value={language}
+              onChange={(id) => setLanguage(id as LanguageCode)}
+            />
 
             <Text style={[styles.section, { fontSize: fs(13) }]}>{t('profile.textSize')}</Text>
-            <View style={styles.optionsRow}>
-              {(['small', 'normal', 'large'] as TextSizeLevel[]).map((size) => {
-                const active = textSize === size;
-                const label =
-                  size === 'small'
-                    ? t('profile.textSmall')
-                    : size === 'normal'
-                      ? t('profile.textNormal')
-                      : t('profile.textLarge');
-                return (
-                  <Pressable
-                    key={size}
-                    onPress={() => setTextSize(size)}
-                    style={[styles.option, active && styles.optionActive]}
-                    accessibilityRole="button"
-                  >
-                    <Text style={[styles.optionText, active && styles.optionTextActive, { fontSize: fs(13) }]}>
-                      {size === 'small' ? 'A−' : ''}
-                      {size === 'normal' ? 'A' : ''}
-                      {size === 'large' ? 'A+' : ''} {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <ChoiceChips
+              items={[
+                { id: 'small', label: `A− ${t('profile.textSmall')}` },
+                { id: 'normal', label: `A ${t('profile.textNormal')}` },
+                { id: 'large', label: `A+ ${t('profile.textLarge')}` },
+              ]}
+              value={textSize}
+              onChange={(id) => setTextSize(id as TextSizeLevel)}
+            />
           </InfoCard>
 
           <View style={styles.spacer} />
-          <SecondaryButton
+          <Button
             label={t('nav.logout')}
             onPress={() => {
               logout();
@@ -120,7 +93,7 @@ export default function ProfileScreen() {
           />
 
           <View style={styles.spacer} />
-          <PrimaryButton label={t('dash.qaBook')} onPress={() => router.push(path.booking as never)} />
+          <Button label={t('dash.qaBook')} onPress={() => router.push(path.booking as never)} />
         </View>
       </View>
     </ScreenShell>

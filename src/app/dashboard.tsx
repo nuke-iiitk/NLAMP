@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import AlertBanner from '../components/AlertBanner';
 import InfoCard, { MetaRow } from '../components/InfoCard';
-import { PrimaryButton, SecondaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
+import Link from '../components/Link';
 import QuickActions from '../components/QuickActions';
 import QueueCard from '../components/QueueCard';
 import ScreenShell from '../components/ScreenShell';
@@ -45,7 +46,7 @@ export default function DashboardScreen() {
           )}
         </View>
         {auth.role !== 'farmer' ? (
-          <SecondaryButton label={t('nav.login')} onPress={() => router.push(path.login as never)} small />
+          <Button variant="outline-primary" label={t('nav.login')} onPress={() => router.push(path.login as never)} small />
         ) : null}
       </View>
 
@@ -66,7 +67,7 @@ export default function DashboardScreen() {
 
               {booking.status === 'Upcoming' || (booking.status === 'Waiting' && !booking.arrived) ? (
                 <View style={styles.spacerSm}>
-                  <PrimaryButton
+                  <Button
                     label={t('dash.checkIn')}
                     onPress={() => markArrived(booking.id)}
                     variant="success"
@@ -89,23 +90,18 @@ export default function DashboardScreen() {
             <SectionHeading title={t('dash.quickActions')} />
             <QuickActions />
 
-            {recentBookings.length > 0 ? (
+                        {recentBookings.length > 0 ? (
               <>
                 <SectionHeading
                   title={t('dash.recentNotifications')}
                   right={
-                    <Pressable onPress={() => router.push(path.notifications as never)}>
-                      <Text style={styles.viewAll}>{t('common.viewAll')}</Text>
-                    </Pressable>
+                    <Link variant="body" href={path.notifications} label={t('common.viewAll')} />
                   }
                 />
                 <InfoCard padded={false}>
                   {recentBookings.map((b) => (
-                    <Pressable
-                      key={b.id}
-                      onPress={() => router.push(path.bookings as never)}
-                      style={styles.notificationRow}
-                    >
+                    <Link key={b.id} href={path.bookings} variant="body">
+                      <View style={styles.notificationRow}>
                       <View style={styles.notifIcon}>
                         {b.status === 'Completed' ? (
                           <AppIcon name={APP_ICONS.checkmarkCircle} size={18} color={Colors.green} />
@@ -124,7 +120,8 @@ export default function DashboardScreen() {
                         </Text>
                       </View>
                       <StatusBadge status={b.status} small />
-                    </Pressable>
+                      </View>
+                    </Link>
                   ))}
                 </InfoCard>
               </>
@@ -138,7 +135,7 @@ export default function DashboardScreen() {
           <InfoCard title={t('dash.noBooking')}>
             <Text style={[styles.noBookingBody, { fontSize: fs(14) }]}>{t('dash.noBookingBody')}</Text>
             <View style={styles.spacerSm} />
-            <PrimaryButton label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
+            <Button label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
           </InfoCard>
           <SectionHeading title={t('dash.quickActions')} />
           <QuickActions />

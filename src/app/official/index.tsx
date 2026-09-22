@@ -5,7 +5,7 @@ import AlertBanner from '../../components/AlertBanner';
 import DemoBadge from '../../components/DemoBadge';
 import InfoCard, { MetaRow } from '../../components/InfoCard';
 import OfficialShell from '../../components/OfficialShell';
-import { PrimaryButton, SecondaryButton } from '../../components/PrimaryButton';
+import Button from '../../components/Button';
 import SectionHeading from '../../components/SectionHeading';
 import StatCard from '../../components/StatCard';
 import StatusBadge from '../../components/StatusBadge';
@@ -92,9 +92,9 @@ export default function OfficialDashboard() {
 {/* Quick actions */}
       <SectionHeading title={t('off.dash.quick')} />
       <View style={styles.actions}>
-        <PrimaryButton label={t('off.dash.openQueue')} onPress={() => router.push('/official/queue' as never)} />
-        <SecondaryButton label={t('off.dash.manageSlots')} onPress={() => router.push('/official/slots' as never)} />
-        <SecondaryButton label={t('off.dash.viewAnalytics')} onPress={() => router.push('/official/analytics' as never)} />
+        <Button label={t('off.dash.openQueue')} onPress={() => router.push('/official/queue' as never)} />
+        <Button variant="outline-primary" label={t('off.dash.manageSlots')} onPress={() => router.push('/official/slots' as never)} />
+        <Button variant="outline-primary" label={t('off.dash.viewAnalytics')} onPress={() => router.push('/official/analytics' as never)} />
       </View>
 
       {/* Centre overview */}

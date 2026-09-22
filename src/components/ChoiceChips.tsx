@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Radius, Spacing } from '../constants/theme';
+import { useI18n } from '../i18n';
 
 type Item = {
   id: string;
@@ -14,7 +15,12 @@ type Props = {
   onChange: (id: string) => void;
 };
 
+/**
+ * Native (iOS/Android) filter chip group. Metro resolves ChoiceChips.web.tsx
+ * on web, where Bootstrap's btn-group classes render instead.
+ */
 export default function ChoiceChips({ items, value, onChange }: Props) {
+  const { fs } = useI18n();
   return (
     <View style={styles.wrap}>
       {items.map((item) => {
@@ -23,11 +29,17 @@ export default function ChoiceChips({ items, value, onChange }: Props) {
           <Pressable
             key={item.id}
             onPress={() => onChange(item.id)}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
             style={[styles.chip, selected && styles.chipSelected]}
           >
-            <Text style={[styles.label, selected && styles.labelSelected]}>{item.label}</Text>
+            <Text style={[styles.label, selected && styles.labelSelected, { fontSize: fs(13) }]}>
+              {item.label}
+            </Text>
             {item.hint ? (
-              <Text style={[styles.hint, selected && styles.hintSelected]}>{item.hint}</Text>
+              <Text style={[styles.hint, selected && styles.hintSelected, { fontSize: fs(11) }]}>
+                {item.hint}
+              </Text>
             ) : null}
           </Pressable>
         );
@@ -48,9 +60,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     backgroundColor: Colors.white,
     borderRadius: Radius.md,
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 14,
-    minHeight: 48,
+    minHeight: 44,
     justifyContent: 'center',
   },
   chipSelected: {
@@ -58,7 +70,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryLight,
   },
   label: {
-    fontSize: 15,
     fontWeight: '700',
     color: Colors.text,
   },
@@ -67,7 +78,6 @@ const styles = StyleSheet.create({
   },
   hint: {
     marginTop: 4,
-    fontSize: 12,
     color: Colors.textSecondary,
   },
   hintSelected: {

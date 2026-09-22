@@ -15,7 +15,7 @@ import { Colors, Fonts, Spacing } from '../constants/theme';
 import { useI18n, type LanguageCode, type TextSizeLevel } from '../i18n';
 import { path } from '../navigation';
 import BootstrapIcon from './BootstrapIcon';
-import NavButton from './NavButton';
+import Button from './Button';
 
 type NavItem = {
   key: string;
@@ -209,24 +209,22 @@ export default function GovernmentHeader() {
           </View>
         ) : (
           <View style={styles.brandActions}>
-            <Pressable
-              onPress={() => navigate(path.centres)}
-              accessibilityRole="button"
+            <Button
+              variant="outline-primary"
+              iconOnly
               accessibilityLabel={t('header.search')}
-              style={({ pressed }) => [styles.headerIconBtn, pressed && styles.headerIconBtnPressed]}
-            >
-              <BootstrapIcon name="bi-search" size={15} color={Colors.primaryDark} />
-            </Pressable>
-            <Pressable
+              accessibilityHint={t('header.searchHint')}
+              leading={<BootstrapIcon name="bi-search" size={15} color={Colors.primaryDark} />}
+              onPress={() => navigate(path.centres)}
+            />
+            <Button
+              variant="primary"
+              small
+              label={t('nav.login')}
+              accessibilityHint={t('header.loginHint')}
+              leading={<BootstrapIcon name="bi-box-arrow-in-right" size={12} color={Colors.white} />}
               onPress={() => navigate(path.login)}
-              accessibilityRole="button"
-              style={({ pressed }) => [styles.loginBtnSm, pressed && styles.loginBtnSmPressed]}
-            >
-              <View style={styles.loginRow}>
-                <BootstrapIcon name="bi-box-arrow-in-right" size={12} color={Colors.white} />
-                <Text style={[styles.loginBtnText, { fontSize: fs(11) }]}>{t('nav.login')}</Text>
-              </View>
-            </Pressable>
+            />
           </View>
         )}
       </View>
@@ -235,22 +233,20 @@ export default function GovernmentHeader() {
       <View style={styles.navRow} accessibilityRole="header" accessibilityLabel={t('nav.menu')}>
         {compact ? (
           <>
-            <Pressable
-              onPress={() => setMenuOpen((v) => !v)}
-              accessibilityRole="button"
-              accessibilityState={{ expanded: menuOpen }}
+            <Button
+              variant="outline-secondary"
+              label={menuOpen ? t('common.close') : t('nav.menu')}
               accessibilityLabel={menuOpen ? t('common.close') : t('nav.menu')}
-              style={styles.menuBtn}
-            >
-              <BootstrapIcon
-                name={menuOpen ? 'bi-x-lg' : 'bi-list'}
-                size={20}
-                color={Colors.primaryDark}
-              />
-              <Text style={[styles.menuBtnText, { fontSize: fs(12) }]}>
-                {menuOpen ? t('common.close') : t('nav.menu')}
-              </Text>
-            </Pressable>
+              expanded={menuOpen}
+              leading={
+                <BootstrapIcon
+                  name={menuOpen ? 'bi-x-lg' : 'bi-list'}
+                  size={18}
+                  color={Colors.primaryDark}
+                />
+              }
+              onPress={() => setMenuOpen((v) => !v)}
+            />
             {/* Language switch pinned to the right of the nav bar — fixed row,
                 never wraps or overlaps the hamburger. */}
             {renderLangRow(true)}
@@ -261,11 +257,13 @@ export default function GovernmentHeader() {
               {NAV_ITEMS.map((item) => {
                 const isActive = activeHref(item.href);
                 return (
-                  <NavButton
+                  <Button
                     key={item.key}
                     label={item.label}
-                    onPress={() => navigate(item.href)}
+                    variant="outline-primary"
+                    small
                     active={isActive}
+                    onPress={() => navigate(item.href)}
                   />
                 );
               })}
@@ -282,21 +280,21 @@ export default function GovernmentHeader() {
                   onSubmitEditing={submitSearch}
                   accessibilityLabel={t('header.search')}
                 />
-                <Pressable onPress={submitSearch} style={styles.searchBtn} accessibilityRole="button">
-                  <BootstrapIcon name="bi-search" size={12} color={Colors.white} />
-                  <Text style={[styles.searchBtnText, { fontSize: fs(12) }]}>{t('header.searchBtn')}</Text>
-                </Pressable>
+                                <Button
+                  variant="primary"
+                  small
+                  label={t('header.searchBtn')}
+                  leading={<BootstrapIcon name="bi-search" size={12} color={Colors.white} />}
+                  onPress={submitSearch}
+                />
               </View>
-              <Pressable
+              <Button
+                variant="primary"
+                label={t('nav.login')}
+                accessibilityHint={t('header.loginHint')}
+                leading={<BootstrapIcon name="bi-box-arrow-in-right" size={13} color={Colors.white} />}
                 onPress={() => navigate(path.login)}
-                style={styles.loginBtn}
-                accessibilityRole="button"
-              >
-                <View style={styles.loginRow}>
-                  <BootstrapIcon name="bi-box-arrow-in-right" size={13} color={Colors.white} />
-                  <Text style={[styles.loginBtnText, { fontSize: fs(13) }]}>{t('nav.login')}</Text>
-                </View>
-              </Pressable>
+              />
             </View>
           </>
         )}
@@ -308,12 +306,13 @@ export default function GovernmentHeader() {
           {NAV_ITEMS.map((item) => {
             const isActive = activeHref(item.href);
             return (
-              <NavButton
+              <Button
                 key={item.key}
                 label={item.label}
-                onPress={() => navigate(item.href)}
+                variant="outline-primary"
                 active={isActive}
-                block
+                className="w-100"
+                onPress={() => navigate(item.href)}
               />
             );
           })}

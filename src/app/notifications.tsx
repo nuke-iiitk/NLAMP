@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import EmptyState from '../components/EmptyState';
+import Button from '../components/Button';
 import InfoCard from '../components/InfoCard';
-import { PrimaryButton } from '../components/PrimaryButton';
+import EmptyState from '../components/EmptyState';
 import NotificationCard from '../components/NotificationCard';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
@@ -42,9 +42,7 @@ export default function NotificationsScreen() {
         subtitle={t('notif.subtitle')}
         right={
           sorted.some((n) => !n.read) ? (
-            <Pressable onPress={markAllNotificationsRead} accessibilityRole="button">
-              <Text style={[styles.markAll, { fontSize: fs(12) }]}>{t('notif.markAll')}</Text>
-            </Pressable>
+            <Button variant="link" small label={t('notif.markAll')} onPress={markAllNotificationsRead} />
           ) : undefined
         }
       />
@@ -68,16 +66,12 @@ export default function NotificationsScreen() {
       </InfoCard>
 
       <View style={styles.spacer} />
-      <PrimaryButton label={t('book.backDash')} onPress={() => router.push(path.dashboard as never)} small />
+      <Button label={t('book.backDash')} onPress={() => router.push(path.dashboard as never)} small />
     </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  markAll: {
-    color: Colors.info,
-    fontWeight: '700',
-  },
   channelNote: {
     color: Colors.textMuted,
     lineHeight: 18,

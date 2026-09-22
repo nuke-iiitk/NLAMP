@@ -1,4 +1,6 @@
-import { Alert, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Alert, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+
+import Link from '../components/Link';
 
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
@@ -51,15 +53,12 @@ export default function NoticesScreen() {
                 <Text style={[styles.noticeDept, { fontSize: fs(11) }]}>{notice.dept}</Text>
               </View>
               <Text style={[styles.dateCell, { fontSize: fs(12) }]}>{notice.date}</Text>
-              <Pressable
-                style={styles.pdfCell}
-                accessibilityRole="link"
-                accessibilityLabel={`${t('notice.pdf')}: ${notice.title}`}
+              <Link
                 onPress={() => handlePdf(notice)}
-              >
-                <AppIcon name={APP_ICONS.download} size={16} color={Colors.danger} />
-                <Text style={[styles.pdfText, { fontSize: fs(11) }]}>{t('notice.pdf')}</Text>
-              </Pressable>
+                accessibilityLabel={`${t('notice.pdf')}: ${notice.title}`}
+                after={<AppIcon name={APP_ICONS.download} size={16} color={Colors.danger} />}
+                label={t('notice.pdf')}
+              />
             </View>
           ))}
         </View>
@@ -76,15 +75,12 @@ export default function NoticesScreen() {
               <Text style={[styles.noticeDept, { fontSize: fs(11) }]}>{notice.dept}</Text>
               <View style={styles.cardMeta}>
                 <Text style={[styles.dateCell, { fontSize: fs(12) }]}>{notice.date}</Text>
-                <Pressable
-                  style={styles.pdfCell}
-                  accessibilityRole="link"
-                  accessibilityLabel={`${t('notice.pdf')}: ${notice.title}`}
+                <Link
                   onPress={() => handlePdf(notice)}
-                >
-                  <AppIcon name={APP_ICONS.download} size={14} color={Colors.danger} />
-                  <Text style={[styles.pdfText, { fontSize: fs(11) }]}>{t('notice.pdf')}</Text>
-                </Pressable>
+                  accessibilityLabel={`${t('notice.pdf')}: ${notice.title}`}
+                  after={<AppIcon name={APP_ICONS.download} size={14} color={Colors.danger} />}
+                  label={t('notice.pdf')}
+                />
               </View>
             </View>
           ))}

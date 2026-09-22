@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View, useWindowDimensions, Alert } from 'r
 import CentreCard from '../components/CentreCard';
 import DemoBadge from '../components/DemoBadge';
 import InfoCard, { MetaRow } from '../components/InfoCard';
-import { PrimaryButton, SecondaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import StepIndicator from '../components/StepIndicator';
@@ -110,23 +110,18 @@ export default function BookingScreen() {
               const active = centre.district === district;
               const count = centres.filter((c) => c.district === district).length;
               return (
-                <Pressable
+                <Button
                   key={district}
+                  variant="outline-primary"
+                  active={active}
+                  label={district}
+                  description={`${count} ${t('nav.centres')}`}
+                  accessibilityLabel={`${district}, ${count} ${t('nav.centres')}`}
                   onPress={() => {
                     const first = centres.find((c) => c.district === district);
                     if (first) setCentreId(first.id);
                   }}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                  style={[styles.chip, active && styles.chipActive]}
-                >
-                  <Text style={[styles.chipText, active && styles.chipTextActive, { fontSize: fs(14) }]}>
-                    {district}
-                  </Text>
-                  <Text style={[styles.chipHint, { fontSize: fs(11) }]}>
-                    {count} {t('nav.centres')}
-                  </Text>
-                </Pressable>
+                />
               );
             })}
           </View>
@@ -138,7 +133,7 @@ export default function BookingScreen() {
                 <CentreCard
                   centre={c}
                   action={
-                    <PrimaryButton
+                    <Button
                       label={c.id === centreId ? t('book.selected') : t('book.selectCentre')}
                       onPress={() => {
                         setCentreId(c.id);
@@ -154,8 +149,8 @@ export default function BookingScreen() {
           </View>
 
           <View style={styles.sectionRow}>
-            <SecondaryButton label={t('common.back')} onPress={() => router.back()} />
-            <PrimaryButton label={t('common.continue')} onPress={() => setStep(1)} />
+            <Button variant="outline-primary" label={t('common.back')} onPress={() => router.back()} />
+            <Button label={t('common.continue')} onPress={() => setStep(1)} />
           </View>
         </View>
       ) : null}
@@ -168,27 +163,20 @@ export default function BookingScreen() {
             {dates.map((date) => {
               const active = date === selectedDate;
               return (
-                <Pressable
+                <Button
                   key={date}
+                  variant="outline-secondary"
+                  small
+                  active={active}
+                  label={dayName(date)}
+                  description={formatDateShort(date)}
+                  accessibilityLabel={formatDateLong(date)}
                   onPress={() => {
                     setSelectedDate(date);
                     setSelectedSlot(null);
                     setSlotError('');
                   }}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                  style={[styles.dateChip, active && styles.dateChipActive]}
-                >
-                  <Text style={[styles.dateDay, active && styles.dateTextActive, { fontSize: fs(11) }]}>
-                    {dayName(date)}
-                  </Text>
-                  <Text style={[styles.dateNum, active && styles.dateTextActive, { fontSize: fs(18) }]}>
-                    {formatDateShort(date).split(' ')[0]}
-                  </Text>
-                  <Text style={[styles.dateMonth, active && styles.dateTextActive, { fontSize: fs(11) }]}>
-                    {formatDateShort(date).split(' ')[1]}
-                  </Text>
-                </Pressable>
+                />
               );
             })}
           </View>
@@ -227,34 +215,25 @@ export default function BookingScreen() {
                   Closed: Colors.surfaceAlt,
                 }[availability];
                 return (
-                  <Pressable
+                  <Button
                     key={slot.id}
+                    variant="outline-primary"
+                    active={active}
+                    disabled={disabled}
                     onPress={() => {
-                      if (disabled) return;
                       setSelectedSlot(slot.id);
                       setSlotError('');
                     }}
-                    disabled={disabled}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: active, disabled }}
-                    style={[
-                      styles.slotBtn,
-                      { borderColor: active ? Colors.primary : colors[availability], backgroundColor: bg },
-                      disabled && styles.slotDisabled,
-                      active && styles.slotActive,
-                    ]}
-                  >
-                    <Text style={[styles.slotTime, { fontSize: fs(13) }]}>
-                      {formatTime12h(slot.start)} – {formatTime12h(slot.end)}
-                    </Text>
-                    <Text style={[styles.slotMeta, { color: colors[availability], fontSize: fs(11) }]}>
-                      {availability === 'Closed'
+                    className="fpp-slot-btn"
+                    label={`${formatTime12h(slot.start)} – ${formatTime12h(slot.end)}`}
+                    description={
+                      availability === 'Closed'
                         ? t('book.slotClosed')
                         : availability === 'Full'
                           ? t('book.slotFull')
-                          : `${slot.capacity - slot.booked} ${t('book.availableSlots')}`}
-                    </Text>
-                  </Pressable>
+                          : `${slot.capacity - slot.booked} ${t('book.availableSlots')}`
+                    }
+                  />
                 );
               })}
             </View>
@@ -262,8 +241,8 @@ export default function BookingScreen() {
           {slotError ? <Text style={styles.error}>{slotError}</Text> : null}
 
           <View style={styles.sectionRow}>
-            <SecondaryButton label={t('common.back')} onPress={() => setStep(0)} />
-            <PrimaryButton
+            <Button variant="outline-primary" label={t('common.back')} onPress={() => setStep(0)} />
+            <Button
               label={t('book.review')}
               onPress={() => {
                 if (!selectedSlot) {
@@ -294,8 +273,8 @@ export default function BookingScreen() {
           {slotError ? <Text style={styles.error}>{slotError}</Text> : null}
 
           <View style={styles.sectionRow}>
-            <SecondaryButton label={t('common.back')} onPress={() => setStep(1)} />
-            <PrimaryButton label={t('book.confirm')} onPress={confirmBooking} variant="success" />
+            <Button variant="outline-primary" label={t('common.back')} onPress={() => setStep(1)} />
+            <Button label={t('book.confirm')} onPress={confirmBooking} variant="success" />
           </View>
         </View>
       ) : null}
@@ -327,12 +306,12 @@ export default function BookingScreen() {
               farmer={farmer}
               centre={centres.find((c) => c.id === confirmedBooking.centreId)}
             />
-            <PrimaryButton
+            <Button
               label={t('book.viewQueue')}
               onPress={() => router.replace(path.queue as never)}
               variant="success"
             />
-            <SecondaryButton
+            <Button variant="outline-primary"
               label={`📅 ${t('book.addCalendar')}`}
               onPress={() =>
                 Alert.alert(t('book.addCalendar'), t('book.calendarNote'), [
@@ -340,7 +319,7 @@ export default function BookingScreen() {
                 ])
               }
             />
-            <SecondaryButton label={t('book.backDash')} onPress={() => router.replace(path.dashboard as never)} />
+            <Button variant="outline-primary" label={t('book.backDash')} onPress={() => router.replace(path.dashboard as never)} />
           </View>
         </View>
       ) : null}

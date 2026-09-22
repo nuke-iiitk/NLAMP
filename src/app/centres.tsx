@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import CentreCard from '../components/CentreCard';
 import EmptyState from '../components/EmptyState';
 import FormField from '../components/FormField';
-import { PrimaryButton, SecondaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SearchableSelect from '../components/SearchableSelect';
 import SectionHeading from '../components/SectionHeading';
@@ -246,14 +246,14 @@ export default function CentresScreen() {
 
         <View style={styles.actionsRow}>
           <View style={styles.actionGrow}>
-            <PrimaryButton
+            <Button
               label={t('centres.searchBtn')}
               onPress={applySearch}
               icon={APP_ICONS.search}
               accessibilityHint={t('centres.searchBtnHint')}
             />
           </View>
-          <SecondaryButton
+          <Button variant="outline-primary"
             label={t('centres.reset')}
             onPress={resetAll}
             icon={APP_ICONS.refresh}
@@ -284,7 +284,7 @@ export default function CentresScreen() {
           icon={APP_ICONS.search}
           title={t('centres.noResults')}
           message={t('centres.noResultsBody')}
-          action={<SecondaryButton label={t('centres.reset')} onPress={resetAll} small />}
+          action={<Button variant="outline-primary" label={t('centres.reset')} onPress={resetAll} small />}
         />
       ) : (
         <View style={[styles.grid, !wide && styles.gridStack]}>
@@ -293,7 +293,7 @@ export default function CentresScreen() {
               key={centre.id}
               centre={centre}
               action={
-                <PrimaryButton
+                <Button
                   label={t('centres.bookHere')}
                   onPress={() => router.push(path.booking as never)}
                   small
@@ -336,20 +336,15 @@ export default function CentresScreen() {
         {options.map((option) => {
           const active = option === value;
           return (
-            <Pressable
+            <Button
               key={option}
+              variant="outline-primary"
+              small
+              active={active}
+              label={displayFor(option)}
+              accessibilityLabel={`${label}: ${displayFor(option)}`}
               onPress={() => onChange(option)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-              style={[styles.chip, active && styles.chipActive]}
-            >
-              <Text
-                style={[styles.chipText, active && styles.chipTextActive, { fontSize: fs(12) }]}
-                numberOfLines={1}
-              >
-                {displayFor(option)}
-              </Text>
-            </Pressable>
+            />
           );
         })}
       </View>
@@ -455,27 +450,6 @@ export default function CentresScreen() {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
-  },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.white,
-    minHeight: 36,
-    justifyContent: 'center',
-  },
-  chipActive: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryLight,
-  },
-  chipText: {
-    color: Colors.text,
-    fontWeight: '700',
-  },
-  chipTextActive: {
-    color: Colors.primary,
   },
   actionsRow: {
     flexDirection: 'row',

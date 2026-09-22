@@ -43,7 +43,7 @@ export default function QuickActions() {
         <Pressable
           key={action.labelKey}
           accessibilityRole="button"
-          onPress={() => router.push(action.href as never)}
+          onPress={() => router.push(action.href)}
           style={({ pressed }) => [
             styles.tile,
             { opacity: pressed ? 0.8 : 1 },

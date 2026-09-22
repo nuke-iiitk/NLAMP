@@ -7,7 +7,7 @@ import ChoiceChips from '../components/ChoiceChips';
 import DropdownSelect from '../components/DropdownSelect';
 import FormField from '../components/FormField';
 import InfoCard, { MetaRow } from '../components/InfoCard';
-import { PrimaryButton, SecondaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import StepIndicator from '../components/StepIndicator';
@@ -274,10 +274,10 @@ export default function RegisterScreen() {
 
       <View style={styles.buttonRow}>
         {step > 0 ? (
-          <SecondaryButton label={t('common.back')} onPress={() => setStep((s) => s - 1)} />
+          <Button variant="outline-primary" label={t('common.back')} onPress={() => setStep((s) => s - 1)} />
         ) : null}
         <View style={styles.grow}>
-          <PrimaryButton
+          <Button
             label={step < 3 ? t('common.continue') : t('reg.submit')}
             onPress={step < 3 ? next : submit}
           />

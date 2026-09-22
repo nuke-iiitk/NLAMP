@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import AlertBanner from '../components/AlertBanner';
 import FormField from '../components/FormField';
-import { PrimaryButton, SecondaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
+import ChoiceChips from '../components/ChoiceChips';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import { Colors, Radius, Spacing } from '../constants/theme';
@@ -12,7 +13,7 @@ import { DEMO_MOBILE } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
-import { APP_ICONS, AppIcon } from '../components/AppIcon';
+import { APP_ICONS } from '../components/AppIcon';
 
 const CAPTCHA_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -37,19 +38,6 @@ export default function LoginScreen() {
   const [captchaInput, setCaptchaInput] = useState('');
   const [errors, setErrors] = useState<{ mobile?: string; secret?: string; captcha?: string }>({});
   const [submitted, setSubmitted] = useState(false);
-
-  const captchaStyle = useMemo(
-    () => ({
-      backgroundColor: '#fff7e6',
-      letterSpacing: 6,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      borderRadius: Radius.sm,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-    }),
-    []
-  );
 
   function submit() {
     const nextErrors: typeof errors = {};
@@ -89,29 +77,15 @@ export default function LoginScreen() {
           <View style={styles.cardBody}>
             <SectionHeading title={t('login.title')} subtitle={t('login.subtitle')} />
 
-          {/* Mode switch */}
-          <View style={styles.modeRow}>
-            <Pressable
-              onPress={() => setMode('password')}
-              accessibilityRole="button"
-              accessibilityState={{ selected: mode === 'password' }}
-              style={[styles.modeBtn, mode === 'password' && styles.modeBtnActive]}
-            >
-              <Text style={[styles.modeText, mode === 'password' && styles.modeTextActive, { fontSize: fs(13) }]}>
-                {t('login.modePassword')}
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setMode('otp')}
-              accessibilityRole="button"
-              accessibilityState={{ selected: mode === 'otp' }}
-              style={[styles.modeBtn, mode === 'otp' && styles.modeBtnActive]}
-            >
-              <Text style={[styles.modeText, mode === 'otp' && styles.modeTextActive, { fontSize: fs(13) }]}>
-                {t('login.modeOtp')}
-              </Text>
-            </Pressable>
-          </View>
+          {/* Sign-in method */}
+          <ChoiceChips
+            items={[
+              { id: 'password', label: t('login.modePassword') },
+              { id: 'otp', label: t('login.modeOtp') },
+            ]}
+            value={mode}
+            onChange={(id) => setMode(id as 'password' | 'otp')}
+          />
 
           <FormField
             label={t('login.mobile')}
@@ -147,7 +121,7 @@ export default function LoginScreen() {
                 required
               />
               {otpSent ? <AlertBanner tone="info" message={t('login.otpSent')} /> : null}
-              <SecondaryButton
+              <Button variant="outline-primary"
                 label={otpSent ? t('login.otpResend') : t('login.otpSend')}
                 onPress={() => setOtpSent(true)}
                 small
@@ -160,26 +134,26 @@ export default function LoginScreen() {
           <View style={styles.captchaBlock}>
             <Text style={[styles.captchaLabel, { fontSize: fs(13) }]}>{t('login.captcha')}</Text>
             <View style={styles.captchaRow}>
-              <Text style={[styles.captchaCode, { fontSize: fs(18) }, captchaStyle]}>{captcha}</Text>
-              <Pressable
-                onPress={() => setCaptcha(generateCaptcha())}
-                accessibilityRole="button"
+              <Text style={[styles.captchaCode, { fontSize: fs(18) }]}>{captcha}</Text>
+              <Button
+                variant="outline-secondary"
+                icon={APP_ICONS.refresh}
+                iconOnly
+                label={t('login.captchaRefresh')}
                 accessibilityLabel={t('login.captchaRefresh')}
-                style={styles.captchaRefresh}
-              >
-                <AppIcon name={APP_ICONS.refresh} size={18} color={Colors.primary} />
-              </Pressable>
+                onPress={() => setCaptcha(generateCaptcha())}
+              />
             </View>
             <FormField
-              label=""
+              label={t('login.captchaInput')}
               value={captchaInput}
               onChangeText={(value) =>
                 setCaptchaInput(value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 5))
               }
               placeholder="•••••"
               error={errors.captcha}
+              hint={t('login.captchaNote')}
             />
-            <Text style={[styles.captchaNote, { fontSize: fs(11) }]}>{t('login.captchaNote')}</Text>
           </View>
 
           {submitted && Object.keys(errors).length > 0 ? (
@@ -187,15 +161,18 @@ export default function LoginScreen() {
           ) : null}
 
           <View style={styles.spacerSm} />
-          <PrimaryButton label={t('login.btn')} onPress={submit} />
+          <Button label={t('login.btn')} onPress={submit} />
 
-          <Pressable onPress={() => undefined}>
-            <Text style={[styles.link, { fontSize: fs(13) }]}>{t('login.forgot')}</Text>
-          </Pressable>
+          <Button
+            variant="link"
+            small
+            label={t('login.forgot')}
+            onPress={() => Alert.alert(t('login.forgot'), t('login.forgotNote'))}
+          />
           <Text style={[styles.forgotNote, { fontSize: fs(11) }]}>{t('login.forgotNote')}</Text>
 
           <View style={styles.divider} />
-          <SecondaryButton
+          <Button variant="outline-primary"
             label={t('login.demoBtn')}
             onPress={() => {
               loginDemoFarmer();
@@ -204,9 +181,7 @@ export default function LoginScreen() {
           />
           <Text style={[styles.demoHint, { fontSize: fs(11) }]}>{t('login.demoHint')}</Text>
 
-          <Pressable onPress={() => router.push(path.register)} accessibilityRole="link">
-            <Text style={[styles.registerLink, { fontSize: fs(14) }]}>{t('login.newFarmer')}</Text>
-          </Pressable>
+          <Button variant="link" href={path.register} label={t('login.newFarmer')} />
           </View>
         </View>
       </View>
@@ -247,29 +222,9 @@ const styles = StyleSheet.create({
   },
   modeRow: {
     flexDirection: 'row',
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
-    padding: 4,
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
     marginBottom: Spacing.lg,
-  },
-  modeBtn: {
-    flex: 1,
-    minHeight: 40,
-    borderRadius: Radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modeBtnActive: {
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  modeText: {
-    color: Colors.textSecondary,
-    fontWeight: '700',
-  },
-  modeTextActive: {
-    color: Colors.primary,
   },
   captchaBlock: {
     backgroundColor: Colors.surfaceAlt,
@@ -293,20 +248,13 @@ const styles = StyleSheet.create({
   captchaCode: {
     fontWeight: '800',
     color: Colors.saffronDark,
-  },
-  captchaRefresh: {
-    padding: 6,
-  },
-  captchaNote: {
-    color: Colors.textMuted,
-    marginTop: -8,
-    marginBottom: 2,
-  },
-  link: {
-    color: Colors.info,
-    fontWeight: '700',
-    marginTop: Spacing.md,
-    textAlign: 'center',
+    backgroundColor: '#fff7e6',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    letterSpacing: 6,
   },
   forgotNote: {
     color: Colors.textMuted,
@@ -323,12 +271,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: Spacing.sm,
     lineHeight: 16,
-  },
-  registerLink: {
-    color: Colors.primary,
-    fontWeight: '800',
-    textAlign: 'center',
-    marginTop: Spacing.lg,
   },
   spacerSm: {
     height: Spacing.sm,

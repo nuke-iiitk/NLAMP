@@ -1,13 +1,14 @@
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 
 import AlertBanner from '../components/AlertBanner';
 import InfoCard from '../components/InfoCard';
-import { PrimaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import FormField from '../components/FormField';
-import { Colors, Radius, Spacing } from '../constants/theme';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
+import { Colors, Spacing } from '../constants/theme';
 import { HELPLINE } from '../data/mockData';
 import { useI18n } from '../i18n';
 
@@ -29,19 +30,20 @@ export default function HelpScreen() {
       <InfoCard title={t('help.helpline')} accent={Colors.saffron}>
         <Text style={[styles.headline, { fontSize: fs(24) }]}>{HELPLINE}</Text>
         <Text style={[styles.bodyText, { fontSize: fs(13) }]}>{t('help.hours')}</Text>
-        <Pressable
-          onPress={() => Linking.openURL(`tel:${HELPLINE.replace(/[^0-9]/g, '')}`)}
-          style={styles.callBtn}
-          accessibilityRole="button"
-        >
-          <Text style={styles.callBtnText}>{t('help.call')}</Text>
-        </Pressable>
+        <View style={styles.callAction}>
+          <Button
+            variant="primary"
+            icon={APP_ICONS.phonePortrait}
+            label={t('help.call')}
+            onPress={() => Linking.openURL(`tel:${HELPLINE.replace(/[^0-9]/g, '')}`)}
+          />
+        </View>
       </InfoCard>
 
       <InfoCard title={t('help.docs')}>
         {['help.doc1', 'help.doc2', 'help.doc3', 'help.doc4'].map((key) => (
           <View key={key} style={styles.docRow}>
-            <View style={styles.docDot} />
+            <AppIcon name={APP_ICONS.checkmark} size={14} color={Colors.green} />
             <Text style={[styles.bodyText, { fontSize: fs(14) }]}>{t(key as never)}</Text>
           </View>
         ))}
@@ -64,7 +66,7 @@ export default function HelpScreen() {
           placeholder="…"
           multiline
         />
-        <PrimaryButton
+        <Button
           label={t('help.feedback')}
           onPress={() => {
             setSent(true);
@@ -93,31 +95,15 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 4,
   },
-  callBtn: {
+  callAction: {
     marginTop: Spacing.md,
     alignSelf: 'flex-start',
-    backgroundColor: Colors.primary,
-    paddingHorizontal: Spacing.lg,
-    minHeight: 44,
-    borderRadius: Radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  callBtnText: {
-    color: Colors.white,
-    fontWeight: '700',
   },
   docRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
     marginBottom: Spacing.sm,
-  },
-  docDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.saffron,
   },
   faqQ: {
     fontWeight: '800',

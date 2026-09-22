@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import InfoCard from '../components/InfoCard';
-import { PrimaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import { Colors, Radius, Spacing } from '../constants/theme';
@@ -41,7 +41,7 @@ export default function HowItWorksScreen() {
         ))}
       </View>
 
-      <PrimaryButton
+      <Button
         label={t('how.cta')}
         onPress={() => router.push(path.booking)}
         variant="success"

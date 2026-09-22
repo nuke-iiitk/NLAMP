@@ -5,7 +5,7 @@ import AlertBanner from '../components/AlertBanner';
 import DemoBadge from '../components/DemoBadge';
 import EmptyState from '../components/EmptyState';
 import InfoCard, { MetaRow } from '../components/InfoCard';
-import { PrimaryButton } from '../components/PrimaryButton';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import StatusTimeline from '../components/StatusTimeline';
@@ -34,7 +34,7 @@ export default function StatusScreen() {
           icon={APP_ICONS.flag}
           title={t('bookings.empty')}
           action={
-            <PrimaryButton label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
+            <Button label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
           }
         />
       </ScreenShell>
@@ -66,7 +66,7 @@ export default function StatusScreen() {
           {booking.status === 'Upcoming' || (booking.status === 'Waiting' && !booking.arrived) ? (
             <>
               <AlertBanner tone="info" message={t('status.stage2Hint')} />
-              <PrimaryButton
+              <Button
                 label={`✓ ${t('dash.checkIn')}`}
                 onPress={() => markArrived(booking.id)}
                 variant="success"
@@ -94,9 +94,9 @@ export default function StatusScreen() {
         </Text>
       </InfoCard>
 
-      <PrimaryButton label={t('book.backDash')} onPress={() => router.push(path.dashboard as never)} small />
+      <Button label={t('book.backDash')} onPress={() => router.push(path.dashboard as never)} small />
       <View style={styles.spacer} />
-      <PrimaryButton label={t('dash.viewQueue')} onPress={() => router.push(path.queue as never)} small />
+      <Button label={t('dash.viewQueue')} onPress={() => router.push(path.queue as never)} small />
     </ScreenShell>
   );
 }

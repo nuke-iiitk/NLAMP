@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import FormField from '../../components/FormField';
-import { PrimaryButton, SecondaryButton } from '../../components/PrimaryButton';
+import Button from '../../components/Button';
 import SectionHeading from '../../components/SectionHeading';
 import { Colors, Radius, Spacing } from '../../constants/theme';
 import { useI18n } from '../../i18n';
@@ -72,9 +72,9 @@ export default function OfficialLoginScreen() {
             required
           />
 
-          <PrimaryButton label={t('login.btn')} onPress={submit} />
+          <Button label={t('login.btn')} onPress={submit} />
           <View style={styles.divider} />
-          <SecondaryButton
+          <Button variant="outline-primary"
             label={t('off.login.demo')}
             onPress={() => {
               loginDemoOfficer();

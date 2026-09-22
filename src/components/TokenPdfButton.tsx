@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 
 import { APP_ICONS } from './AppIcon';
-import { PrimaryButton } from './PrimaryButton';
+import Button from './Button';
 import type { Booking, ProcurementCentre } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { canDownloadPdf, downloadTokenPdf } from '../services/pdfService';
@@ -52,7 +52,7 @@ export default function TokenPdfButton({ booking, farmer, centre, variant = 'sec
   }
 
   return (
-    <PrimaryButton
+    <Button
       label={t('token.pdfBtn')}
       onPress={handleDownload}
       variant={variant}

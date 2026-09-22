@@ -7,7 +7,7 @@ import DemoBadge from '../../components/DemoBadge';
 import OfficialShell from '../../components/OfficialShell';
 import SectionHeading from '../../components/SectionHeading';
 import StatusBadge from '../../components/StatusBadge';
-import { PrimaryButton, SecondaryButton } from '../../components/PrimaryButton';
+import Button from '../../components/Button';
 import { Colors, Spacing } from '../../constants/theme';
 import type { QueueEntry } from '../../data/mockData';
 import { useI18n } from '../../i18n';
@@ -43,25 +43,25 @@ export default function OfficialQueue() {
   const actions = (entry: QueueEntry) => (
     <View style={styles.actions}>
       {entry.status === 'Waiting' && (
-        <SecondaryButton
+        <Button variant="outline-primary"
           label={t('off.queue.call')}
           onPress={() => callFarmer(officerCentreId, entry.token)}
         />
       )}
       {entry.status === 'Called' && (
-        <PrimaryButton
+        <Button
           label={t('off.queue.start')}
           onPress={() => startProcurement(officerCentreId, entry.token)}
         />
       )}
       {entry.status === 'Processing' && (
-        <PrimaryButton
+        <Button
           label={t('off.queue.complete')}
           onPress={() => completeProcurement(officerCentreId, entry.token)}
         />
       )}
       {entry.status !== 'Processing' && entry.status !== 'Completed' && (
-        <SecondaryButton
+        <Button variant="outline-primary"
           label={entry.status === 'On Hold' ? t('off.queue.release') : t('off.queue.hold')}
           onPress={() => toggleHold(officerCentreId, entry.token)}
         />
@@ -105,7 +105,7 @@ export default function OfficialQueue() {
         </View>
         <View style={styles.statusFilters}>
           {(['All', 'Waiting', 'Called', 'Processing', 'On Hold', 'Completed'] as const).map((s) => (
-            <SecondaryButton
+            <Button variant="outline-primary"
               key={s}
               label={s === 'All' ? t('off.queue.filter') : s}
               onPress={() => setStatusFilter(s)}
@@ -116,7 +116,7 @@ export default function OfficialQueue() {
 
       {/* Advance button */}
       <View style={styles.advanceRow}>
-        <PrimaryButton
+        <Button
           label={t('off.queue.advance')}
           onPress={() => advanceQueue(officerCentreId)}
         />

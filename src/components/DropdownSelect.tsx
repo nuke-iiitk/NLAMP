@@ -12,7 +12,7 @@ import { APP_ICONS, AppIcon } from './AppIcon';
 
 export type DropdownOption = { value: string; label: string };
 
-type Props = {
+export type Props = {
   label: string;
   value: string | null;
   placeholder?: string;
