@@ -23,13 +23,11 @@ export default function ProgressTrack({
 const styles = StyleSheet.create({
   track: {
     backgroundColor: Colors.surfaceAlt,
-    borderRadius: 2,
+    borderRadius: 999,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
   fill: {
     height: '100%',
-    borderRadius: 0,
+    borderRadius: 999,
   },
 });

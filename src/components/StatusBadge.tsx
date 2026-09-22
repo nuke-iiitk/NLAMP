@@ -1,28 +1,28 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Radius, Spacing } from '../constants/theme';
+import { Colors, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 import type { TranslationKey } from '../i18n';
 import type { BookingStatus, CentreStatus, QueueEntryStatus } from '../data/mockData';
 
 type AnyStatus = BookingStatus | QueueEntryStatus | CentreStatus;
 
-const TONES: Record<AnyStatus, { bg: string; fg: string; border: string }> = {
+const TONES: Record<AnyStatus, { bg: string; fg: string }> = {
   // bookings
-  Upcoming: { bg: Colors.primaryLight, fg: Colors.primary, border: Colors.primary },
-  Waiting: { bg: Colors.saffronLight, fg: Colors.saffronDark, border: Colors.saffronDark },
-  'Your Turn': { bg: Colors.greenLight, fg: Colors.green, border: Colors.green },
-  Processing: { bg: Colors.infoLight, fg: Colors.info, border: Colors.info },
-  Completed: { bg: Colors.greenLight, fg: Colors.success, border: Colors.success },
-  Cancelled: { bg: Colors.dangerLight, fg: Colors.danger, border: Colors.danger },
+  Upcoming: { bg: Colors.primaryLight, fg: Colors.primaryDark },
+  Waiting: { bg: Colors.saffronLight, fg: Colors.saffronDark },
+  'Your Turn': { bg: Colors.greenLight, fg: Colors.greenDark },
+  Processing: { bg: Colors.primaryLight, fg: Colors.primaryDark },
+  Completed: { bg: Colors.greenLight, fg: Colors.greenDark },
+  Cancelled: { bg: Colors.dangerLight, fg: Colors.danger },
   // queue entries
-  Called: { bg: Colors.infoLight, fg: Colors.info, border: Colors.info },
-  'On Hold': { bg: Colors.surfaceAlt, fg: Colors.textSecondary, border: Colors.textSecondary },
-  // centres -> simple Open / Closed colour coding
-  Open: { bg: Colors.greenLight, fg: Colors.green, border: Colors.green },
-  Busy: { bg: Colors.greenLight, fg: Colors.green, border: Colors.green },
-  Full: { bg: Colors.warningLight, fg: Colors.warning, border: Colors.warning },
-  Closed: { bg: Colors.surfaceAlt, fg: Colors.textMuted, border: Colors.textMuted },
+  Called: { bg: Colors.saffronLight, fg: Colors.saffronDark },
+  'On Hold': { bg: Colors.surfaceAlt, fg: Colors.textSecondary },
+  // centres — Open / Busy / Almost Full read at a glance
+  Open: { bg: Colors.greenLight, fg: Colors.greenDark },
+  Busy: { bg: Colors.saffronLight, fg: Colors.saffronDark },
+  Full: { bg: Colors.dangerLight, fg: Colors.danger },
+  Closed: { bg: Colors.surfaceAlt, fg: Colors.textMuted },
 };
 
 /** Centre statuses are shown as just "Open" or "Closed". */
@@ -67,10 +67,9 @@ export default function StatusBadge({
 const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
-    borderWidth: 1,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
-    borderRadius: Radius.sm,
+    borderRadius: 999,
   },
   small: {
     paddingHorizontal: 6,

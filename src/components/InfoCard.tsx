@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Radius, Spacing } from '../constants/theme';
+import { Colors, Fonts, Radius, Spacing } from '../constants/theme';
 import { useI18n } from '../i18n';
 
 type Props = {
@@ -36,9 +36,13 @@ export function MetaRow({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.sm,
+    borderRadius: Radius.lg,
+    // Borderless — elevation comes from a soft warm shadow + tinted surface.
+    shadowColor: '#3d2f10',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
   },
@@ -49,9 +53,8 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: Colors.primaryDark,
     marginBottom: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    paddingBottom: Spacing.sm,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.1,
   },
   row: {
     marginBottom: Spacing.sm,

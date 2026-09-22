@@ -3,83 +3,86 @@ import { Platform } from 'react-native';
 /**
  * Farmer Procurement Portal design system.
  *
- * Indian government service portal visual language — modelled on the NTA
- * JEE-Main portal: crisp white background, deep institutional navy for text
- * and authority, saffron as the secondary accent, and soft surface greys
- * that keep the layout clean and scannable on both desktop and mobile.
+ * "Harvest Desk" visual language: deep indigo for public-service authority,
+ * leaf green for crop/liveness/success, warm saffron-gold for tokens and
+ * emphasis. Warm cream backgrounds keep long reading comfortable in field
+ * daylight. Radii are soft, borders are rare — hierarchy comes from tinted
+ * surfaces and type weight, not outlines.
  */
 export const Fonts = {
-  // Arial everywhere (system font — no loading needed on any platform).
-  // Weight is carried by the explicit `fontWeight` style next to each usage;
-  // the browser synthesizes the non-true weights from Arial's 400/700 faces.
-  regular: 'Arial',
-  medium: 'Arial',
-  semiBold: 'Arial',
-  bold: 'Arial',
-  extraBold: 'Arial',
+  regular: 'System',
+  medium: 'System',
+  semiBold: 'System',
+  bold: 'System',
+  extraBold: 'System',
 } as const;
 
 export const FONT_STACK =
-  "Arial, Helvetica, 'Noto Sans Devanagari', 'Noto Sans Malayalam', -apple-system, 'Segoe UI', Roboto, sans-serif";
+  "'Noto Sans', -apple-system, 'Segoe UI', Roboto, 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Hind Siliguri', sans-serif";
+
+/** Display face for headlines — confident, editorial. */
+export const DISPLAY_STACK =
+  "'Fraunces', 'Playfair Display', Georgia, 'Noto Serif Devanagari', 'Noto Serif Malayalam', serif";
 
 export const Colors = {
-  // Deep navy — government authority (JEE-Main style)
-  primary: '#0d47a1',
-  primaryDark: '#0a2f6b',
-  primaryLight: '#e3f2fd',
+  // Deep indigo — trust and public-service authority
+  primary: '#2c3a72',
+  primaryDark: '#1e2a52',
+  primaryDeep: '#141d3d',
+  primaryLight: '#e9edf8',
 
-  // Saffron — secondary government accent
-  saffron: '#e65100',
-  saffronDark: '#b85c0f',
-  saffronLight: '#fff2e5',
+  // Fresh leaf green — success, crop status, progress
+  green: '#2e7d4f',
+  greenDark: '#1f5e39',
+  greenLight: '#e6f2ea',
 
-  // Status green
-  green: '#16823b',
-  greenDark: '#0f6a2e',
-  greenLight: '#e6f4ec',
+  // Warm saffron-gold — token highlights, deadlines, active emphasis
+  saffron: '#d97c0a',
+  saffronDark: '#a85f04',
+  saffronLight: '#fdf1dd',
 
-  // Neutrals — crisp white background, soft grey surfaces
-  white: '#ffffff',
-  background: '#ffffff',
-  surface: '#ffffff',
-  surfaceAlt: '#f8f9fa',
-  surfaceMuted: '#f0f4f8',
+  // Warm neutrals — cream paper, never stark white
+  white: '#fffdf8',
+  background: '#faf6ee',
+  surface: '#fffdf8',
+  surfaceAlt: '#f3ede1',
+  surfaceMuted: '#ece5d6',
 
-  text: '#1a1a1a',
-  textSecondary: '#495057',
-  textMuted: '#6c757d',
-  textOnDark: '#d7e3f4',
+  text: '#232735',
+  textSecondary: '#4c5064',
+  textMuted: '#777b8c',
+  textOnDark: '#c9d2ec',
 
-  border: '#e0e0e0',
-  borderDark: '#bdbdbd',
+  border: '#e6dfd0',
+  borderDark: '#cfc6b2',
 
-  success: '#16823b',
-  successLight: '#e6f4ec',
-  warning: '#b77900',
-  warningLight: '#fff3e5',
-  danger: '#c62828',
-  dangerLight: '#fce8e6',
-  info: '#1565c0',
-  infoLight: '#e8f1fc',
+  success: '#2e7d4f',
+  successLight: '#e6f2ea',
+  warning: '#b06a00',
+  warningLight: '#fdf1dd',
+  danger: '#b3372e',
+  dangerLight: '#fbe9e6',
+  info: '#2c3a72',
+  infoLight: '#e9edf8',
 
-  black: '#111111',
+  black: '#141d3d',
 
-  /** India tricolour — navy, white, green for the flag strip. */
-  flag: ['#040488', '#FFFFFF', '#138808'] as const,
+  /** India tricolour — used sparingly (a 3px strip, nothing more). */
+  flag: ['#d97c0a', '#fffdf8', '#2e7d4f'] as const,
 
   light: {
-    text: '#1a1a1a',
-    textSecondary: '#495057',
-    background: '#ffffff',
-    backgroundElement: '#ffffff',
-    backgroundSelected: '#e3f2fd',
+    text: '#232735',
+    textSecondary: '#4c5064',
+    background: '#faf6ee',
+    backgroundElement: '#fffdf8',
+    backgroundSelected: '#e9edf8',
   },
   dark: {
-    text: '#f8f9fa',
-    textSecondary: '#a8b3be',
-    background: '#0a2f6b',
-    backgroundElement: '#0d47a1',
-    backgroundSelected: '#0a2f6b',
+    text: '#f3efe6',
+    textSecondary: '#aab2c8',
+    background: '#141d3d',
+    backgroundElement: '#1e2a52',
+    backgroundSelected: '#2c3a72',
   },
 };
 
@@ -124,10 +127,10 @@ export const Spacing = {
 };
 
 export const Radius = {
-  sm: 2,
-  md: 3,
-  lg: 4,
-  xl: 6,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 22,
 };
 
 /** Base font sizes; use with the accessibility text-size scaler (useSettings().fs). */

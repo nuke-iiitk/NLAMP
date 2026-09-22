@@ -3,13 +3,12 @@ import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import Button from '../components/Button';
 import { AppIcon, APP_ICONS } from '../components/AppIcon';
-import InfoCard from '../components/InfoCard';
 import NoticesBoard from '../components/NoticesBoard';
 import ProcessSteps from '../components/ProcessSteps';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import ServicesList from '../components/ServicesList';
-import { Colors, Spacing } from '../constants/theme';
+import { Colors, Radius, Spacing } from '../constants/theme';
 import { analyticsSummary } from '../data/mockData';
 import { PORTAL_NOTICES } from '../data/notices';
 import { useI18n } from '../i18n';
@@ -70,13 +69,31 @@ export default function HomeScreen() {
         </Text>
       </View>
 
-      {/* Main Hero Section */}
+      {/* Main Hero — composed field illustration panel, not a boxed card */}
       <View style={[styles.heroBlock, wide && styles.heroRow]}>
+        {/* Abstract paddy-field backdrop: contour arcs + seed dots, CSS-free */}
+        <View style={styles.fieldBackdrop} pointerEvents="none">
+          <View style={[styles.contour, styles.contour1]} />
+          <View style={[styles.contour, styles.contour2]} />
+          <View style={[styles.contour, styles.contour3]} />
+          <View style={styles.seedRow}>
+            {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+              <View key={i} style={[styles.seed, i % 2 === 0 && styles.seedAlt]} />
+            ))}
+          </View>
+        </View>
+
         <View style={styles.heroLeft}>
+          <View style={styles.heroEyebrowRow}>
+            <View style={styles.heroEyebrowTick} />
+            <Text style={[styles.heroEyebrow, { fontSize: fs(11) }]}>
+              {t('common.gov').toUpperCase()}
+            </Text>
+          </View>
           <View style={styles.heroTitleLines}>
-            <Text style={[styles.portalTitle, { fontSize: fs(desktop ? 34 : 30) }]}>{t('landing.heroTitle1')}</Text>
-            <Text style={[styles.portalTitle, { fontSize: fs(desktop ? 34 : 30) }]}>{t('landing.heroTitle2')}</Text>
-            <Text style={[styles.portalTitle, { fontSize: fs(desktop ? 34 : 30) }]}>{t('landing.heroTitle3')}</Text>
+            <Text style={[styles.portalTitle, { fontSize: fs(desktop ? 36 : 31) }]}>{t('landing.heroTitle1')}</Text>
+            <Text style={[styles.portalTitleAccent, { fontSize: fs(desktop ? 36 : 31) }]}>{t('landing.heroTitle2')}</Text>
+            <Text style={[styles.portalTitle, { fontSize: fs(desktop ? 36 : 31) }]}>{t('landing.heroTitle3')}</Text>
           </View>
 
           <Text style={[styles.portalDesc, { fontSize: fs(desktop ? 15 : 14) }]}>{t('landing.heroDesc')}</Text>
@@ -92,33 +109,34 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.heroRight}>
-          <InfoCard title={t('landing.cycleTitle')}>
-            <View style={styles.statusRow}>
-              <View style={styles.statusRowLeft}>
-                <AppIcon name={APP_ICONS.checkmarkCircle} size={15} color={Colors.green} />
-                <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.statusLabel')}</Text>
-              </View>
-              <Text style={[styles.statusValue, { fontSize: fs(14), color: Colors.green }]}>
-                {t('landing.statusActive')}
-              </Text>
+          <View style={styles.statusPanel}>
+            <View style={styles.statusPanelHead}>
+              <View style={styles.liveDot} />
+              <Text style={[styles.statusPanelTitle, { fontSize: fs(12) }]}>{t('landing.cycleTitle')}</Text>
             </View>
-            <View style={styles.divider} />
-            <View style={styles.statusRow}>
-              <View style={styles.statusRowLeft}>
-                <AppIcon name={APP_ICONS.people} size={15} color={Colors.primary} />
-                <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.farmersServed')}</Text>
+            <View style={styles.statusPanelBody}>
+              <View style={styles.statusRow}>
+                <Text style={[styles.statusLabel, { fontSize: fs(12) }]}>{t('landing.statusLabel')}</Text>
+                <View style={styles.statusPill}>
+                  <View style={styles.statusPillDot} />
+                  <Text style={[styles.statusPillText, { fontSize: fs(12) }]}>{t('landing.statusActive')}</Text>
+                </View>
               </View>
-              <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.farmersProcessed}</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.statusRow}>
-              <View style={styles.statusRowLeft}>
-                                <AppIcon name={APP_ICONS.pieChart} size={15} color={Colors.saffronDark} />
-                <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('landing.capacityUse')}</Text>
+              <View style={styles.statusDivider} />
+              <View style={styles.statusRow}>
+                <Text style={[styles.statusLabel, { fontSize: fs(12) }]}>{t('landing.farmersServed')}</Text>
+                <Text style={[styles.statusValue, { fontSize: fs(18) }]}>{analyticsSummary.farmersProcessed}</Text>
               </View>
-              <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.capacityUsedPercent}%</Text>
+              <View style={styles.statusDivider} />
+              <View style={styles.statusRow}>
+                <Text style={[styles.statusLabel, { fontSize: fs(12) }]}>{t('landing.capacityUse')}</Text>
+                <Text style={[styles.statusValue, { fontSize: fs(18) }]}>{analyticsSummary.capacityUsedPercent}%</Text>
+              </View>
+              <View style={styles.capacityTrack}>
+                <View style={[styles.capacityFill, { width: `${analyticsSummary.capacityUsedPercent}%` }]} />
+              </View>
             </View>
-          </InfoCard>
+          </View>
         </View>
       </View>
 
@@ -178,20 +196,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.saffronLight,
-    borderWidth: 1,
-    borderColor: Colors.saffron,
-    padding: Spacing.sm,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     marginBottom: Spacing.xl,
+    gap: Spacing.sm,
   },
   noticeIcon: {
     backgroundColor: Colors.saffronDark,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginRight: Spacing.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    borderRadius: 4,
+    borderRadius: 999,
   },
   noticeIconText: {
     color: Colors.white,
@@ -201,15 +219,74 @@ const styles = StyleSheet.create({
   },
   noticeText: {
     color: Colors.saffronDark,
-    fontWeight: '700',
+    fontWeight: '600',
     flex: 1,
   },
+  /* ---- Hero: open panel on cream, contoured field motif behind ---- */
   heroBlock: {
     backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderRadius: Radius.xl,
+    overflow: 'hidden',
     padding: Spacing.xl,
     marginBottom: Spacing.xl,
+    shadowColor: '#3d2f10',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 14,
+    elevation: 3,
+  },
+  fieldBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.55,
+  },
+  /** Contour arcs — abstract paddy terraces, bottom of the hero. */
+  contour: {
+    position: 'absolute',
+    borderTopLeftRadius: 999,
+    borderTopRightRadius: 999,
+    borderWidth: 1.5,
+    borderColor: Colors.greenLight,
+    backgroundColor: 'transparent',
+  },
+  contour1: {
+    width: 620,
+    height: 620,
+    left: -140,
+    bottom: -420,
+  },
+  contour2: {
+    width: 460,
+    height: 460,
+    left: -60,
+    bottom: -320,
+    borderColor: Colors.surfaceAlt,
+  },
+  contour3: {
+    width: 320,
+    height: 320,
+    left: 10,
+    bottom: -220,
+    borderColor: Colors.saffronLight,
+  },
+  seedRow: {
+    position: 'absolute',
+    right: 24,
+    top: 24,
+    flexDirection: 'row',
+    gap: 10,
+  },
+  seed: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.greenLight,
+  },
+  seedAlt: {
+    backgroundColor: Colors.saffronLight,
   },
   heroRow: {
     flexDirection: 'row',
@@ -220,22 +297,46 @@ const styles = StyleSheet.create({
   heroLeft: {
     flex: 1,
   },
+  heroEyebrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: Spacing.md,
+  },
+  heroEyebrowTick: {
+    width: 22,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: Colors.green,
+  },
+  heroEyebrow: {
+    color: Colors.greenDark,
+    fontWeight: '800',
+    letterSpacing: 1.4,
+  },
   portalTitle: {
-    color: Colors.primaryDark,
-    fontWeight: '400',
+    color: Colors.primaryDeep,
+    fontWeight: '800',
     textAlign: 'left',
-    letterSpacing: 0.3,
+    letterSpacing: 0,
+  },
+  /** Middle hero line in leaf green — the growth line. */
+  portalTitleAccent: {
+    color: Colors.greenDark,
+    fontWeight: '800',
+    textAlign: 'left',
+    letterSpacing: 0,
   },
   heroTitleLines: {
     alignItems: 'flex-start',
-    gap: Spacing.sm,
+    gap: 2,
     marginBottom: Spacing.md,
   },
   portalDesc: {
     color: Colors.textSecondary,
-    lineHeight: 22,
+    lineHeight: 23,
     marginBottom: Spacing.xl,
-    maxWidth: 600,
+    maxWidth: 540,
   },
   heroButtons: {
     flexDirection: 'row',
@@ -244,32 +345,92 @@ const styles = StyleSheet.create({
   },
   heroRight: {
     width: '100%',
-    maxWidth: 380,
+    maxWidth: 360,
     marginTop: Spacing.lg,
     minWidth: 280,
+  },
+  /* ---- Season status panel: instrument, not a random box ---- */
+  statusPanel: {
+    backgroundColor: Colors.primaryDeep,
+    borderRadius: Radius.lg,
+    overflow: 'hidden',
+    paddingBottom: Spacing.md,
+  },
+  statusPanelHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.12)',
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.saffron,
+  },
+  statusPanelTitle: {
+    color: Colors.textOnDark,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    flexShrink: 1,
+  },
+  statusPanelBody: {
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
   },
   statusRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: 6,
   },
-  statusRowLeft: {
+  statusLabel: {
+    color: Colors.textOnDark,
+    fontWeight: '600',
+  },
+  statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    backgroundColor: 'rgba(46,125,79,0.35)',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
-  statusLabel: {
-    color: Colors.textMuted,
-    fontWeight: '700',
+  statusPillDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#7fd1a1',
   },
-  statusValue: {
-    color: Colors.text,
+  statusPillText: {
+    color: '#bfe8cf',
     fontWeight: '800',
   },
-  divider: {
+  statusValue: {
+    color: Colors.white,
+    fontWeight: '800',
+    fontVariant: ['tabular-nums'],
+  },
+  statusDivider: {
     height: 1,
-    backgroundColor: Colors.border,
-    marginVertical: Spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  capacityTrack: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    marginTop: Spacing.sm,
+    overflow: 'hidden',
+  },
+  capacityFill: {
+    height: '100%',
+    borderRadius: 3,
+    backgroundColor: Colors.saffron,
   },
   mainGrid: {
     gap: Spacing.xl,

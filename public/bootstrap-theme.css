@@ -1,81 +1,152 @@
 /* ============================================================
    Brand theme layer over Bootstrap 5 — National Farmer Procurement Portal
-   Loaded AFTER bootstrap.min.css; overrides design tokens so Bootstrap
-   components match the gov navy/saffron identity + Arial system font.
+   "Harvest Desk" identity: deep indigo authority, leaf-green liveness,
+   saffron-gold tokens, warm cream paper. Loaded AFTER bootstrap.min.css.
    ============================================================ */
 
 :root {
-  --bs-primary: #0d47a1;
-  --bs-primary-rgb: 13, 71, 161;
-  --bs-link-color: #0d47a1;
-  --bs-link-color-rgb: 13, 71, 161;
-  --bs-link-hover-color: #0a2f6b;
-  --bs-link-hover-color-rgb: 10, 47, 107;
-  --bs-warning: #e65100;
-  --bs-warning-rgb: 230, 81, 0;
-  --bs-success: #15803d;
-  --bs-success-rgb: 21, 128, 61;
-  --bs-danger: #b3261e;
-  --bs-danger-rgb: 179, 38, 30;
-  --bs-body-font-family: Arial, Helvetica, 'Noto Sans Devanagari', 'Noto Sans Malayalam', system-ui, sans-serif;
-  --bs-body-color: #1f2933;
-  --bs-border-radius: 4px;
-  --bs-border-radius-sm: 3px;
-  --bs-border-radius-lg: 8px;
+  --bs-primary: #2c3a72;
+  --bs-primary-rgb: 44, 58, 114;
+  --bs-link-color: #2c3a72;
+  --bs-link-color-rgb: 44, 58, 114;
+  --bs-link-hover-color: #1e2a52;
+  --bs-link-hover-color-rgb: 30, 42, 82;
+  --bs-warning: #d97c0a;
+  --bs-warning-rgb: 217, 124, 10;
+  --bs-success: #2e7d4f;
+  --bs-success-rgb: 46, 125, 79;
+  --bs-danger: #b3372e;
+  --bs-danger-rgb: 179, 55, 46;
+  --bs-body-font-family: 'Noto Sans', -apple-system, 'Segoe UI', Roboto,
+    'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Hind Siliguri', sans-serif;
+  --bs-body-color: #232735;
+  --bs-border-radius: 12px;
+  --bs-border-radius-sm: 8px;
+  --bs-border-radius-lg: 16px;
+  --harvest-cream: #faf6ee;
+  --harvest-paper: #fffdf8;
+  --harvest-indigo: #2c3a72;
+  --harvest-indigo-deep: #141d3d;
+  --harvest-leaf: #2e7d4f;
+  --harvest-saffron: #d97c0a;
 }
 
-/* Buttons: slightly denser, gov-tone hover states */
+body {
+  background-color: var(--harvest-cream);
+}
+
+/* Display headings get the editorial serif — headlines only, never body */
+h1, h2, h3 {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  letter-spacing: -0.01em;
+}
+
+/* Buttons: tactile primary, quiet secondary */
 .btn {
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  border-radius: 12px;
 }
 .btn-primary {
-  --bs-btn-bg: #0d47a1;
-  --bs-btn-border-color: #0d47a1;
-  --bs-btn-hover-bg: #0a2f6b;
-  --bs-btn-hover-border-color: #0a2f6b;
-  --bs-btn-active-bg: #08255a;
-  --bs-btn-active-border-color: #08255a;
-  --bs-btn-disabled-bg: #0d47a1;
-  --bs-btn-disabled-border-color: #0d47a1;
+  --bs-btn-bg: #2c3a72;
+  --bs-btn-border-color: #2c3a72;
+  --bs-btn-hover-bg: #1e2a52;
+  --bs-btn-hover-border-color: #1e2a52;
+  --bs-btn-active-bg: #141d3d;
+  --bs-btn-active-border-color: #141d3d;
+  --bs-btn-disabled-bg: #2c3a72;
+  --bs-btn-disabled-border-color: #2c3a72;
+  box-shadow: 0 3px 10px rgba(30, 42, 82, 0.28);
 }
 .btn-outline-primary {
-  --bs-btn-color: #0d47a1;
-  --bs-btn-border-color: #0d47a1;
-  --bs-btn-hover-bg: #0d47a1;
-  --bs-btn-hover-border-color: #0d47a1;
-  --bs-btn-active-bg: #0a2f6b;
-  --bs-btn-active-border-color: #0a2f6b;
-  --bs-btn-disabled-color: #0d47a1;
-  --bs-btn-disabled-border-color: #0d47a1;
+  --bs-btn-color: #2c3a72;
+  --bs-btn-border-color: #b9c2dd;
+  --bs-btn-hover-bg: #e9edf8;
+  --bs-btn-hover-border-color: #2c3a72;
+  --bs-btn-active-bg: #2c3a72;
+  --bs-btn-active-border-color: #2c3a72;
+  --bs-btn-disabled-color: #2c3a72;
+  --bs-btn-disabled-border-color: #b9c2dd;
+}
+.btn-outline-secondary {
+  --bs-btn-color: #4c5064;
+  --bs-btn-border-color: #d9d2c2;
+  --bs-btn-hover-bg: #f3ede1;
+  --bs-btn-hover-border-color: #cfc6b2;
+  --bs-btn-active-bg: #ece5d6;
+  --bs-btn-active-border-color: #cfc6b2;
+}
+.btn-success {
+  --bs-btn-bg: #2e7d4f;
+  --bs-btn-border-color: #2e7d4f;
+  --bs-btn-hover-bg: #1f5e39;
+  --bs-btn-hover-border-color: #1f5e39;
+}
+.btn-secondary {
+  --bs-btn-color: #4c5064;
+  --bs-btn-bg: #f3ede1;
+  --bs-btn-border-color: #f3ede1;
+  --bs-btn-hover-color: #232735;
+  --bs-btn-hover-bg: #ece5d6;
+  --bs-btn-hover-border-color: #ece5d6;
+  --bs-btn-active-color: #232735;
+  --bs-btn-active-bg: #e2dac8;
+  --bs-btn-active-border-color: #e2dac8;
+  --bs-btn-disabled-color: #4c5064;
+  --bs-btn-disabled-bg: #f3ede1;
+  --bs-btn-disabled-border-color: #f3ede1;
+}
+/* Ghost/quiet action: transparent, warm hairline on hover only */
+.btn-light {
+  --bs-btn-color: #4c5064;
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: #232735;
+  --bs-btn-hover-bg: #f3ede1;
+  --bs-btn-hover-border-color: #d9d2c2;
+  --bs-btn-active-color: #232735;
+  --bs-btn-active-bg: #ece5d6;
+  --bs-btn-active-border-color: #d9d2c2;
+}
+.btn-link {
+  --bs-btn-color: #2c3a72;
+  --bs-btn-hover-color: #1e2a52;
+  --bs-btn-active-color: #141d3d;
+  text-decoration: none;
+  font-weight: 700;
+}
+.btn-link:hover {
+  text-decoration: underline;
 }
 
-/* Badges & alerts */
+/* Badges & alerts — tinted pills, never outlined */
 .badge {
-  letter-spacing: 0.4px;
+  letter-spacing: 0.3px;
+  border-radius: 999px;
+  font-weight: 700;
 }
 .text-bg-warning {
   color: #fff !important;
-  background-color: #e65100 !important;
+  background-color: #d97c0a !important;
+}
+.alert {
+  border-width: 0;
+  border-radius: 12px;
 }
 
-/* Focus ring in brand navy */
+/* Focus ring in brand indigo */
 :focus-visible {
-  outline-color: #0d47a1;
+  outline-color: #2c3a72;
 }
 
-/* Buttons/badges/alerts follow the body font (Arial) */
+/* Buttons/badges/alerts follow the body font */
 .btn,
 .badge,
 .alert {
   font-family: inherit;
 }
 
-/* ────────────────────────────────────────────────────────────
-   Breadcrumbs — drop Bootstrap's default "/" separator.
-   The portal renders crumbs as plain sibling items, so we
-   blank the divider and keep only a small gap between them.
-   ──────────────────────────────────────────────────────────── */
+/* Breadcrumbs — drop Bootstrap's default "/" separator. */
 .breadcrumb {
   --bs-breadcrumb-divider: "";
 }
@@ -83,6 +154,13 @@
   padding-left: 0.35rem;
 }
 
+/* Cards on cream paper: soft warm shadow, no hard outline */
+.card {
+  border: 0;
+  border-radius: 16px;
+  background-color: var(--harvest-paper);
+  box-shadow: 0 2px 10px rgba(61, 47, 16, 0.06);
+}
 
 /* Keep icon fonts intact no matter what Bootstrap sets */
 .oi-icon,
@@ -90,15 +168,11 @@
   font-family: 'Ionicons' !important;
 }
 
-/* ────────────────────────────────────────────────────────────
-   Header nav buttons (NavButton.web)
-   Rectangular Bootstrap outline buttons, side by side with a gap.
-   Press feedback is a calm background tint — no scale/squash.
-   ──────────────────────────────────────────────────────────── */
+/* Header nav buttons (NavButton.web) */
 .fpp-nav-btn {
-  border-radius: 2px;
+  border-radius: 999px;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
   cursor: pointer;
   transition:
     background-color 0.15s ease,
@@ -106,37 +180,25 @@
     color 0.15s ease;
 }
 
-/* Focus: the button must look exactly like its resting state whenever it is
-   focused but not hovered — a mouse click, a back-navigation focus restore, or
-   Tab focus used to leave Bootstrap's blue glow (box-shadow rgba(13,110,253,.5))
-   and/or the navy hover fill painted on. Reset every visual axis back to the
-   resting look; the hover tint above is untouched. */
+/* Focus: restore the resting look whenever focused but not hovered. */
 .fpp-nav-btn:focus,
 .fpp-nav-btn:focus-visible {
   outline: none;
   box-shadow: none;
-  color: var(--bs-btn-color); /* navy label (never the white hover text) */
-  background-color: var(--bs-btn-bg); /* back to transparent, not the hover fill */
-  border-color: var(--bs-btn-border-color); /* navy hairline, no active/dark border */
+  color: var(--bs-btn-color);
+  background-color: var(--bs-btn-bg);
+  border-color: var(--bs-btn-border-color);
 }
 
-/* Keyboard-only affordance: Tab focus grows a short navy underline under the
-   label — visible focus for a11y without any ring, glow or fill around the
-   button. Never appears from mouse interaction. */
+/* Keyboard-only affordance: short indigo underline on Tab focus. */
 .fpp-nav-btn:focus-visible {
   text-decoration: underline;
-  text-decoration-color: #0d47a1;
+  text-decoration-color: #2c3a72;
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
 }
 
-/* ────────────────────────────────────────────────────────────
-   Reduced motion
-   Honour the OS/browser "reduce motion" preference: collapse all
-   transitions and animations to zero duration. No decorative
-   motion exists in the portal, so this is a safety net for
-   Bootstrap defaults and any user-agent animations.
-   ──────────────────────────────────────────────────────────── */
+/* Reduced motion — collapse all transitions/animations. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
