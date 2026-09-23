@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -27,13 +28,27 @@ type Props = {
  *
  * The footer lives INSIDE the scrollable content, so it appears at the
  * natural end of the page flow — standard website layout, no overlay panels.
+ *
+ * On web this shell also keeps browser metadata in sync with the page:
+ * `document.title` follows the current breadcrumb (meaningful tab titles,
+ * correct titles on refresh/direct links under /sih-farmer-queue/) and
+ * `<html lang>` follows the selected language for screen readers.
  */
 export default function ScreenShell({ children, breadcrumbs, wide, showFooter = true }: Props) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { notifications, auth } = useStore();
   const { width } = useWindowDimensions();
   const unread = auth.role === 'farmer' ? notifications.filter((n) => !n.read).length : 0;
   const compact = width < 600;
+
+  const pageLabel = breadcrumbs?.length ? breadcrumbs[breadcrumbs.length - 1].label : '';
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const base = t('common.appName');
+    document.title = pageLabel ? `${pageLabel} | ${base}` : base;
+    document.documentElement.lang = language === 'hi' ? 'hi' : language === 'ml' ? 'ml' : 'en';
+  }, [pageLabel, language, t]);
 
   return (
     <View style={styles.root}>

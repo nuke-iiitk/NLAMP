@@ -1,10 +1,9 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 
 import CentreCard from '../components/CentreCard';
 import EmptyState from '../components/EmptyState';
-import FormField from '../components/FormField';
 import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SearchableSelect from '../components/SearchableSelect';
@@ -19,12 +18,11 @@ import { APP_ICONS, AppIcon, type AppIconName } from '../components/AppIcon';
 
 const STATUS_FILTERS: ('All' | CentreStatus)[] = ['All', 'Open', 'Closed'];
 
-/** Values that actually drive the results list (set by the Search button). */
+/** Values that actually drive the location/crop/status results (Search button). */
 type AppliedFilters = {
   state: string | null;
   district: string | null;
   centreId: string | null;
-  query: string;
   crop: string;
   status: string;
 };
@@ -43,12 +41,12 @@ export default function CentresScreen() {
   const [cropFilter, setCropFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
 
-  // ---- applied filters (what the results actually use) ----
+  // ---- applied filters (what the location/crop/status results actually use;
+  //      the free-text search filters live on top of these) ----
   const [applied, setApplied] = useState<AppliedFilters>({
     state: null,
     district: null,
     centreId: null,
-    query: '',
     crop: 'All',
     status: 'All',
   });
@@ -84,7 +82,6 @@ export default function CentresScreen() {
       state: draftState,
       district: draftDistrict,
       centreId: draftCentre,
-      query: query.trim(),
       crop: cropFilter,
       status: statusFilter,
     });
@@ -101,13 +98,16 @@ export default function CentresScreen() {
       state: null,
       district: null,
       centreId: null,
-      query: '',
       crop: 'All',
       status: 'All',
     });
   };
 
   const filtered = useMemo(() => {
+    // Free-text search is LIVE: it applies as the user types, on top of the
+    // applied location/crop/status filters. Case-insensitive partial match
+    // across name, district, state, full address (town/landmark) and crops.
+    const q = query.trim().toLowerCase();
     return centres.filter((centre) => {
       if (applied.state && centre.state !== applied.state) return false;
       if (applied.district && centre.district !== applied.district) return false;
@@ -119,19 +119,14 @@ export default function CentresScreen() {
         if (applied.status === 'Open' && !isOpen) return false;
         if (applied.status === 'Closed' && isOpen) return false;
       }
-      if (applied.query) {
-        const q = applied.query.toLowerCase();
-        return (
-          centre.name.toLowerCase().includes(q) ||
-          centre.district.toLowerCase().includes(q) ||
-          centre.state.toLowerCase().includes(q) ||
-          centre.address.toLowerCase().includes(q) ||
-          centre.crops.some((crop) => crop.toLowerCase().includes(q))
-        );
+      if (q) {
+        const haystack =
+          `${centre.name} ${centre.district} ${centre.state} ${centre.address} ${centre.crops.join(' ')}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
       }
       return true;
     });
-  }, [centres, applied]);
+  }, [centres, applied, query]);
 
   const slotsOpenToday = useMemo(
     () => slots.filter((s) => !s.closed && s.booked < s.capacity).length,
@@ -216,14 +211,33 @@ export default function CentresScreen() {
         <View style={styles.panelDivider} />
 
         <View style={styles.searchFieldWrap}>
-          <View style={styles.searchWrap}>
-            <AppIcon name={APP_ICONS.search} size={18} color={Colors.textMuted} style={styles.searchIcon} />
-            <FormField
-              label={t('centres.searchBy')}
+          <Text style={[styles.searchLabel, { fontSize: fs(14) }]} nativeID="centre-search-label">
+            {t('centres.searchBy')}
+          </Text>
+          <View style={styles.searchBar}>
+            <AppIcon name={APP_ICONS.search} size={17} color={Colors.textMuted} />
+            <TextInput
+              accessibilityLabel={t('centres.searchBy')}
+              accessibilityRole="search"
               value={query}
               onChangeText={setQuery}
               placeholder={t('centres.searchBy')}
+              placeholderTextColor={Colors.textMuted}
+              returnKeyType="search"
+              onSubmitEditing={applySearch}
+              style={[styles.searchInput, { fontSize: fs(15) }]}
             />
+            {query.length > 0 ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('centres.clearSearch')}
+                onPress={() => setQuery('')}
+                style={styles.searchClear}
+                hitSlop={8}
+              >
+                <AppIcon name={APP_ICONS.close} size={13} color={Colors.textSecondary} />
+              </Pressable>
+            ) : null}
           </View>
         </View>
 
@@ -284,7 +298,26 @@ export default function CentresScreen() {
           icon={APP_ICONS.search}
           title={t('centres.noResults')}
           message={t('centres.noResultsBody')}
-          action={<Button variant="outline-primary" label={t('centres.reset')} onPress={resetAll} small />}
+          action={
+            <View style={styles.emptyActions}>
+              {query.trim() ? (
+                <Button
+                  variant="outline-primary"
+                  label={t('centres.clearSearch')}
+                  onPress={() => setQuery('')}
+                  small
+                  icon={APP_ICONS.close}
+                />
+              ) : null}
+              <Button
+                variant="outline-primary"
+                label={t('centres.reset')}
+                onPress={resetAll}
+                small
+                icon={APP_ICONS.refresh}
+              />
+            </View>
+          }
         />
       ) : (
         <View style={[styles.grid, !wide && styles.gridStack]}>
@@ -417,14 +450,44 @@ export default function CentresScreen() {
   searchFieldWrap: {
     width: '100%',
   },
-  searchWrap: {
-    position: 'relative',
+  /* Search bar: single flex row — icon, input and clear button are all
+     alignItems-centred siblings, so alignment holds at every width, font
+     size and translation length (no absolute positioning). */
+  searchLabel: {
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.sm,
   },
-  searchIcon: {
-    position: 'absolute',
-    left: 12,
-    top: 28,
-    zIndex: 1,
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 52,
+    borderWidth: 1,
+    borderColor: Colors.borderDark,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.md,
+    gap: 10,
+  },
+  searchInput: {
+    flex: 1,
+    color: Colors.text,
+    padding: 0,
+    minWidth: 0,
+  },
+  searchClear: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surfaceAlt,
+  },
+  emptyActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    justifyContent: 'center',
   },
   chipRow: {
     flexDirection: 'row',
