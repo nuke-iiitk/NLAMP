@@ -1,10 +1,9 @@
-"""Notification model — in-app farmer notifications."""
+"""Notification (in-app farmer alerts) and Notice (portal announcement) models."""
 
 from __future__ import annotations
 
 import uuid
 from typing import Optional
-
 
 from sqlalchemy import Boolean, ForeignKey, Index, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -12,6 +11,25 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..database import Base
 from .enums import NotificationType
 from .mixins import TimestampMixin
+
+
+class Notice(Base, TimestampMixin):
+    """A portal-wide announcement (notices page + homepage board).
+
+    `is_urgent` notices are additionally surfaced in the homepage alert strip.
+    """
+
+    __tablename__ = "notices"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    dept: Mapped[str] = mapped_column(
+        String(120), default="Department of Consumer Affairs", nullable=False
+    )
+    body: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    tag: Mapped[str] = mapped_column(String(24), nullable=True)
+    is_urgent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_published: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
 
 
 class Notification(Base, TimestampMixin):

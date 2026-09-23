@@ -449,6 +449,42 @@ export type BookingInput = {
 export const api = {
   health: () => get<{ status: string; database: string }>('/health'),
 
+  // analytics ----------------------------------------------------------
+  analyticsSummary: () =>
+    get<{
+      farmers_processed: number;
+      capacity_used_percent: number;
+      active_centres: number;
+      generated_at: string;
+    }>('/api/analytics/summary'),
+
+  // notices ------------------------------------------------------------
+  notices: () =>
+    get<
+      {
+        id: string;
+        title: string;
+        dept: string;
+        body: string;
+        tag: string | null;
+        is_urgent: boolean;
+        date: string;
+        created_at: string;
+      }[]
+    >('/api/notices'),
+
+  urgentNotice: () =>
+    get<{
+      id: string;
+      title: string;
+      dept: string;
+      body: string;
+      tag: string | null;
+      is_urgent: boolean;
+      date: string;
+      created_at: string;
+    } | null>('/api/notices/urgent'),
+
   // auth ---------------------------------------------------------------
   registerFarmer: (farmer: Farmer, aadhaar?: string) =>
     post<ApiAuth<ApiFarmer>>('/api/auth/farmer/register', {

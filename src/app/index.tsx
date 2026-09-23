@@ -10,8 +10,8 @@ import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import ServicesList from '../components/ServicesList';
 import { Colors, Spacing } from '../constants/theme';
-import { analyticsSummary } from '../data/mockData';
-import { PORTAL_NOTICES } from '../data/notices';
+import { useAnalyticsSummary } from '../hooks/useAnalyticsSummary';
+import { usePortalNotices } from '../hooks/usePortalNotices';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
@@ -25,6 +25,8 @@ export default function HomeScreen() {
 
   // ---- auth-aware hero state ----
   const { auth, farmer, activeBookingFor, queueSnapshot } = useStore();
+  const analyticsSummary = useAnalyticsSummary();
+  const portalNotices = usePortalNotices(5);
   const activeBooking = farmer ? activeBookingFor(farmer.id) : undefined;
   const snapshot = activeBooking
     ? queueSnapshot(activeBooking.centreId, activeBooking.token)
@@ -228,7 +230,7 @@ export default function HomeScreen() {
         <View style={styles.sideCol}>
           <SectionHeading title={t('notice.title')} />
           <NoticesBoard
-            notices={PORTAL_NOTICES.slice(0, 5)}
+            notices={portalNotices.notices}
             subjectLabel={t('notice.subject')}
             dateLabel={t('notice.date')}
             viewAllLabel={t('common.viewAll')}

@@ -16,7 +16,7 @@ from .enums import (
 )
 from .farmer import Farmer
 from .mixins import TimestampMixin, utcnow
-from .notification import Notification
+from .notification import Notice, Notification
 from .officer import Officer
 from .payment import Payment
 from .procurement import ProcurementRecord

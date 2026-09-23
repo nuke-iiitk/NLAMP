@@ -1,8 +1,9 @@
-"""Notification endpoints."""
+"""Notification endpoints + portal notice endpoints."""
 
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -10,17 +11,86 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_session
-from ..models import Notification
+from ..models import Notice, Notification
 from ..schemas.notification import (
+    NoticeCreate,
+    NoticeOut,
     NotificationCreate,
     NotificationOut,
     NotificationReadAllRequest,
 )
+from ..dependencies import require_officer
 from ..services.errors import NotFoundError
 from ..services.presenters import notification_out
 from ..services.resolvers import resolve_farmer
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
+
+notices_router = APIRouter(prefix="/notices", tags=["notices"])
+
+
+def _notice_out(notice: Notice) -> NoticeOut:
+    return NoticeOut(
+        id=str(notice.id),
+        title=notice.title,
+        dept=notice.dept,
+        body=notice.body,
+        tag=notice.tag,
+        is_urgent=notice.is_urgent,
+        date=notice.created_at.astimezone(timezone.utc).strftime("%d %b %Y").lstrip("0"),
+        created_at=notice.created_at,
+    )
+
+
+@notices_router.get("", response_model=list[NoticeOut])
+async def list_notices(
+    limit: int = Query(default=50, ge=1, le=200),
+    db: AsyncSession = Depends(get_session),
+) -> list[NoticeOut]:
+    """Published notices, newest first (unauthenticated — shown on the homepage)."""
+    stmt = (
+        select(Notice)
+        .where(Notice.is_published.is_(True))
+        .order_by(Notice.created_at.desc())
+        .limit(limit)
+    )
+    return [_notice_out(n) for n in (await db.execute(stmt)).scalars().all()]
+
+
+@notices_router.post("", response_model=NoticeOut, status_code=201)
+async def create_notice(
+    payload: NoticeCreate,
+    _officer: None = Depends(require_officer),
+    db: AsyncSession = Depends(get_session),
+) -> NoticeOut:
+    """Publish a portal notice (officer-only, gated by REQUIRE_OFFICER_AUTH)."""
+    notice = Notice(
+        title=payload.title,
+        dept=payload.dept,
+        body=payload.body,
+        tag=payload.tag,
+        is_urgent=payload.is_urgent,
+        is_published=payload.is_published,
+    )
+    db.add(notice)
+    await db.commit()
+    await db.refresh(notice)
+    return _notice_out(notice)
+
+
+@notices_router.get("/urgent", response_model=Optional[NoticeOut])
+async def latest_urgent_notice(
+    db: AsyncSession = Depends(get_session),
+) -> Optional[NoticeOut]:
+    """Single most recent urgent, published notice — powers the homepage strip."""
+    stmt = (
+        select(Notice)
+        .where(Notice.is_published.is_(True), Notice.is_urgent.is_(True))
+        .order_by(Notice.created_at.desc())
+        .limit(1)
+    )
+    notice = (await db.execute(stmt)).scalars().first()
+    return _notice_out(notice) if notice else None
 
 
 @router.get("", response_model=list[NotificationOut])
