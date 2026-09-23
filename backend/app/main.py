@@ -13,7 +13,17 @@ from sqlalchemy import text
 from . import ws
 from .config import settings
 from .database import SessionLocal, engine
-from .routers import auth, centres, farmers, notifications, payments, procurements, queue, slots
+from .routers import (
+    analytics,
+    auth,
+    centres,
+    farmers,
+    notifications,
+    payments,
+    procurements,
+    queue,
+    slots,
+)
 from .schemas.common import HealthResponse
 from .services.errors import DomainError
 
@@ -59,6 +69,8 @@ def create_app() -> FastAPI:
     app.include_router(procurements.router, prefix=API_PREFIX)
     app.include_router(payments.router, prefix=API_PREFIX)
     app.include_router(notifications.router, prefix=API_PREFIX)
+    app.include_router(notifications.notices_router, prefix=API_PREFIX)
+    app.include_router(analytics.router, prefix=API_PREFIX)
     app.include_router(ws.router)  # /ws/queue/{centre_id}
 
     @app.exception_handler(DomainError)
