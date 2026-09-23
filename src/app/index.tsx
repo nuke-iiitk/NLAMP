@@ -14,6 +14,7 @@ import { analyticsSummary } from '../data/mockData';
 import { PORTAL_NOTICES } from '../data/notices';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
+import { useStore } from '../store/AppStore';
 
 export default function HomeScreen() {
   const { t, fs } = useI18n();
@@ -21,6 +22,16 @@ export default function HomeScreen() {
   const wide = width >= 768;
   /** 16:9 desktop: three balanced columns (services / steps / notices). */
   const desktop = width >= 1024;
+
+  // ---- auth-aware hero state ----
+  const { auth, farmer, activeBookingFor, queueSnapshot } = useStore();
+  const activeBooking = farmer ? activeBookingFor(farmer.id) : undefined;
+  const snapshot = activeBooking
+    ? queueSnapshot(activeBooking.centreId, activeBooking.token)
+    : undefined;
+  const isFarmer = auth.role === 'farmer' && !!farmer;
+  const isGuest = !isFarmer;
+  const hasActiveBooking = isFarmer && !!activeBooking;
 
   /** Booking-process steps — shared between the stacked (mobile/tablet) and
       three-column (16:9 desktop) home layouts. */
@@ -82,17 +93,72 @@ export default function HomeScreen() {
           <Text style={[styles.portalDesc, { fontSize: fs(desktop ? 15 : 14) }]}>{t('landing.heroDesc')}</Text>
 
           <View style={styles.heroButtons}>
-            <Button label={t('landing.ctaBook')} onPress={() => router.push(path.booking)} />
             <Button
-              label={t('landing.ctaTrack')}
-              variant="secondary"
-              onPress={() => router.push(path.queue)}
+              label={t(isGuest ? 'landing.ctaBookRegister' : 'landing.ctaBook')}
+              onPress={() => router.push(isGuest ? path.register : path.booking)}
             />
+            {hasActiveBooking ? (
+              <Button
+                label={t('landing.ctaTrack')}
+                variant="secondary"
+                onPress={() => router.push(path.queue)}
+              />
+            ) : (
+              <View style={styles.ctaTrackWrap}>
+                <Button
+                  label={t('landing.ctaTrack')}
+                  variant="secondary"
+                  disabled
+                  accessibilityHint={t('landing.trackNoBooking')}
+                />
+                <Text style={[styles.trackHint, { fontSize: fs(11) }]}>
+                  {t('landing.trackNoBooking')}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
         <View style={styles.heroRight}>
-          <InfoCard title={t('landing.cycleTitle')}>
+          {hasActiveBooking && activeBooking && snapshot ? (
+            /* Logged-in farmer with an active booking: live personal status */
+            <>
+              <InfoCard title={t('landing.yourStatus')}>
+                <View style={styles.statusRow}>
+                  <View style={styles.statusRowLeft}>
+                    <AppIcon name={APP_ICONS.ticket} size={15} color={Colors.primary} />
+                    <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('queue.yourToken')}</Text>
+                  </View>
+                  <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{activeBooking.token}</Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.statusRow}>
+                  <View style={styles.statusRowLeft}>
+                    <AppIcon name={APP_ICONS.people} size={15} color={Colors.primary} />
+                    <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('queue.ahead')}</Text>
+                  </View>
+                  <Text style={[styles.statusValue, { fontSize: fs(14) }]}>
+                    {t('queue.aheadValue', { n: snapshot.farmersAhead })}
+                  </Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.statusRow}>
+                  <View style={styles.statusRowLeft}>
+                    <AppIcon name={APP_ICONS.time} size={15} color={Colors.primary} />
+                    <Text style={[styles.statusLabel, { fontSize: fs(11) }]}>{t('queue.estWait')}</Text>
+                  </View>
+                  <Text style={[styles.statusValue, { fontSize: fs(14) }]}>
+                    ~{snapshot.estimatedWaitMinutes}
+                  </Text>
+                </View>
+              </InfoCard>
+              <Button
+                label={t('landing.viewQueueCta')}
+                onPress={() => router.push(path.queue)}
+              />
+            </>
+          ) : (
+            <InfoCard title={t('landing.cycleTitle')}>
             <View style={styles.statusRow}>
               <View style={styles.statusRowLeft}>
                 <AppIcon name={APP_ICONS.checkmarkCircle} size={15} color={Colors.green} />
@@ -118,7 +184,8 @@ export default function HomeScreen() {
               </View>
               <Text style={[styles.statusValue, { fontSize: fs(14) }]}>{analyticsSummary.capacityUsedPercent}%</Text>
             </View>
-          </InfoCard>
+            </InfoCard>
+          )}
         </View>
       </View>
 
@@ -241,6 +308,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.md,
     flexWrap: 'wrap',
+  },
+  ctaTrackWrap: {
+    flexDirection: 'column',
+  },
+  trackHint: {
+    color: Colors.textMuted,
+    marginTop: 4,
+    maxWidth: 260,
   },
   heroRight: {
     width: '100%',
