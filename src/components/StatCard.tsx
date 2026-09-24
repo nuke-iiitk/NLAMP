@@ -38,11 +38,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     minWidth: 130,
-    shadowColor: '#173B27',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
   },
   value: {
     fontWeight: '800',

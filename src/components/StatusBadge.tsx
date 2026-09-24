@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
-    borderRadius: Radius.md,
+    borderRadius: Radius.sm,
   },
   small: {
     paddingHorizontal: 6,

@@ -73,11 +73,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     minWidth: 150,
     minHeight: 96,
-    borderRadius: Radius.md,
+    borderRadius: Radius.sm,
     borderWidth: 1,
     borderColor: Colors.border,
     backgroundColor: Colors.surface,
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     padding: Spacing.md,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: '700',
     color: Colors.text,
-    textAlign: 'left',
+    textAlign: 'center',
   },
 });
 

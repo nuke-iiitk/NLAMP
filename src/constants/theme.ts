@@ -9,26 +9,29 @@ import { Platform } from 'react-native';
  * that keep the layout clean and scannable on both desktop and mobile.
  */
 export const Fonts = {
-  regular: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  medium: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  semiBold: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  bold: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  extraBold: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  // Arial everywhere (system font — no loading needed on any platform).
+  // Weight is carried by the explicit `fontWeight` style next to each usage;
+  // the browser synthesizes the non-true weights from Arial's 400/700 faces.
+  regular: 'Arial',
+  medium: 'Arial',
+  semiBold: 'Arial',
+  bold: 'Arial',
+  extraBold: 'Arial',
 } as const;
 
 export const FONT_STACK =
-  "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Devanagari', 'Noto Sans Malayalam', sans-serif";
+  "Arial, Helvetica, 'Noto Sans Devanagari', 'Noto Sans Malayalam', -apple-system, 'Segoe UI', Roboto, sans-serif";
 
 export const Colors = {
   // Deep navy — government authority (JEE-Main style)
-  primary: '#176B45',
-  primaryDark: '#0D3D2A',
-  primaryLight: '#E8F4ED',
+  primary: '#0d47a1',
+  primaryDark: '#0a2f6b',
+  primaryLight: '#e3f2fd',
 
   // Saffron — secondary government accent
-  saffron: '#C97918',
-  saffronDark: '#8C4B0A',
-  saffronLight: '#FFF3DF',
+  saffron: '#e65100',
+  saffronDark: '#b85c0f',
+  saffronLight: '#fff2e5',
 
   // Status green
   green: '#16823b',
@@ -37,18 +40,18 @@ export const Colors = {
 
   // Neutrals — crisp white background, soft grey surfaces
   white: '#ffffff',
-  background: '#F7F9F7',
-  surface: '#FFFFFF',
-  surfaceAlt: '#F1F5F2',
-  surfaceMuted: '#E9F0EB',
+  background: '#ffffff',
+  surface: '#ffffff',
+  surfaceAlt: '#f8f9fa',
+  surfaceMuted: '#f0f4f8',
 
-  text: '#17221B',
-  textSecondary: '#536158',
-  textMuted: '#718078',
-  textOnDark: '#E8F3EC',
+  text: '#1a1a1a',
+  textSecondary: '#495057',
+  textMuted: '#6c757d',
+  textOnDark: '#d7e3f4',
 
-  border: '#DCE6DE',
-  borderDark: '#B8C8BC',
+  border: '#e0e0e0',
+  borderDark: '#bdbdbd',
 
   success: '#16823b',
   successLight: '#E6F4EC',
@@ -65,18 +68,18 @@ export const Colors = {
   flag: ['#040488', '#FFFFFF', '#138808'] as const,
 
   light: {
-    text: '#17221B',
-    textSecondary: '#536158',
-    background: '#F7F9F7',
-    backgroundElement: '#FFFFFF',
-    backgroundSelected: '#E8F4ED',
+    text: '#1a1a1a',
+    textSecondary: '#495057',
+    background: '#ffffff',
+    backgroundElement: '#ffffff',
+    backgroundSelected: '#e3f2fd',
   },
   dark: {
-    text: '#F8F9FA',
-    textSecondary: '#A8B3BE',
-    background: '#0D3D2A',
-    backgroundElement: '#176B45',
-    backgroundSelected: '#0D3D2A',
+    text: '#f8f9fa',
+    textSecondary: '#a8b3be',
+    background: '#0a2f6b',
+    backgroundElement: '#0d47a1',
+    backgroundSelected: '#0a2f6b',
   },
 };
 
@@ -121,10 +124,10 @@ export const Spacing = {
 };
 
 export const Radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 22,
+  sm: 2,
+  md: 3,
+  lg: 4,
+  xl: 6,
 };
 
 /** Base font sizes; use with the accessibility text-size scaler (useSettings().fs). */
