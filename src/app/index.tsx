@@ -9,7 +9,7 @@ import ProcessSteps from '../components/ProcessSteps';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import ServicesList from '../components/ServicesList';
-import { Colors, Spacing } from '../constants/theme';
+import { Colors, Radius, Spacing } from '../constants/theme';
 import { useAnalyticsSummary } from '../hooks/useAnalyticsSummary';
 import { usePortalNotices } from '../hooks/usePortalNotices';
 import { useI18n } from '../i18n';
@@ -274,11 +274,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroBlock: {
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.primaryDark,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.primary,
+    borderRadius: Radius.lg,
     padding: Spacing.xl,
     marginBottom: Spacing.xl,
+    shadowColor: '#0A2417',
+    shadowOpacity: 0.14,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 3,
   },
   heroRow: {
     flexDirection: 'row',
@@ -290,10 +296,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   portalTitle: {
-    color: Colors.primaryDark,
-    fontWeight: '400',
+    color: Colors.white,
+    fontWeight: '800',
     textAlign: 'left',
-    letterSpacing: 0.3,
+    letterSpacing: -0.5,
   },
   heroTitleLines: {
     alignItems: 'flex-start',
@@ -301,8 +307,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   portalDesc: {
-    color: Colors.textSecondary,
-    lineHeight: 22,
+    color: Colors.textOnDark,
+    lineHeight: 23,
     marginBottom: Spacing.xl,
     maxWidth: 600,
   },

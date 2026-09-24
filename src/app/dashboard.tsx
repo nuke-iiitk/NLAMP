@@ -11,7 +11,7 @@ import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import StatusBadge from '../components/StatusBadge';
 import StatusTimeline from '../components/StatusTimeline';
-import { Colors, Spacing } from '../constants/theme';
+import { Colors, Radius, Spacing } from '../constants/theme';
 import { formatDateLong, slotRange } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
@@ -152,11 +152,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     gap: Spacing.md,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.primaryDark,
     borderWidth: 1,
-    borderColor: Colors.borderDark,
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.saffron,
+    borderColor: Colors.primary,
+    borderRadius: Radius.lg,
     padding: Spacing.lg,
     marginBottom: Spacing.lg,
   },
@@ -165,16 +164,16 @@ const styles = StyleSheet.create({
     minWidth: 240,
   },
   welcomeLabel: {
-    color: Colors.textMuted,
+    color: Colors.saffronLight,
     fontWeight: '700',
     marginBottom: 4,
   },
   welcomeName: {
-    color: Colors.primaryDark,
+    color: Colors.white,
     fontWeight: '800',
   },
   welcomeSub: {
-    color: Colors.textSecondary,
+    color: Colors.textOnDark,
     marginTop: 4,
   },
   grid: {

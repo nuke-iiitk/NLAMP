@@ -65,6 +65,8 @@ export const APP_ICONS = {
   sliders: 'bi-sliders',
   filter: 'bi-funnel',
   downloadCloud: 'bi-cloud-download',
+  currency: 'bi-currency-rupee',
+  wallet: 'bi-wallet2',
 } as const;
 
 export type AppIconName = (typeof APP_ICONS)[keyof typeof APP_ICONS];
@@ -127,4 +129,6 @@ export const NATIVE_FALLBACK: Record<AppIconName, string> = {
   'bi-sliders': 'options',
   'bi-funnel': 'filter',
   'bi-cloud-download': 'cloud-download',
+  'bi-currency-rupee': 'currency-rupee',
+  'bi-wallet2': 'wallet',
 };

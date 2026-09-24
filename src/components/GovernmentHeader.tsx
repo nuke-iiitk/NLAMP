@@ -27,6 +27,8 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'home', label: 'Home', href: path.home },
   { key: 'about', label: 'About the Portal', href: path.about },
   { key: 'centres', label: 'Procurement Centres', href: path.centres },
+  { key: 'prices', label: 'Prices', href: path.prices },
+  { key: 'payments', label: 'Payments', href: path.payments },
   { key: 'booking', label: 'Slot Booking', href: path.booking },
   { key: 'queue', label: 'Track Token', href: path.queue },
   { key: 'status', label: 'Status', href: path.status },

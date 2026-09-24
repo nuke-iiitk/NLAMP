@@ -14,7 +14,9 @@ type Action = {
     | 'dash.qaBookings'
     | 'dash.qaNotifications'
     | 'dash.qaCentres'
-    | 'dash.qaHelp';
+    | 'dash.qaHelp'
+    | 'nav.prices'
+    | 'nav.payments';
   href: Href;
   tone: 'navy' | 'saffron' | 'green';
 };
@@ -25,6 +27,8 @@ const ACTIONS: Action[] = [
   { icon: APP_ICONS.list, labelKey: 'dash.qaBookings', href: path.bookings, tone: 'navy' },
   { icon: APP_ICONS.notifications, labelKey: 'dash.qaNotifications', href: path.notifications, tone: 'navy' },
   { icon: APP_ICONS.business, labelKey: 'dash.qaCentres', href: path.centres, tone: 'green' },
+  { icon: APP_ICONS.currency, labelKey: 'nav.prices', href: path.prices, tone: 'saffron' },
+  { icon: APP_ICONS.wallet, labelKey: 'nav.payments', href: path.payments, tone: 'green' },
   { icon: APP_ICONS.language, labelKey: 'dash.qaHelp', href: path.help, tone: 'navy' },
 ];
 
@@ -69,11 +73,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     minWidth: 150,
     minHeight: 96,
-    borderRadius: Radius.sm,
+    borderRadius: Radius.md,
     borderWidth: 1,
     borderColor: Colors.border,
     backgroundColor: Colors.surface,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
     gap: 8,
     padding: Spacing.md,
@@ -88,7 +92,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: '700',
     color: Colors.text,
-    textAlign: 'center',
+    textAlign: 'left',
   },
 });
 
