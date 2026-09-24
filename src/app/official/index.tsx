@@ -93,6 +93,7 @@ export default function OfficialDashboard() {
       <SectionHeading title={t('off.dash.quick')} />
       <View style={styles.actions}>
         <Button label={t('off.dash.openQueue')} onPress={() => router.push('/official/queue' as never)} />
+        <Button variant="outline-primary" label={t('pass.operator')} onPress={() => router.push('/official/ops' as never)} />
         <Button variant="outline-primary" label={t('off.dash.manageSlots')} onPress={() => router.push('/official/slots' as never)} />
         <Button variant="outline-primary" label={t('off.dash.viewAnalytics')} onPress={() => router.push('/official/analytics' as never)} />
       </View>

@@ -33,6 +33,7 @@ import {
   type QueueEntryStatus,
   type Slot,
 } from '../data/mockData';
+import { makePassId, PASS_STORAGE_KEY, type ProcurementPass, type PassReadiness, type PassStatus } from '../data/procurementPass';
 import { publishQueueUpdate } from '../services/queueService';
 import {
   api,
@@ -95,6 +96,15 @@ type StoreValue = {
   loginDemoOfficer: () => void;
   logout: () => void;
 
+  pass: ProcurementPass | null;
+  setPassStatus: (status: PassStatus) => void;
+  setReadiness: (key: keyof PassReadiness, value: boolean) => void;
+  setCentreDelay: (minutes: number) => void;
+  setCentreClosed: (closed: boolean) => void;
+  reduceCentreCapacity: (amount: number) => void;
+  recoverQueue: () => void;
+  markPassNoShow: () => void;
+
   // farmer actions
   createBooking: (input: {
     centreId: string;
@@ -155,6 +165,35 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [bookings, setBookings] = useState<Booking[]>(() => initialBookings);
   const [notifications, setNotifications] = useState<AppNotification[]>(() => initialNotifications);
   const [queues, setQueues] = useState<Record<string, CentreQueue>>(() => buildAllQueues());
+  const [pass, setPass] = useState<ProcurementPass | null>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = window.localStorage.getItem(PASS_STORAGE_KEY);
+        return saved ? JSON.parse(saved) as ProcurementPass : null;
+      }
+    } catch { /* demo state is best effort */ }
+    return null;
+  });
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage && pass) {
+        window.localStorage.setItem(PASS_STORAGE_KEY, JSON.stringify(pass));
+      }
+    } catch { /* ignore unavailable storage */ }
+  }, [pass]);
+
+  const updatePass = useCallback((updater: (current: ProcurementPass) => ProcurementPass) => {
+    setPass((current) => current ? updater(current) : current);
+  }, []);
+
+  const setPassStatus = useCallback((status: PassStatus) => updatePass((current) => ({ ...current, status, updatedAt: Date.now(), nextAction: status === 'On the Way' ? 'Arrive and report to the centre' : status === 'Checked In' ? 'Wait for your turn' : 'Review your pass guidance', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: `Farmer marked ${status}` }] })), [updatePass]);
+  const setReadiness = useCallback((key: keyof PassReadiness, value: boolean) => updatePass((current) => ({ ...current, readiness: { ...current.readiness, [key]: value } })), [updatePass]);
+  const setCentreDelay = useCallback((minutes: number) => updatePass((current) => { const at = Date.now(); const add = Math.max(0, minutes - current.operations.delayMinutes); const [hours, mins] = current.arrivalStart.split(':').map(Number); const total = Math.min(23 * 60 + 59, hours * 60 + mins + add); const arrivalStart = `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`; return { ...current, status: 'Delayed', operations: { ...current.operations, delayMinutes: minutes }, arrivalStart, leaveAt: arrivalStart, waitMinutes: current.waitMinutes + add, nextAction: `Centre running ${minutes} minutes late. Review the updated arrival window.`, updates: [...current.updates, { id: `${at}`, at, kind: 'delay', message: `Centre delay detected: ${minutes} minutes` }, { id: `${at}-window`, at, kind: 'window', message: `Arrival window updated to ${arrivalStart}–${current.arrivalEnd}` }] }; }), [updatePass]);
+  const setCentreClosed = useCallback((closed: boolean) => updatePass((current) => ({ ...current, operations: { ...current.operations, closed }, status: closed ? 'Delayed' : current.status, nextAction: closed ? 'Centre temporarily closed. Request reschedule or choose an eligible centre.' : 'Centre reopened. Review the current queue guidance.', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: closed ? 'Centre temporarily closed' : 'Centre reopened' }] })), [updatePass]);
+  const reduceCentreCapacity = useCallback((amount: number) => updatePass((current) => ({ ...current, operations: { ...current.operations, capacityReduction: current.operations.capacityReduction + amount }, capacityRemaining: Math.max(0, current.capacityRemaining - amount), nextAction: 'Centre capacity reduced. Keep monitoring your pass or request a reschedule.', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: `Capacity reduced by ${amount}` }] })), [updatePass]);
+  const recoverQueue = useCallback(() => updatePass((current) => ({ ...current, operations: { ...current.operations, delayMinutes: 0, closed: false }, status: 'Confirmed', waitMinutes: Math.max(0, current.waitMinutes - 30), nextAction: 'Queue recovered. Continue to your confirmed arrival window.', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: 'Queue recovery applied' }] })), [updatePass]);
+  const markPassNoShow = useCallback(() => setPassStatus('Missed'), [setPassStatus]);
 
   // ---------------------------------------------------------- backend sync
   // The store talks to FastAPI first and falls back to the bundled mock data
@@ -938,19 +977,15 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       const processingIndex = processing ? entries.indexOf(processing) : -1;
       const myEntry = token ? entries.find((entry) => entry.token === token) : undefined;
       const myIndex = myEntry ? entries.indexOf(myEntry) : -1;
-      const farmersAhead =
-        myEntry && myIndex >= 0 && myEntry.status !== 'Completed'
-          ? Math.max(0, myIndex - processingIndex - (processingIndex >= 0 ? 1 : 0))
-          : 0;
-
+      const farmersAhead = myEntry && myIndex >= 0 && myEntry.status !== 'Completed'
+        ? Math.max(0, myIndex - processingIndex - (processingIndex >= 0 ? 1 : 0))
+        : 0;
       return {
         currentlyServing: processing?.token ?? null,
         processing,
         farmersAhead,
         estimatedWaitMinutes: farmersAhead * MINUTES_PER_FARMER,
-        waitingCount: entries.filter(
-          (e) => e.status === 'Waiting' || e.status === 'On Hold' || e.status === 'Called'
-        ).length,
+        waitingCount: entries.filter((e) => e.status === 'Waiting' || e.status === 'On Hold' || e.status === 'Called').length,
         completedCount: entries.filter((e) => e.status === 'Completed').length,
         processingCount: entries.filter((e) => e.status === 'Processing').length,
         calledCount: entries.filter((e) => e.status === 'Called').length,
@@ -959,6 +994,16 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     },
     [queues]
   );
+
+  useEffect(() => {
+    if (!farmer) return;
+    const booking = activeBookingFor(farmer.id);
+    if (!booking) return;
+    const centre = centres.find((item) => item.id === booking.centreId);
+    if (!centre) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPass((current) => current?.bookingId === booking.id ? current : makePassId(booking, centre));
+  }, [activeBookingFor, bookings, centres, farmer]);
 
   const value = useMemo<StoreValue>(
     () => ({
@@ -970,6 +1015,14 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       bookings,
       notifications,
       queues,
+      pass,
+      setPassStatus,
+      setReadiness,
+      setCentreDelay,
+      setCentreClosed,
+      reduceCentreCapacity,
+      recoverQueue,
+      markPassNoShow,
       registerFarmer,
       loginFarmer,
       loginDemoFarmer,
@@ -1004,6 +1057,14 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       bookings,
       notifications,
       queues,
+      pass,
+      setPassStatus,
+      setReadiness,
+      setCentreDelay,
+      setCentreClosed,
+      reduceCentreCapacity,
+      recoverQueue,
+      markPassNoShow,
       registerFarmer,
       loginFarmer,
       loginDemoFarmer,

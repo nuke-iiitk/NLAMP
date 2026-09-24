@@ -54,6 +54,7 @@ export default function RootLayout() {
           <Stack.Screen name="notifications" />
           <Stack.Screen name="profile" />
           <Stack.Screen name="official" />
+          <Stack.Screen name="official/ops" />
         </Stack>
       </AppStoreProvider>
     </I18nProvider>
