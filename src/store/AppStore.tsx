@@ -187,11 +187,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     setPass((current) => current ? updater(current) : current);
   }, []);
 
-  const setPassStatus = useCallback((status: PassStatus) => updatePass((current) => ({ ...current, status, updatedAt: Date.now(), nextAction: status === 'On the Way' ? 'Arrive and report to the centre' : status === 'Checked In' ? 'Wait for your turn' : 'Review your pass guidance', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: `Farmer marked ${status}` }] })), [updatePass]);
+  const setPassStatus = useCallback((status: PassStatus) => updatePass((current) => ({ ...current, status, updatedAt: Date.now(), nextAction: status === 'On the Way' ? 'Arrive and report to the land office' : status === 'Checked In' ? 'Wait for your turn' : 'Review your pass guidance', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: `Claimant marked ${status}` }] })), [updatePass]);
   const setReadiness = useCallback((key: keyof PassReadiness, value: boolean) => updatePass((current) => ({ ...current, readiness: { ...current.readiness, [key]: value } })), [updatePass]);
-  const setCentreDelay = useCallback((minutes: number) => updatePass((current) => { const at = Date.now(); const add = Math.max(0, minutes - current.operations.delayMinutes); const [hours, mins] = current.arrivalStart.split(':').map(Number); const total = Math.min(23 * 60 + 59, hours * 60 + mins + add); const arrivalStart = `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`; return { ...current, status: 'Delayed', operations: { ...current.operations, delayMinutes: minutes }, arrivalStart, leaveAt: arrivalStart, waitMinutes: current.waitMinutes + add, nextAction: `Centre running ${minutes} minutes late. Review the updated arrival window.`, updates: [...current.updates, { id: `${at}`, at, kind: 'delay', message: `Centre delay detected: ${minutes} minutes` }, { id: `${at}-window`, at, kind: 'window', message: `Arrival window updated to ${arrivalStart}–${current.arrivalEnd}` }] }; }), [updatePass]);
-  const setCentreClosed = useCallback((closed: boolean) => updatePass((current) => ({ ...current, operations: { ...current.operations, closed }, status: closed ? 'Delayed' : current.status, nextAction: closed ? 'Centre temporarily closed. Request reschedule or choose an eligible centre.' : 'Centre reopened. Review the current queue guidance.', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: closed ? 'Centre temporarily closed' : 'Centre reopened' }] })), [updatePass]);
-  const reduceCentreCapacity = useCallback((amount: number) => updatePass((current) => ({ ...current, operations: { ...current.operations, capacityReduction: current.operations.capacityReduction + amount }, capacityRemaining: Math.max(0, current.capacityRemaining - amount), nextAction: 'Centre capacity reduced. Keep monitoring your pass or request a reschedule.', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: `Capacity reduced by ${amount}` }] })), [updatePass]);
+  const setCentreDelay = useCallback((minutes: number) => updatePass((current) => { const at = Date.now(); const add = Math.max(0, minutes - current.operations.delayMinutes); const [hours, mins] = current.arrivalStart.split(':').map(Number); const total = Math.min(23 * 60 + 59, hours * 60 + mins + add); const arrivalStart = `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`; return { ...current, status: 'Delayed', operations: { ...current.operations, delayMinutes: minutes }, arrivalStart, leaveAt: arrivalStart, waitMinutes: current.waitMinutes + add, nextAction: `Land office running ${minutes} minutes late. Review the updated arrival window.`, updates: [...current.updates, { id: `${at}`, at, kind: 'delay', message: `Land office delay detected: ${minutes} minutes` }, { id: `${at}-window`, at, kind: 'window', message: `Arrival window updated to ${arrivalStart}–${current.arrivalEnd}` }] }; }), [updatePass]);
+  const setCentreClosed = useCallback((closed: boolean) => updatePass((current) => ({ ...current, operations: { ...current.operations, closed }, status: closed ? 'Delayed' : current.status, nextAction: closed ? 'Land office temporarily closed. Request reschedule or choose an eligible office.' : 'Land office reopened. Review the current queue guidance.', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: closed ? 'Land office temporarily closed' : 'Land office reopened' }] })), [updatePass]);
+  const reduceCentreCapacity = useCallback((amount: number) => updatePass((current) => ({ ...current, operations: { ...current.operations, capacityReduction: current.operations.capacityReduction + amount }, capacityRemaining: Math.max(0, current.capacityRemaining - amount), nextAction: 'Land office capacity reduced. Keep monitoring your pass or request a reschedule.', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: `Capacity reduced by ${amount}` }] })), [updatePass]);
   const recoverQueue = useCallback(() => updatePass((current) => ({ ...current, operations: { ...current.operations, delayMinutes: 0, closed: false }, status: 'Confirmed', waitMinutes: Math.max(0, current.waitMinutes - 30), nextAction: 'Queue recovered. Continue to your confirmed arrival window.', updates: [...current.updates, { id: `${Date.now()}`, at: Date.now(), kind: 'status', message: 'Queue recovery applied' }] })), [updatePass]);
   const markPassNoShow = useCallback(() => setPassStatus('Missed'), [setPassStatus]);
 
@@ -296,20 +296,20 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           if (status !== booking.status) {
             if (status === 'Completed') {
               addNotification({
-                title: 'Procurement completed',
-                message: `Your procurement (${token}) has been completed. Payment is being processed.`,
+                title: 'Verification completed',
+                message: `Your case (${token}) verification has been completed. Compensation processing is underway.`,
                 type: 'success',
               });
             } else if (status === 'Processing') {
               addNotification({
-                title: 'Your procurement has started',
-                message: `Token ${token} is now being processed at the centre.`,
+                title: 'Your case processing has started',
+                message: `Token ${token} is now being processed at the district office.`,
                 type: 'info',
               });
             } else if (status === 'Waiting') {
               addNotification({
                 title: `Token ${token} is approaching`,
-                message: 'Please stay near the procurement counter.',
+                message: 'Please stay near the verification counter.',
                 type: 'info',
               });
             }
@@ -322,7 +322,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     [addNotification]
   );
 
-  /** Move the head of the queue forward by one farmer. */
+  /** Move the head of the queue forward by one claimant. */
   const advanceQueue = useCallback(
     (centreId: string) => {
       const localAdvance = () => {
@@ -433,13 +433,13 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       const localRegister = () => {
         const registered: Farmer = {
           ...input,
-          id: `FPP-F-2026-${input.mobile.slice(-4)}`,
+          id: `NLAMS-2026-${input.mobile.slice(-4)}`,
         };
         setFarmer(registered);
         setAuth({ role: 'farmer', farmer: registered });
         addNotification({
-          title: 'Welcome to Farmer Procurement Portal',
-          message: 'Your farmer profile has been created. You can now book a procurement slot.',
+          title: 'Welcome to National Land Acquisition & Management System',
+          message: 'Your authority nodal profile has been created. You can now submit a land proposal.',
           type: 'success',
         });
       };
@@ -487,7 +487,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
             : {
                 ...demoFarmer,
                 mobile,
-                id: `FPP-F-2026-${mobile.slice(-4)}`,
+                id: `NLAMS-2026-${mobile.slice(-4)}`,
               };
         setFarmer(profile);
         setAuth({ role: 'farmer', farmer: profile });
@@ -608,7 +608,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         const token = nextTokenForCentre(input.centreId);
         const isToday = input.date === demoBooking.date;
         const booking: Booking = {
-          id: `FPP-BKG-${Math.floor(100000 + Math.random() * 899999)}`,
+          id: `NLAMS-PROP-${Math.floor(100000 + Math.random() * 899999)}`,
           token,
           farmerId: activeFarmer.id,
           farmerName: activeFarmer.name,
@@ -648,7 +648,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
 
         addNotification({
           title: 'Booking confirmed',
-          message: `Your procurement slot has been confirmed at ${centre.name}. Token: ${token}.`,
+          message: `Your field verification slot has been confirmed at ${centre.name}. Token: ${token}.`,
           type: 'success',
         });
 
@@ -675,7 +675,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           );
           addNotification({
             title: 'Booking confirmed',
-            message: `Your procurement slot has been confirmed at ${booking.centreName}. Token: ${booking.token}.`,
+            message: `Your field verification slot has been confirmed at ${booking.centreName}. Token: ${booking.token}.`,
             type: 'success',
           });
           await syncQueueForCentre(booking.centreId);
@@ -796,8 +796,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     (centreId: string, token: string) => {
       setQueueEntryStatusImpl(centreId, token, 'Called');
       addNotification({
-        title: 'Farmer called',
-        message: `Token ${token} has been called to the procurement counter.`,
+        title: 'Claimant called',
+        message: `Token ${token} has been called to the verification counter.`,
         type: 'info',
       });
     },

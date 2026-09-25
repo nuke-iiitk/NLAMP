@@ -10,104 +10,84 @@ import SectionHeading from '../../components/SectionHeading';
 import StatCard from '../../components/StatCard';
 import StatusBadge from '../../components/StatusBadge';
 import { Colors, Spacing } from '../../constants/theme';
+import { ALL_PROJECTS, MOCK_ALERTS } from '../../data/landAcquisitionData';
 import { useI18n } from '../../i18n';
 import { useStore } from '../../store/AppStore';
 
 export default function OfficialDashboard() {
   const { t, fs } = useI18n();
-  const { officerCentreId, centres, queues, queueSnapshot, bookings } = useStore();
   const { width } = useWindowDimensions();
   const wide = width >= 900;
 
-  const centre = centres.find((c) => c.id === officerCentreId);
-  const queue = queues[officerCentreId];
-  const snapshot = queueSnapshot(officerCentreId);
-
-  const todayBookings = bookings.filter((b) => b.centreId === officerCentreId).length + 118;
-  const remaining = Math.max(0, (centre?.capacityPerDay ?? 150) - todayBookings);
+  const leadProject = ALL_PROJECTS[0];
 
   return (
     <OfficialShell>
       <SectionHeading
-        title={t('off.dash.title')}
-        subtitle={t('off.dash.subtitle', { centre: centre?.name ?? '—' })}
+        title="Implementing Agency & SLAO Operational Portal"
+        subtitle={`Active Jurisdiction: ${leadProject.district}, ${leadProject.state} · ${leadProject.agency}`}
         right={<DemoBadge />}
       />
 
-{/* Summary cards */}
+      {/* Summary cards */}
       <View style={[styles.cards, !wide && styles.cardsStack]}>
-        <StatCard label={t('off.dash.todayBookings')} value={todayBookings} tone="navy" />
-        <StatCard label={t('off.dash.waiting')} value={snapshot.waitingCount} tone="saffron" />
-        <StatCard label={t('off.dash.processing')} value={snapshot.processingCount} tone="red" />
-        <StatCard label={t('off.dash.completed')} value={snapshot.completedCount} tone="green" />
-        <StatCard label={t('off.dash.remaining')} value={remaining} tone="grey" />
+        <StatCard label="Total Requisitioned" value={`${leadProject.landProposedHa} ha`} tone="navy" />
+        <StatCard label="Land Acquired" value={`${leadProject.landAcquiredHa} ha`} tone="green" />
+        <StatCard label="Possession Rate" value={`${leadProject.possessionPercent}%`} tone="saffron" />
+        <StatCard label="Compensation Disbursed" value={`₹${leadProject.compensationDisbursedCr} Cr`} tone="green" />
+        <StatCard label="R&R Progress" value={`${leadProject.rrPercent}%`} tone="grey" />
       </View>
 
-      {/* Now serving / next */}
+      {/* Corridor Progress */}
       <View style={[styles.liveGrid, !wide && styles.liveGridStack]}>
-        <InfoCard title={t('off.dash.nowServing')}>
-          {snapshot.processing ? (
-            <View style={styles.servingRow}>
-              <Text style={[styles.servingToken, { fontSize: fs(30) }]}>{snapshot.processing.token}</Text>
-              <StatusBadge status="Processing" small />
-              <Text style={[styles.servingMeta, { fontSize: fs(13) }]}>
-                {snapshot.processing.farmerName} · {snapshot.processing.produce}
-              </Text>
-            </View>
-          ) : (
-            <Text style={[styles.grey, { fontSize: fs(14) }]}>{t('off.dash.noServing')}</Text>
-          )}
+        <InfoCard title="Active Statutory Milestone">
+          <View style={styles.servingRow}>
+            <Text style={[styles.servingToken, { fontSize: fs(24) }]}>{leadProject.currentStage} Stage</Text>
+            <StatusBadge status="Processing" small translatedLabel={leadProject.status} />
+            <Text style={[styles.servingMeta, { fontSize: fs(13) }]}>
+              {leadProject.name} · {leadProject.code}
+            </Text>
+          </View>
         </InfoCard>
 
-        <InfoCard title={t('off.dash.nextUp')}>
-          {queue?.entries
-            .filter((e) => e.status === 'Waiting' || e.status === 'Called')
-            .slice(0, 3)
-            .map((e) => (
-              <View key={e.token} style={styles.nextRow}>
-                <Text style={[styles.nextToken, { fontSize: fs(14) }]}>{e.token}</Text>
-                <Text style={[styles.nextMeta, { fontSize: fs(12) }]}>
-                  {e.farmerName} · {e.produce}
-                </Text>
-              </View>
-            ))}
-          {!queue || !queue.entries.some((e) => e.status === 'Waiting' || e.status === 'Called') ? (
-            <Text style={[styles.grey, { fontSize: fs(14) }]}>{t('off.queue.none')}</Text>
-          ) : null}
+        <InfoCard title="Critical Statutory Notices">
+          <View style={styles.nextRow}>
+            <Text style={[styles.nextToken, { fontSize: fs(13) }]}>Section 19 Declaration</Text>
+            <Text style={[styles.nextMeta, { fontSize: fs(11) }]}>Published in Gazette</Text>
+          </View>
+          <View style={styles.nextRow}>
+            <Text style={[styles.nextToken, { fontSize: fs(13) }]}>Section 23 Award</Text>
+            <Text style={[styles.nextMeta, { fontSize: fs(11) }]}>Sanctioned</Text>
+          </View>
         </InfoCard>
 
-        <InfoCard title={t('off.dash.recent')}>
-          {queue?.entries
-            .filter((e) => e.status === 'Completed')
-            .slice(-3)
-            .map((e) => (
-              <View key={e.token} style={styles.nextRow}>
-                <Text style={[styles.nextToken, { fontSize: fs(14) }]}>{e.token}</Text>
-                <Text style={[styles.nextMeta, { fontSize: fs(12) }]}>{e.farmerName}</Text>
-              </View>
-            )) ?? null}
+        <InfoCard title="Possession Handover">
+          <View style={styles.nextRow}>
+            <Text style={[styles.nextToken, { fontSize: fs(13) }]}>Physical Handover</Text>
+            <Text style={[styles.nextMeta, { fontSize: fs(11) }]}>{leadProject.possessionPercent}% Completed</Text>
+          </View>
         </InfoCard>
       </View>
 
-{/* Quick actions */}
-      <SectionHeading title={t('off.dash.quick')} />
+      {/* Quick actions */}
+      <SectionHeading title="Authority Actions" />
       <View style={styles.actions}>
-        <Button label={t('off.dash.openQueue')} onPress={() => router.push('/official/queue' as never)} />
-        <Button variant="outline-primary" label={t('pass.operator')} onPress={() => router.push('/official/ops' as never)} />
-        <Button variant="outline-primary" label={t('off.dash.manageSlots')} onPress={() => router.push('/official/slots' as never)} />
-        <Button variant="outline-primary" label={t('off.dash.viewAnalytics')} onPress={() => router.push('/official/analytics' as never)} />
+        <Button label="Open Corridor GIS Map" onPress={() => router.push('/queue' as never)} />
+        <Button variant="outline-primary" label="Compensation Audit" onPress={() => router.push('/payments' as never)} />
+        <Button variant="outline-primary" label="Cadastral Parcels" onPress={() => router.push('/marketplace' as never)} />
+        <Button variant="outline-primary" label="National Reports" onPress={() => router.push('/prices' as never)} />
       </View>
 
-      {/* Centre overview */}
-      <SectionHeading title={t('off.dash.center')} />
-      <InfoCard title={centre?.name ?? '—'}>
-        <MetaRow label={t('reg.state')} value={`${centre?.state} · ${centre?.district}`} />
-        <MetaRow label={t('book.capacity')} value={`${centre?.capacityPerDay} / day`} />
-        <MetaRow label={t('book.hours')} value={centre?.openingHours ?? '—'} />
-        <MetaRow label={t('book.currentQueue')} value={`${snapshot.waitingCount} ${t('off.dash.waiting')}`} />
+      {/* Project overview */}
+      <SectionHeading title="Corridor Details" />
+      <InfoCard title={leadProject.name}>
+        <MetaRow label="State & District" value={`${leadProject.state} · ${leadProject.district}`} />
+        <MetaRow label="Implementing Agency" value={leadProject.agency} />
+        <MetaRow label="Target Date" value={leadProject.targetDate} />
+        <MetaRow label="Affected Families" value={`${leadProject.affectedFamilies} Families`} />
       </InfoCard>
 
-      <AlertBanner tone="neutral" message={t('common.demoNote')} />
+      <AlertBanner tone="neutral" message="Data synchronized with PM GatiShakti National Master Plan." />
     </OfficialShell>
   );
 }
@@ -137,7 +117,7 @@ const styles = StyleSheet.create({
   servingToken: {
     color: Colors.primary,
     fontWeight: '800',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   servingMeta: {
     color: Colors.textSecondary,
@@ -159,9 +139,6 @@ const styles = StyleSheet.create({
   nextMeta: {
     color: Colors.textSecondary,
     fontWeight: '600',
-  },
-  grey: {
-    color: Colors.textMuted,
   },
   actions: {
     flexDirection: 'row',

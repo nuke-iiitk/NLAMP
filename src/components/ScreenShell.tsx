@@ -24,7 +24,7 @@ type Props = {
 };
 
 /**
- * Page chrome for the farmer-facing portal.
+ * Page chrome for the land-acquisition portal.
  *
  * The footer lives INSIDE the scrollable content, so it appears at the
  * natural end of the page flow — standard website layout, no overlay panels.

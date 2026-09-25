@@ -13,39 +13,39 @@ export type PortalNotice = {
 
 export const PORTAL_NOTICES: PortalNotice[] = [
   {
-    title: 'Procurement schedule updated for the current cycle',
+    title: 'Land acquisition schedule updated for the current phase',
     date: '29 Aug 2026',
-    dept: 'Department of Consumer Affairs',
+    dept: 'Department of Land Resources',
     tag: 'NEW',
   },
   {
-    title: 'Slot booking opened for Kottayam procurement centre',
+    title: 'Field verification slots opened at Kottayam District Land Acquisition Office',
     date: '28 Aug 2026',
-    dept: 'Department of Consumer Affairs',
+    dept: 'Department of Land Resources',
     tag: null,
   },
   {
-    title: 'Guidelines for bringing produce to procurement centres',
+    title: 'Guidelines for document submission at District Land Offices',
     date: '25 Aug 2026',
-    dept: 'Department of Consumer Affairs',
+    dept: 'Department of Land Resources',
     tag: null,
   },
   {
     title: 'Registration portal scheduled maintenance notice',
     date: '20 Aug 2026',
-    dept: 'Department of Consumer Affairs',
+    dept: 'Department of Land Resources',
     tag: null,
   },
   {
-    title: 'Revised daily capacity for major procurement centres',
+    title: 'Revised daily capacity for major District Land Acquisition Offices',
     date: '15 Aug 2026',
-    dept: 'Department of Consumer Affairs',
+    dept: 'Department of Land Resources',
     tag: null,
   },
   {
-    title: 'Advisory: Carry booking token (print or mobile) to the centre',
+    title: 'Advisory: Carry case token (print or mobile) to the office',
     date: '10 Aug 2026',
-    dept: 'Department of Consumer Affairs',
+    dept: 'Department of Land Resources',
     tag: null,
   },
 ];

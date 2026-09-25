@@ -21,7 +21,7 @@ type Props = {
 };
 
 /**
- * "Download Token PDF" button. Generates the official procurement-token PDF
+ * "Download Token PDF" button. Generates the official acquisition-case-token PDF
  * in the browser and downloads it. On native builds it explains that the
  * download is available in the web version.
  */

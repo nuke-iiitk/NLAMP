@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 /**
- * Farmer Procurement Portal design system.
+ * National Land Acquisition & Management System (NLAMS) design system.
  *
  * Indian government service portal visual language — modelled on the NTA
  * JEE-Main portal: crisp white background, deep institutional navy for text

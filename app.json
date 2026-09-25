@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "National Farmer Procurement",
-    "slug": "kisan-kraya-seva",
+    "name": "National Land Acquisition & Management System",
+    "slug": "nlams-portal",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "kisan-kraya-seva",
+    "scheme": "nlams",
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -22,8 +22,8 @@
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png",
-      "name": "National Farmer Procurement Portal",
-      "shortName": "FPP"
+      "name": "National Land Acquisition & Management System",
+      "shortName": "NLAMS"
     },
     "plugins": [
       "expo-router",

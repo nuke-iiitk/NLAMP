@@ -1,211 +1,235 @@
-import { Alert, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import Link from '../components/Link';
-
+import DataTable from '../components/DataTable';
+import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
+import StatusBadge from '../components/StatusBadge';
 import { Colors, Radius, Spacing } from '../constants/theme';
-import { PORTAL_NOTICES } from '../data/notices';
-import { canDownloadPdf, downloadNoticePdf } from '../services/pdfService';
+import { MOCK_DOCUMENTS, type LandDocument } from '../data/landAcquisitionData';
 import { useI18n } from '../i18n';
+import { path } from '../navigation';
 import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
-const NOTICES = PORTAL_NOTICES;
+const DOC_TYPES = [
+  'All',
+  'Notification',
+  'Award',
+  'Legal',
+  'Compensation',
+  'Map',
+  'R&R',
+  'Project Document',
+];
 
-
-export default function NoticesScreen() {
+export default function DocumentManagementScreen() {
   const { t, fs } = useI18n();
-  const { width } = useWindowDimensions();
-  const wide = width >= 768;
+  const [query, setQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('All');
 
-  function handlePdf(notice: (typeof NOTICES)[number]) {
-    if (!canDownloadPdf()) {
-      Alert.alert(t('token.pdfBtn'), t('token.unavailable'));
-      return;
-    }
-    downloadNoticePdf({ title: notice.title, dept: notice.dept, date: notice.date }).then((result) => {
-      if (!result.ok) Alert.alert(t('token.pdfBtn'), t('token.downloadError'));
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return MOCK_DOCUMENTS.filter((d) => {
+      if (typeFilter !== 'All' && d.type !== typeFilter) return false;
+      if (q) {
+        const mName = d.name.toLowerCase().includes(q);
+        const mProj = d.projectName.toLowerCase().includes(q);
+        if (!mName && !mProj) return false;
+      }
+      return true;
     });
-  }
+  }, [query, typeFilter]);
+
+  // Fields: Document | Project | Type | Version | Date | Status
+  const columns = [
+    {
+      key: 'doc',
+      header: 'Document Name & ID',
+      render: (d: LandDocument) => (
+        <View style={styles.docCell}>
+          <AppIcon name={APP_ICONS.documentText} size={18} color={Colors.primary} />
+          <View>
+            <Text style={[styles.docName, { fontSize: fs(13) }]}>{d.name}</Text>
+            <Text style={[styles.docMeta, { fontSize: fs(11) }]}>{d.id} · {d.fileSize}</Text>
+          </View>
+        </View>
+      ),
+    },
+    {
+      key: 'project',
+      header: 'Project Corridor',
+      render: (d: LandDocument) => (
+        <Text style={[styles.projText, { fontSize: fs(12) }]}>{d.projectName}</Text>
+      ),
+    },
+    {
+      key: 'type',
+      header: 'Category Type',
+      width: 130,
+      render: (d: LandDocument) => (
+        <Text style={[styles.typeBadge, { fontSize: fs(11) }]}>{d.type}</Text>
+      ),
+    },
+    {
+      key: 'version',
+      header: 'Version',
+      width: 80,
+      render: (d: LandDocument) => (
+        <Text style={[styles.versionText, { fontSize: fs(12) }]}>{d.version}</Text>
+      ),
+    },
+    {
+      key: 'date',
+      header: 'Gazetted Date',
+      width: 110,
+      render: (d: LandDocument) => (
+        <Text style={[styles.dateText, { fontSize: fs(11) }]}>{d.date}</Text>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 120,
+      render: (d: LandDocument) => (
+        <StatusBadge
+          status={d.status === 'Verified' ? 'Completed' : 'Waiting'}
+          translatedLabel={d.status}
+          small
+        />
+      ),
+    },
+  ];
 
   return (
-    <ScreenShell breadcrumbs={[{ label: t('nav.notices') }]}>
-      <SectionHeading title={t('notice.title')} subtitle={t('common.gov')} />
+    <ScreenShell wide breadcrumbs={[{ label: 'Home', href: path.home }, { label: 'Documents & Gazette' }]}>
+      <SectionHeading
+        title="National Document & Gazette Management"
+        subtitle="Repository of preliminary notifications, declaration orders, award statements, High Court orders and R&R schemes."
+      />
 
-      {wide ? (
-        <View style={styles.table}>
-          {/* Table header */}
-          <View style={styles.tableHeader}>
-            <Text style={[styles.th, styles.thSubject, { fontSize: fs(12) }]}>{t('notice.subject')}</Text>
-            <Text style={[styles.th, styles.thDate, { fontSize: fs(12) }]}>{t('notice.date')}</Text>
-            <Text style={[styles.th, styles.thPdf, { fontSize: fs(12) }]}>{t('notice.pdf')}</Text>
-          </View>
+      {/* Filter and Search Bar */}
+      <View style={styles.filterCard}>
+        <View style={styles.searchRow}>
+          <AppIcon name={APP_ICONS.search} size={16} color={Colors.textMuted} />
+          <TextInput
+            style={[styles.searchInput, { fontSize: fs(13) }]}
+            placeholder="Search gazette notifications, awards, SIA reports or project documents..."
+            placeholderTextColor={Colors.textMuted}
+            value={query}
+            onChangeText={setQuery}
+          />
+        </View>
 
-          {NOTICES.map((notice, idx) => (
-            <View key={idx} style={styles.row}>
-              <View style={styles.subjectCell}>
-                {notice.tag ? (
-                  <View style={styles.newTag}>
-                    <Text style={styles.newTagText}>{notice.tag}</Text>
-                  </View>
-                ) : null}
-                <Text style={[styles.noticeTitle, { fontSize: fs(14) }]}>{notice.title}</Text>
-                <Text style={[styles.noticeDept, { fontSize: fs(11) }]}>{notice.dept}</Text>
-              </View>
-              <Text style={[styles.dateCell, { fontSize: fs(12) }]}>{notice.date}</Text>
-              <Link
-                onPress={() => handlePdf(notice)}
-                accessibilityLabel={`${t('notice.pdf')}: ${notice.title}`}
-                after={<AppIcon name={APP_ICONS.download} size={16} color={Colors.danger} />}
-                label={t('notice.pdf')}
-              />
-            </View>
+        <View style={styles.pillRow}>
+          <Text style={[styles.pillLabel, { fontSize: fs(11) }]}>Category:</Text>
+          {DOC_TYPES.map((type) => (
+            <Pressable
+              key={type}
+              onPress={() => setTypeFilter(type)}
+              style={[styles.pill, typeFilter === type && styles.pillActive]}
+            >
+              <Text style={[styles.pillText, typeFilter === type && styles.pillTextActive, { fontSize: fs(11) }]}>
+                {type}
+              </Text>
+            </Pressable>
           ))}
         </View>
-      ) : (
-        <View style={styles.cardList}>
-          {NOTICES.map((notice, idx) => (
-            <View key={idx} style={styles.card}>
-              {notice.tag ? (
-                <View style={styles.cardTag}>
-                  <Text style={styles.newTagText}>{notice.tag}</Text>
-                </View>
-              ) : null}
-              <Text style={[styles.noticeTitle, { fontSize: fs(15) }]}>{notice.title}</Text>
-              <Text style={[styles.noticeDept, { fontSize: fs(11) }]}>{notice.dept}</Text>
-              <View style={styles.cardMeta}>
-                <Text style={[styles.dateCell, { fontSize: fs(12) }]}>{notice.date}</Text>
-                <Link
-                  onPress={() => handlePdf(notice)}
-                  accessibilityLabel={`${t('notice.pdf')}: ${notice.title}`}
-                  after={<AppIcon name={APP_ICONS.download} size={14} color={Colors.danger} />}
-                  label={t('notice.pdf')}
-                />
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
-
-            <View style={styles.note}>
-        <AppIcon name={APP_ICONS.download} size={14} color={Colors.info} />
-        <Text style={[styles.noteText, { fontSize: fs(12) }]}>
-          PDF documents are generated and downloaded locally in your browser — no server required.
-        </Text>
       </View>
+
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        rowKey={(d) => d.id}
+        emptyLabel="No documents found."
+      />
     </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  table: {
+  filterCard: {
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.borderDark,
+    borderRadius: Radius.sm,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+    gap: Spacing.sm,
   },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: Colors.primaryDark,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-  },
-  th: {
-    color: Colors.white,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  thSubject: {
-    flex: 1,
-  },
-  thDate: {
-    width: 110,
-  },
-  thPdf: {
-    width: 90,
-    textAlign: 'center',
-  },
-  row: {
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    paddingVertical: Spacing.md,
+    backgroundColor: Colors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.sm,
     paddingHorizontal: Spacing.md,
+    gap: 8,
   },
-  subjectCell: {
+  searchInput: {
     flex: 1,
-    paddingRight: Spacing.md,
+    minHeight: 40,
+    color: Colors.text,
   },
-  newTag: {
-    backgroundColor: Colors.saffron,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    marginBottom: 4,
+  pillRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
   },
-  newTagText: {
-    color: Colors.white,
-    fontSize: 9,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  noticeTitle: {
-    color: Colors.info,
-    fontWeight: '600',
-    lineHeight: 20,
-  },
-  noticeDept: {
+  pillLabel: {
     color: Colors.textMuted,
-    marginTop: 2,
+    fontWeight: '700',
+    marginRight: 4,
   },
-  dateCell: {
-    width: 110,
+  pill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surfaceAlt,
+  },
+  pillActive: {
+    backgroundColor: Colors.primaryDark,
+    borderColor: Colors.primaryDark,
+  },
+  pillText: {
     color: Colors.textSecondary,
     fontWeight: '600',
   },
-  pdfCell: {
-    width: 90,
-    alignItems: 'center',
-    gap: 2,
+  pillTextActive: {
+    color: Colors.white,
   },
-  pdfText: {
-    color: Colors.info,
+  docCell: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  docName: {
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  docMeta: {
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  projText: {
+    color: Colors.text,
+    fontWeight: '600',
+  },
+  typeBadge: {
+    fontWeight: '700',
+    color: Colors.textSecondary,
+  },
+  versionText: {
+    color: Colors.textMuted,
     fontWeight: '700',
   },
-  note: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: Spacing.md,
-  },
-  noteText: {
-    color: Colors.textMuted,
-    flex: 1,
-  },
-  cardList: {
-    gap: Spacing.md,
-  },
-  card: {
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
-  },
-  cardTag: {
-    alignSelf: 'flex-start',
-    backgroundColor: Colors.saffron,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    marginBottom: 4,
-  },
-  cardMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
+  dateText: {
+    color: Colors.textSecondary,
   },
 });

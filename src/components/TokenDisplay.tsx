@@ -28,7 +28,7 @@ export default function TokenDisplay({
       {/* Header strip */}
       <View style={styles.headerStrip}>
         <Text style={[styles.headerText, { fontSize: fs(13) }]}>
-          {label ?? 'PROCUREMENT TOKEN'}
+          {label ?? 'ACQUISITION CASE TOKEN'}
         </Text>
       </View>
 

@@ -2,569 +2,608 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 
-import CentreCard from '../components/CentreCard';
+import DataTable from '../components/DataTable';
 import EmptyState from '../components/EmptyState';
+import InfoCard, { MetaRow } from '../components/InfoCard';
 import Button from '../components/Button';
 import ScreenShell from '../components/ScreenShell';
 import SearchableSelect from '../components/SearchableSelect';
 import SectionHeading from '../components/SectionHeading';
+import StatusBadge from '../components/StatusBadge';
 import { Colors, Radius, Spacing } from '../constants/theme';
-import { getDistrictOptions, getStateOptions } from '../data/indiaLocations';
-import { crops, type CentreStatus } from '../data/mockData';
+import { getStateOptions, getDistrictOptions } from '../data/indiaLocations';
+import { ALL_PROJECTS, type LandProject, type ProjectStatus } from '../data/landAcquisitionData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
-import { useStore } from '../store/AppStore';
-import { APP_ICONS, AppIcon, type AppIconName } from '../components/AppIcon';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
-const STATUS_FILTERS: ('All' | CentreStatus)[] = ['All', 'Open', 'Closed'];
+const SECTORS = ['All', 'Highways', 'Railways', 'Industrial', 'Energy', 'Irrigation', 'Urban Infra'];
+const STATUS_OPTIONS: ('All' | ProjectStatus)[] = ['All', 'Active', 'Delayed', 'Completed', 'Pending Approval'];
 
-/** Values that actually drive the location/crop/status results (Search button). */
-type AppliedFilters = {
-  state: string | null;
-  district: string | null;
-  centreId: string | null;
-  crop: string;
-  status: string;
-};
-
-export default function CentresScreen() {
+export default function NationalProjectsScreen() {
   const { t, fs } = useI18n();
-  const { centres, slots } = useStore();
   const { width } = useWindowDimensions();
   const wide = width >= 768;
 
-  // ---- draft selectors (what the user is picking) ----
+  // Filters state
   const [draftState, setDraftState] = useState<string | null>(null);
   const [draftDistrict, setDraftDistrict] = useState<string | null>(null);
-  const [draftCentre, setDraftCentre] = useState<string | null>(null);
+  const [sectorFilter, setSectorFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [query, setQuery] = useState('');
-  const [cropFilter, setCropFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [selectedProject, setSelectedProject] = useState<LandProject | null>(ALL_PROJECTS[0]);
 
-  // ---- applied filters (what the location/crop/status results actually use;
-  //      the free-text search filters live on top of these) ----
-  const [applied, setApplied] = useState<AppliedFilters>({
-    state: null,
-    district: null,
-    centreId: null,
-    crop: 'All',
-    status: 'All',
-  });
+  // Sorting
+  const [sortBy, setSortBy] = useState<'name' | 'land' | 'comp'>('name');
 
-  // ---- cascading option lists (single source of truth: indiaLocations) ----
   const stateOptions = useMemo(() => getStateOptions(), []);
   const districtOptions = useMemo(
     () => (draftState ? getDistrictOptions(draftState) : []),
     [draftState]
   );
 
-  const centreOptions = useMemo(() => {
-    if (!draftState || !draftDistrict) return [];
-    return centres
-      .filter((centre) => centre.state === draftState && centre.district === draftDistrict)
-      .map((centre) => ({ value: centre.id, label: centre.name }));
-  }, [centres, draftState, draftDistrict]);
-
-  // ---- cascade reset rules ----
-  const handleState = (value: string) => {
-    setDraftState(value || null);
-    setDraftDistrict(null);
-    setDraftCentre(null);
-  };
-
-  const handleDistrict = (value: string) => {
-    setDraftDistrict(value || null);
-    setDraftCentre(null);
-  };
-
-  const applySearch = () => {
-    setApplied({
-      state: draftState,
-      district: draftDistrict,
-      centreId: draftCentre,
-      crop: cropFilter,
-      status: statusFilter,
-    });
-  };
-
-  const resetAll = () => {
-    setDraftState(null);
-    setDraftDistrict(null);
-    setDraftCentre(null);
-    setQuery('');
-    setCropFilter('All');
-    setStatusFilter('All');
-    setApplied({
-      state: null,
-      district: null,
-      centreId: null,
-      crop: 'All',
-      status: 'All',
-    });
-  };
-
-  const filtered = useMemo(() => {
-    // Free-text search is LIVE: it applies as the user types, on top of the
-    // applied location/crop/status filters. Case-insensitive partial match
-    // across name, district, state, full address (town/landmark) and crops.
+  const filteredProjects = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return centres.filter((centre) => {
-      if (applied.state && centre.state !== applied.state) return false;
-      if (applied.district && centre.district !== applied.district) return false;
-      if (applied.centreId && centre.id !== applied.centreId) return false;
-      if (applied.crop !== 'All' && !centre.crops.includes(applied.crop)) return false;
-      if (applied.status !== 'All') {
-        const isOpen =
-          centre.status === 'Open' || centre.status === 'Busy' || centre.status === 'Full';
-        if (applied.status === 'Open' && !isOpen) return false;
-        if (applied.status === 'Closed' && isOpen) return false;
-      }
+    return ALL_PROJECTS.filter((p) => {
+      if (draftState && p.state !== draftState) return false;
+      if (draftDistrict && p.district !== draftDistrict) return false;
+      if (sectorFilter !== 'All' && p.sector !== sectorFilter) return false;
+      if (statusFilter !== 'All' && p.status !== statusFilter) return false;
       if (q) {
-        const haystack =
-          `${centre.name} ${centre.district} ${centre.state} ${centre.address} ${centre.crops.join(' ')}`.toLowerCase();
-        if (!haystack.includes(q)) return false;
+        const matchesName = p.name.toLowerCase().includes(q);
+        const matchesCode = p.code.toLowerCase().includes(q);
+        const matchesAgency = p.agency.toLowerCase().includes(q);
+        const matchesDist = p.district.toLowerCase().includes(q);
+        if (!matchesName && !matchesCode && !matchesAgency && !matchesDist) return false;
       }
       return true;
+    }).sort((a, b) => {
+      if (sortBy === 'land') return b.landProposedHa - a.landProposedHa;
+      if (sortBy === 'comp') return b.compensationDisbursedCr - a.compensationDisbursedCr;
+      return a.name.localeCompare(b.name);
     });
-  }, [centres, applied, query]);
+  }, [draftState, draftDistrict, sectorFilter, statusFilter, query, sortBy]);
 
-  const slotsOpenToday = useMemo(
-    () => slots.filter((s) => !s.closed && s.booked < s.capacity).length,
-    [slots]
-  );
+  const resetFilters = () => {
+    setDraftState(null);
+    setDraftDistrict(null);
+    setSectorFilter('All');
+    setStatusFilter('All');
+    setQuery('');
+  };
 
-  const appliedCentre = applied.centreId
-    ? centres.find((centre) => centre.id === applied.centreId)
-    : undefined;
-
-  const locationSummary = applied.state
-    ? `${applied.state}${applied.district ? ` › ${applied.district}` : ''}${
-        appliedCentre ? ` › ${appliedCentre.name}` : ''
-      }`
-    : t('centres.allIndia');
+  // Table columns as specified in prompt: Project | State | District | Land Proposed | Acquired | Compensation | Possession | Status
+  const columns = [
+    {
+      key: 'project',
+      header: 'Project',
+      render: (p: LandProject) => (
+        <Pressable onPress={() => setSelectedProject(p)}>
+          <Text style={[styles.projName, { fontSize: fs(13) }]}>{p.name}</Text>
+          <Text style={[styles.projMeta, { fontSize: fs(11) }]}>{p.code} · {p.agency}</Text>
+        </Pressable>
+      ),
+    },
+    {
+      key: 'state',
+      header: 'State',
+      width: 100,
+      render: (p: LandProject) => <Text style={[styles.cellText, { fontSize: fs(12) }]}>{p.state}</Text>,
+    },
+    {
+      key: 'district',
+      header: 'District',
+      width: 110,
+      render: (p: LandProject) => <Text style={[styles.cellText, { fontSize: fs(12) }]}>{p.district}</Text>,
+    },
+    {
+      key: 'proposed',
+      header: 'Proposed',
+      width: 90,
+      render: (p: LandProject) => <Text style={[styles.cellBold, { fontSize: fs(12) }]}>{p.landProposedHa} ha</Text>,
+    },
+    {
+      key: 'acquired',
+      header: 'Acquired',
+      width: 90,
+      render: (p: LandProject) => (
+        <Text style={[styles.cellBold, { color: Colors.green, fontSize: fs(12) }]}>
+          {p.landAcquiredHa} ha
+        </Text>
+      ),
+    },
+    {
+      key: 'compensation',
+      header: 'Compensation',
+      width: 110,
+      render: (p: LandProject) => (
+        <Text style={[styles.cellText, { fontSize: fs(12) }]}>
+          ₹{p.compensationDisbursedCr} / ₹{p.compensationBudgetCr} Cr
+        </Text>
+      ),
+    },
+    {
+      key: 'possession',
+      header: 'Possession',
+      width: 90,
+      render: (p: LandProject) => (
+        <Text style={[styles.cellBold, { color: Colors.primaryDark, fontSize: fs(12) }]}>
+          {p.possessionPercent}%
+        </Text>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 105,
+      render: (p: LandProject) => (
+        <StatusBadge
+          status={p.status === 'Delayed' ? 'Cancelled' : p.status === 'Completed' ? 'Completed' : 'Upcoming'}
+          translatedLabel={p.status}
+          small
+        />
+      ),
+    },
+  ];
 
   return (
-    <ScreenShell breadcrumbs={[{ label: t('nav.centres') }]}>
+    <ScreenShell wide breadcrumbs={[{ label: 'Home', href: path.home }, { label: 'National Projects' }]}>
       <SectionHeading
-        title={t('centres.title')}
-        subtitle={t('centres.subtitle')}
-        right={
-          <View style={styles.liveNotice}>
-            <View style={styles.liveDot} />
-            <AppIcon name={APP_ICONS.time} size={14} color={Colors.green} />
-            <Text style={[styles.liveText, { fontSize: fs(11) }]}>
-              {slotsOpenToday} {t('book.availableSlots')}
-            </Text>
-          </View>
-        }
+        title="National Land Acquisition Projects"
+        subtitle="End-to-End monitoring of central and state infrastructure corridors under RFCTLARR Act 2013."
       />
 
-      {/* Location search panel */}
-      <View style={styles.panel}>
-        <View style={styles.panelTitleRow}>
-          <AppIcon name={APP_ICONS.location} size={15} color={Colors.primary} />
-          <Text style={[styles.panelTitle, { fontSize: fs(14) }]}>{t('centres.findTitle')}</Text>
-          <Text style={[styles.panelStep, { fontSize: fs(12) }]}>{t('centres.stepGuide')}</Text>
+      {/* Filter Card */}
+      <View style={styles.filterCard}>
+        <View style={styles.filterCardHeader}>
+          <Text style={[styles.filterTitle, { fontSize: fs(14) }]}>Search & Sector Filters</Text>
+          <Button variant="ghost" label="Clear Filters" onPress={resetFilters} small />
         </View>
 
-        <View style={[styles.selectRow, !wide && styles.stack]}>
-          <SearchableSelect
-            label={t('centres.labelState')}
-            placeholder={t('centres.selectState')}
-            searchPlaceholder={t('centres.searchState')}
-            icon={APP_ICONS.flag}
-            value={draftState}
-            options={stateOptions}
-            onSelect={handleState}
-            onClear={() => handleState('')}
-            required
+        {/* Live search input */}
+        <View style={styles.searchRow}>
+          <AppIcon name={APP_ICONS.search} size={16} color={Colors.textMuted} />
+          <TextInput
+            style={[styles.searchInput, { fontSize: fs(13) }]}
+            placeholder="Search projects by name, code, implementing agency or district..."
+            placeholderTextColor={Colors.textMuted}
+            value={query}
+            onChangeText={setQuery}
           />
-          <SearchableSelect
-            label={t('centres.labelDistrict')}
-            placeholder={t('centres.selectDistrict')}
-            searchPlaceholder={t('centres.searchDistrict')}
-            icon={APP_ICONS.location}
-            value={draftDistrict}
-            options={districtOptions}
-            onSelect={handleDistrict}
-            onClear={() => handleDistrict('')}
-            disabled={!draftState}
-            hint={draftState ? undefined : t('centres.pickStateFirst')}
-            emptyMessage={t('centres.noDistricts')}
-            required
-          />
-          <SearchableSelect
-            label={t('centres.labelCentre')}
-            placeholder={t('centres.selectCentre')}
-            searchPlaceholder={t('centres.searchCentre')}
-            icon={APP_ICONS.business}
-            value={draftCentre}
-            options={centreOptions}
-            onSelect={(value) => setDraftCentre(value || null)}
-            onClear={() => setDraftCentre(null)}
-            disabled={!draftDistrict}
-            hint={draftDistrict ? undefined : t('centres.pickDistrictFirst')}
-            emptyMessage={t('centres.noCentresInDistrict')}
-          />
+          {query ? (
+            <Pressable onPress={() => setQuery('')}>
+              <AppIcon name={APP_ICONS.closeCircle} size={16} color={Colors.textMuted} />
+            </Pressable>
+          ) : null}
         </View>
 
-        <View style={styles.panelDivider} />
-
-        <View style={styles.searchFieldWrap}>
-          <Text style={[styles.searchLabel, { fontSize: fs(14) }]} nativeID="centre-search-label">
-            {t('centres.searchBy')}
-          </Text>
-          <View style={styles.searchBar}>
-            <AppIcon name={APP_ICONS.search} size={17} color={Colors.textMuted} />
-            <TextInput
-              accessibilityLabel={t('centres.searchBy')}
-              accessibilityRole="search"
-              value={query}
-              onChangeText={setQuery}
-              placeholder={t('centres.searchBy')}
-              placeholderTextColor={Colors.textMuted}
-              returnKeyType="search"
-              onSubmitEditing={applySearch}
-              style={[styles.searchInput, { fontSize: fs(15) }]}
+        {/* Cascading State & District Selectors */}
+        <View style={[styles.selectRow, !wide && styles.selectRowStack]}>
+          <View style={{ flex: 1 }}>
+            <SearchableSelect
+              label="Filter by State"
+              value={draftState}
+              placeholder="All States"
+              options={stateOptions}
+              onSelect={(val) => {
+                setDraftState(val || null);
+                setDraftDistrict(null);
+              }}
+              onClear={() => {
+                setDraftState(null);
+                setDraftDistrict(null);
+              }}
             />
-            {query.length > 0 ? (
+          </View>
+          <View style={{ flex: 1 }}>
+            <SearchableSelect
+              label="Filter by District"
+              value={draftDistrict}
+              placeholder="All Districts"
+              options={districtOptions}
+              disabled={!draftState}
+              onSelect={(val) => setDraftDistrict(val || null)}
+              onClear={() => setDraftDistrict(null)}
+            />
+          </View>
+        </View>
+
+        {/* Sector and Status Pills */}
+        <View style={styles.pillWrap}>
+          <Text style={[styles.pillLabel, { fontSize: fs(11) }]}>Sector:</Text>
+          <View style={styles.pills}>
+            {SECTORS.map((sec) => (
               <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t('centres.clearSearch')}
-                onPress={() => setQuery('')}
-                style={styles.searchClear}
-                hitSlop={8}
+                key={sec}
+                onPress={() => setSectorFilter(sec)}
+                style={[styles.pill, sectorFilter === sec && styles.pillActive]}
               >
-                <AppIcon name={APP_ICONS.close} size={13} color={Colors.textSecondary} />
+                <Text style={[styles.pillText, sectorFilter === sec && styles.pillTextActive, { fontSize: fs(11) }]}>
+                  {sec}
+                </Text>
               </Pressable>
-            ) : null}
+            ))}
           </View>
         </View>
 
-        <View style={[styles.chipRow, !wide && styles.stack]}>
-          <FilterChips
-            icon={APP_ICONS.leaf}
-            label={t('centres.filterCrop')}
-            options={['All', ...crops]}
-            value={cropFilter}
-            onChange={setCropFilter}
-          />
-          <FilterChips
-            icon={APP_ICONS.clipboard}
-            label={t('centres.filterStatus')}
-            options={STATUS_FILTERS}
-            value={statusFilter}
-            onChange={setStatusFilter}
-          />
-        </View>
-
-        <View style={styles.actionsRow}>
-          <View style={styles.actionGrow}>
-            <Button
-              label={t('centres.searchBtn')}
-              onPress={applySearch}
-              icon={APP_ICONS.search}
-              accessibilityHint={t('centres.searchBtnHint')}
-            />
+        <View style={styles.pillWrap}>
+          <Text style={[styles.pillLabel, { fontSize: fs(11) }]}>Status:</Text>
+          <View style={styles.pills}>
+            {STATUS_OPTIONS.map((st) => (
+              <Pressable
+                key={st}
+                onPress={() => setStatusFilter(st)}
+                style={[styles.pill, statusFilter === st && styles.pillActive]}
+              >
+                <Text style={[styles.pillText, statusFilter === st && styles.pillTextActive, { fontSize: fs(11) }]}>
+                  {st}
+                </Text>
+              </Pressable>
+            ))}
           </View>
-          <Button variant="outline-primary"
-            label={t('centres.reset')}
-            onPress={resetAll}
-            icon={APP_ICONS.refresh}
-            accessibilityHint={t('centres.resetHint')}
-          />
         </View>
       </View>
 
-      {/* Results */}
-      <View style={styles.resultsHeader}>
-        <View style={styles.resultsTitleRow}>
-          <AppIcon name={APP_ICONS.business} size={15} color={Colors.primaryDark} />
-          <Text style={[styles.resultsTitle, { fontSize: fs(16) }]}>{t('centres.results')}</Text>
-        </View>
-        <View style={styles.resultsMeta}>
-          <AppIcon name={APP_ICONS.location} size={13} color={Colors.textMuted} />
-          <Text style={[styles.locationSummary, { fontSize: fs(12) }]}>{locationSummary}</Text>
-          <Text style={[styles.resultCount, { fontSize: fs(12) }]}>
-            {filtered.length === 1
-              ? t('centres.oneResult')
-              : t('centres.resultsCount', { n: filtered.length })}
-          </Text>
-        </View>
-      </View>
-
-      {filtered.length === 0 ? (
-        <EmptyState
-          icon={APP_ICONS.search}
-          title={t('centres.noResults')}
-          message={t('centres.noResultsBody')}
-          action={
-            <View style={styles.emptyActions}>
-              {query.trim() ? (
-                <Button
-                  variant="outline-primary"
-                  label={t('centres.clearSearch')}
-                  onPress={() => setQuery('')}
-                  small
-                  icon={APP_ICONS.close}
-                />
-              ) : null}
-              <Button
-                variant="outline-primary"
-                label={t('centres.reset')}
-                onPress={resetAll}
-                small
-                icon={APP_ICONS.refresh}
-              />
+      {/* Selected Project Detail Modal/Card (Requirement 7: Project Detail) */}
+      {selectedProject ? (
+        <View style={styles.detailCard}>
+          <View style={styles.detailHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.detailCode, { fontSize: fs(11) }]}>
+                {selectedProject.code} · {selectedProject.sector}
+              </Text>
+              <Text style={[styles.detailTitle, { fontSize: fs(18) }]}>
+                {selectedProject.name}
+              </Text>
+              <Text style={[styles.detailSub, { fontSize: fs(12) }]}>
+                {selectedProject.agency} · {selectedProject.tehsil}, {selectedProject.district}, {selectedProject.state}
+              </Text>
             </View>
-          }
-        />
-      ) : (
-        <View style={[styles.grid, !wide && styles.gridStack]}>
-          {filtered.map((centre) => (
-            <CentreCard
-              key={centre.id}
-              centre={centre}
-              action={
-                <Button
-                  label={t('centres.bookHere')}
-                  onPress={() => router.push(path.booking as never)}
-                  small
-                />
-              }
+            <StatusBadge
+              status={selectedProject.status === 'Delayed' ? 'Cancelled' : 'Completed'}
+              translatedLabel={selectedProject.status}
             />
-          ))}
+          </View>
+
+          {/* 9-Stage Acquisition Progress Timeline (Proposal to Closure) */}
+          <Text style={[styles.sectionSubTitle, { fontSize: fs(12) }]}>
+            Acquisition Stage Progress: Proposal → Scrutiny → Approval → Notification → Award → Compensation → Possession → R&R → Closure
+          </Text>
+          <View style={styles.stageTrackWrap}>
+            {[
+              'Proposal',
+              'Scrutiny',
+              'Approval',
+              'Notification',
+              'Award',
+              'Compensation',
+              'Possession',
+              'R&R',
+              'Closure',
+            ].map((stg, i) => {
+              const stages = [
+                'Proposal',
+                'Scrutiny',
+                'Approval',
+                'Notification',
+                'Award',
+                'Compensation',
+                'Possession',
+                'R&R',
+                'Closure',
+              ];
+              const curIdx = stages.indexOf(selectedProject.currentStage);
+              const isPast = curIdx > i;
+              const isCurrent = curIdx === i;
+
+              return (
+                <View key={stg} style={styles.stageItem}>
+                  <View style={[styles.stageDot, isPast && styles.stageDotDone, isCurrent && styles.stageDotCurrent]}>
+                    <Text style={[styles.stageDotText, (isPast || isCurrent) && styles.stageDotTextWhite]}>
+                      {isPast ? '✓' : i + 1}
+                    </Text>
+                  </View>
+                  <Text style={[styles.stageName, isCurrent && styles.stageNameCurrent, { fontSize: fs(10) }]}>
+                    {stg}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+
+          <View style={styles.metricsRow}>
+            <View style={styles.metricCol}>
+              <Text style={[styles.metricVal, { fontSize: fs(16) }]}>{selectedProject.landProposedHa} ha</Text>
+              <Text style={[styles.metricLbl, { fontSize: fs(11) }]}>Land Proposed</Text>
+            </View>
+            <View style={styles.metricCol}>
+              <Text style={[styles.metricVal, { color: Colors.green, fontSize: fs(16) }]}>
+                {selectedProject.landAcquiredHa} ha
+              </Text>
+              <Text style={[styles.metricLbl, { fontSize: fs(11) }]}>Land Acquired</Text>
+            </View>
+            <View style={styles.metricCol}>
+              <Text style={[styles.metricVal, { fontSize: fs(16) }]}>₹{selectedProject.compensationDisbursedCr} Cr</Text>
+              <Text style={[styles.metricLbl, { fontSize: fs(11) }]}>Disbursed</Text>
+            </View>
+            <View style={styles.metricCol}>
+              <Text style={[styles.metricVal, { color: Colors.primaryDark, fontSize: fs(16) }]}>
+                {selectedProject.possessionPercent}%
+              </Text>
+              <Text style={[styles.metricLbl, { fontSize: fs(11) }]}>Possession</Text>
+            </View>
+            <View style={styles.metricCol}>
+              <Text style={[styles.metricVal, { color: Colors.saffronDark, fontSize: fs(16) }]}>
+                {selectedProject.rrPercent}%
+              </Text>
+              <Text style={[styles.metricLbl, { fontSize: fs(11) }]}>R&R Completed</Text>
+            </View>
+          </View>
         </View>
-      )}
+      ) : null}
+
+      {/* Projects Listing Table (Requirement 6) */}
+      <View style={styles.tableHeaderRow}>
+        <Text style={[styles.tableCount, { fontSize: fs(13) }]}>
+          Showing {filteredProjects.length} Infrastructure Projects
+        </Text>
+        <View style={styles.sortRow}>
+          <Text style={[styles.sortLabel, { fontSize: fs(12) }]}>Sort by:</Text>
+          <Button
+            variant={sortBy === 'name' ? 'primary' : 'outline-primary'}
+            label="Name"
+            onPress={() => setSortBy('name')}
+            small
+          />
+          <Button
+            variant={sortBy === 'land' ? 'primary' : 'outline-primary'}
+            label="Land"
+            onPress={() => setSortBy('land')}
+            small
+          />
+          <Button
+            variant={sortBy === 'comp' ? 'primary' : 'outline-primary'}
+            label="Compensation"
+            onPress={() => setSortBy('comp')}
+            small
+          />
+        </View>
+      </View>
+
+      <DataTable
+        columns={columns}
+        rows={filteredProjects}
+        rowKey={(p) => p.id}
+        emptyLabel="No infrastructure projects found matching the selected filters."
+      />
     </ScreenShell>
   );
 }
-  function FilterChips({
-  icon,
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  icon?: AppIconName;
-  label: string;
-  options: string[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const { t, fs } = useI18n();
-  const displayFor = (option: string) => {
-    if (option === 'All') return t('centres.all');
-    if (option === 'Open') return t('centres.open');
-    if (option === 'Closed') return t('centres.closed');
-    return option;
-  };
-  return (
-    <View style={styles.chipGroup}>
-      <View style={styles.chipGroupLabel}>
-        {icon ? <AppIcon name={icon} size={13} color={Colors.textMuted} /> : null}
-        <Text style={[styles.chipLabel, { fontSize: fs(12) }]}>{label}</Text>
-      </View>
-      <View style={styles.chipPillRow}>
-        {options.map((option) => {
-          const active = option === value;
-          return (
-            <Button
-              key={option}
-              variant="outline-primary"
-              small
-              active={active}
-              label={displayFor(option)}
-              accessibilityLabel={`${label}: ${displayFor(option)}`}
-              onPress={() => onChange(option)}
-            />
-          );
-        })}
-      </View>
-    </View>
-  );
-}
-  const styles = StyleSheet.create({
-  liveNotice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: Colors.greenLight,
-    borderRadius: 99,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  liveDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.green,
-  },
-  liveText: {
-    color: Colors.green,
-    fontWeight: '800',
-  },
-  panel: {
-    backgroundColor: Colors.surface,
+
+const styles = StyleSheet.create({
+  filterCard: {
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
+    borderColor: Colors.borderDark,
+    borderRadius: Radius.sm,
+    padding: Spacing.md,
     marginBottom: Spacing.lg,
   },
-  panelTitleRow: {
+  filterCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: Spacing.md,
-    paddingBottom: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
   },
-  panelTitle: {
+  filterTitle: {
     color: Colors.primaryDark,
     fontWeight: '800',
-    letterSpacing: 0.4,
   },
-  panelStep: {
-    color: Colors.textMuted,
-    fontWeight: '600',
-    flexShrink: 1,
-    marginLeft: 'auto',
-    textAlign: 'right',
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.md,
+    gap: 8,
+    marginBottom: Spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+    minHeight: 40,
+    color: Colors.text,
   },
   selectRow: {
     flexDirection: 'row',
     gap: Spacing.md,
-    alignItems: 'flex-start',
   },
-  stack: {
+  selectRowStack: {
     flexDirection: 'column',
-    width: '100%',
+    gap: 0,
   },
-  panelDivider: {
-    height: 1,
-    backgroundColor: Colors.border,
-    marginVertical: Spacing.md,
-  },
-  searchFieldWrap: {
-    width: '100%',
-  },
-  /* Search bar: single flex row — icon, input and clear button are all
-     alignItems-centred siblings, so alignment holds at every width, font
-     size and translation length (no absolute positioning). */
-  searchLabel: {
-    fontWeight: '700',
-    color: Colors.text,
-    marginBottom: Spacing.sm,
-  },
-  searchBar: {
+  pillWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: Colors.borderDark,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.white,
-    paddingHorizontal: Spacing.md,
-    gap: 10,
-  },
-  searchInput: {
-    flex: 1,
-    color: Colors.text,
-    padding: 0,
-    minWidth: 0,
-  },
-  searchClear: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.surfaceAlt,
-  },
-  emptyActions: {
-    flexDirection: 'row',
+    marginTop: Spacing.xs,
     flexWrap: 'wrap',
-    gap: Spacing.sm,
-    justifyContent: 'center',
+    gap: 8,
   },
-  chipRow: {
-    flexDirection: 'row',
-    gap: Spacing.xl,
-    alignItems: 'flex-start',
-    marginTop: Spacing.sm,
-  },
-  chipGroup: {
-    flex: 1,
-    marginBottom: Spacing.md,
-  },
-  chipGroupLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 6,
-  },
-  chipLabel: {
-    color: Colors.textSecondary,
+  pillLabel: {
+    color: Colors.textMuted,
     fontWeight: '700',
+    minWidth: 50,
   },
-  chipPillRow: {
+  pills: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
   },
-  actionsRow: {
+  pill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surfaceAlt,
+  },
+  pillActive: {
+    backgroundColor: Colors.primaryDark,
+    borderColor: Colors.primaryDark,
+  },
+  pillText: {
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  pillTextActive: {
+    color: Colors.white,
+  },
+  detailCard: {
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderLeftWidth: 4,
+    borderRadius: Radius.sm,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+  },
+  detailHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
     gap: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  detailCode: {
+    color: Colors.saffronDark,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  detailTitle: {
+    color: Colors.primaryDark,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  detailSub: {
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  sectionSubTitle: {
+    color: Colors.textMuted,
+    fontWeight: '700',
     marginTop: Spacing.sm,
-    alignItems: 'center',
+    marginBottom: Spacing.xs,
   },
-  actionGrow: {
-    flex: 1,
-  },
-  resultsHeader: {
+  stageTrackWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: Spacing.md,
+    backgroundColor: Colors.surfaceAlt,
+    padding: Spacing.sm,
+    borderRadius: Radius.sm,
+    gap: 4,
     flexWrap: 'wrap',
-    marginBottom: Spacing.md,
-    paddingBottom: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
-  resultsTitleRow: {
+  stageItem: {
+    alignItems: 'center',
+    flex: 1,
+    minWidth: 55,
+  },
+  stageDot: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: Colors.borderDark,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  stageDotDone: {
+    backgroundColor: Colors.green,
+    borderColor: Colors.green,
+  },
+  stageDotCurrent: {
+    backgroundColor: Colors.saffron,
+    borderColor: Colors.saffronDark,
+  },
+  stageDotText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.textMuted,
+  },
+  stageDotTextWhite: {
+    color: Colors.white,
+  },
+  stageName: {
+    color: Colors.textMuted,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  stageNameCurrent: {
+    color: Colors.primaryDark,
+    fontWeight: '800',
+  },
+  metricsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'space-between',
+    marginTop: Spacing.md,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    flexWrap: 'wrap',
+    gap: 12,
   },
-  resultsTitle: {
+  metricCol: {
+    alignItems: 'center',
+    minWidth: 80,
+  },
+  metricVal: {
     fontWeight: '800',
     color: Colors.primaryDark,
-    letterSpacing: 0.4,
   },
-  resultsMeta: {
+  metricLbl: {
+    color: Colors.textMuted,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  tableCount: {
+    color: Colors.textSecondary,
+    fontWeight: '700',
+  },
+  sortRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    flexWrap: 'wrap',
   },
-  locationSummary: {
-    color: Colors.textSecondary,
-    fontWeight: '600',
-  },
-  resultCount: {
+  sortLabel: {
     color: Colors.textMuted,
     fontWeight: '600',
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
+  projName: {
+    color: Colors.primary,
+    fontWeight: '800',
   },
-  gridStack: {
-    flexDirection: 'column',
+  projMeta: {
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  cellText: {
+    color: Colors.text,
+  },
+  cellBold: {
+    fontWeight: '800',
+    color: Colors.text,
   },
 });

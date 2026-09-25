@@ -1,179 +1,304 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import AlertBanner from '../components/AlertBanner';
 import BarChart from '../components/BarChart';
+import DataTable from '../components/DataTable';
 import Button from '../components/Button';
-import FairPriceBadge from '../components/FairPriceBadge';
-import FormField from '../components/FormField';
-import InfoCard, { MetaRow } from '../components/InfoCard';
 import ScreenShell from '../components/ScreenShell';
+import SearchableSelect from '../components/SearchableSelect';
 import SectionHeading from '../components/SectionHeading';
-import { Colors, Spacing } from '../constants/theme';
-import { useFairPriceCheck, useMarketPrice, useMarketPriceHistory } from '../hooks/useMarketplace';
+import StatCard from '../components/StatCard';
+import StatusBadge from '../components/StatusBadge';
+import { Colors, Radius, Spacing } from '../constants/theme';
+import { ALL_PROJECTS, type LandProject } from '../data/landAcquisitionData';
+import { getStateOptions, getDistrictOptions } from '../data/indiaLocations';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
-import { formatInr, formatIsoDate } from '../utils/format';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
-/**
- * Fallback rows (shown when the backend is unreachable) plus the market key
- * each crop's price feed is published under — see backend
- * app/services/marketplace/market_price_service.py (DEFAULT_PRICES).
- */
-const PRICES = [
-  { crop: 'Paddy', market: '₹2,300', msp: '₹2,283', centre: 'Kottayam Procurement Centre', unit: 'Quintal', updated: 'Today, 09:30', region: 'Kottayam', state: 'Kerala' },
-  { crop: 'Wheat', market: '₹2,275', msp: '₹2,275', centre: 'Ludhiana Grain Market Centre', unit: 'Quintal', updated: 'Today, 09:20', region: 'Mysuru', state: 'Karnataka' },
-  { crop: 'Maize', market: '₹2,400', msp: '₹2,100', centre: 'Coimbatore Procurement Centre', unit: 'Quintal', updated: 'Today, 09:10', region: 'Coimbatore', state: 'Tamil Nadu' },
-  { crop: 'Coconut', market: '₹11,000', msp: 'Not applicable', centre: 'Alappuzha Procurement Centre', unit: 'Quintal', updated: 'Today, 08:50', region: 'Kottayam', state: 'Kerala' },
-];
-
-export default function PricesScreen() {
+export default function ReportsAndAnalyticsScreen() {
   const { t, fs } = useI18n();
-  const [crop, setCrop] = useState('Paddy');
-  const [offerPrice, setOfferPrice] = useState('');
-  const [lowOffer, setLowOffer] = useState<string | null>(null);
+  const { width } = useWindowDimensions();
+  const wide = width >= 768;
 
-  const selected = PRICES.find((item) => item.crop === crop) ?? PRICES[0];
-  const scope = { crop: selected.crop, region: selected.region, state: selected.state };
-  // Live feed for the selected crop; `null` keeps the hook idle on the "All" view.
-  const { summary, loading, live } = useMarketPrice(crop === 'All' ? null : scope);
-  const history = useMarketPriceHistory(crop === 'All' ? null : scope, { days: 30, points: 14 });
-  const fair = useFairPriceCheck(scope);
+  // Filters: State | District | Project | Date Range
+  const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<string>('All');
+  const [dateRange, setDateRange] = useState<string>('FY 2025-26');
 
-  const shown = crop === 'All' ? PRICES : [selected];
-  const hasLive = live && summary !== null && crop !== 'All';
-  const offered = Number(offerPrice);
-  const canCheck = offered > 0 && !fair.checking;
+  const stateOptions = useMemo(() => getStateOptions(), []);
+  const districtOptions = useMemo(
+    () => (selectedState ? getDistrictOptions(selectedState) : []),
+    [selectedState]
+  );
 
-  // Today's modal price versus the 30-day average, in one sentence.
-  const trend = (() => {
-    if (!hasLive || !summary) return null;
-    const avg = Number(summary.price_30d_avg ?? 0);
-    const modal = Number(summary.modal_price ?? 0);
-    if (!(avg > 0)) return null;
-    const pct = ((modal - avg) / avg) * 100;
-    if (pct >= 1) return t('prices.trendUp', { pct: pct.toFixed(1) });
-    if (pct <= -1) return t('prices.trendDown', { pct: Math.abs(pct).toFixed(1) });
-    return t('prices.trendFlat');
-  })();
+  // Charts
+  const nationalAcquisitionData = [
+    { label: 'Q1', value: 340 },
+    { label: 'Q2', value: 480 },
+    { label: 'Q3', value: 620 },
+    { label: 'Q4', value: 710 },
+  ];
 
-  const runCheck = async () => {
-    setLowOffer(null);
-    const indicator = await fair.check(offered);
-    // Below-market offers raise the low-offer alert with the counter price the
-    // backend suggests (market average) — same -10% threshold as the API.
-    if (indicator && indicator.status === 'below_market') {
-      setLowOffer(t('prices.counterAsk', { price: formatInr(indicator.market_avg_price) }));
-    }
-  };
+  const stateComparisonData = [
+    { label: 'Kerala', value: 182 },
+    { label: 'Maha', value: 360 },
+    { label: 'Raj', value: 680 },
+    { label: 'Telang', value: 235 },
+    { label: 'Punjab', value: 290 },
+  ];
+
+  const delayReasonData = [
+    { label: 'Litigation', value: 8 },
+    { label: 'Forest Clr', value: 6 },
+    { label: 'Survey Disp', value: 5 },
+    { label: 'Valuation', value: 4 },
+    { label: 'Utility Rel', value: 3 },
+  ];
+
+  const adherenceData = [
+    { label: 'Sec 4 SIA', value: 92 },
+    { label: 'Sec 11 Notif', value: 88 },
+    { label: 'Sec 19 Decl', value: 81 },
+    { label: 'Sec 23 Award', value: 74 },
+    { label: 'Possession', value: 68 },
+  ];
+
+  // Reports Table
+  const reportRows = [
+    { id: 'RPT-01', name: 'National Land Acquisition Annual Report', category: 'Executive Summary', frequency: 'Annual', date: '31 Jan 2026', status: 'Published' },
+    { id: 'RPT-02', name: 'State-wise & District Corridor Land Performance', category: 'State Report', frequency: 'Monthly', date: '15 Feb 2026', status: 'Published' },
+    { id: 'RPT-03', name: 'Compensation Disbursal & Solatium Audit Register', category: 'Financial Audit', frequency: 'Fortnightly', date: '20 Feb 2026', status: 'Published' },
+    { id: 'RPT-04', name: 'Possession & Physical Corridor Handover Register', category: 'Possession', frequency: 'Weekly', date: '24 Feb 2026', status: 'Published' },
+    { id: 'RPT-05', name: 'R&R Family Rehabilitation & Resettlement Tracker', category: 'R&R Compliance', frequency: 'Monthly', date: '10 Feb 2026', status: 'Published' },
+    { id: 'RPT-06', name: 'Statutory Delay Analysis & Section 25 Lapses Risk', category: 'Risk Matrix', frequency: 'Daily Real-Time', date: 'Today', status: 'Active' },
+  ];
+
+  const columns = [
+    {
+      key: 'name',
+      header: 'Report Title',
+      render: (r: typeof reportRows[0]) => (
+        <View>
+          <Text style={[styles.reportName, { fontSize: fs(13) }]}>{r.name}</Text>
+          <Text style={[styles.reportId, { fontSize: fs(11) }]}>{r.id} · {r.frequency}</Text>
+        </View>
+      ),
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      width: 140,
+      render: (r: typeof reportRows[0]) => (
+        <Text style={[styles.cellText, { fontSize: fs(12) }]}>{r.category}</Text>
+      ),
+    },
+    {
+      key: 'date',
+      header: 'Date Generated',
+      width: 120,
+      render: (r: typeof reportRows[0]) => (
+        <Text style={[styles.cellText, { fontSize: fs(11) }]}>{r.date}</Text>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 110,
+      render: (r: typeof reportRows[0]) => (
+        <StatusBadge status="Completed" translatedLabel={r.status} small />
+      ),
+    },
+    {
+      key: 'action',
+      header: 'Export',
+      width: 110,
+      render: (r: typeof reportRows[0]) => (
+        <Button variant="outline-primary" label="Download PDF" onPress={() => undefined} small />
+      ),
+    },
+  ];
 
   return (
-    <ScreenShell breadcrumbs={[{ label: t('nav.prices') }]}>
-      <SectionHeading title={t('prices.title')} subtitle={t('prices.subtitle')} />
+    <ScreenShell wide breadcrumbs={[{ label: 'Home', href: path.home }, { label: 'Reports & Analytics' }]}>
+      <SectionHeading
+        title="National Reports, Analytics & Delay Analysis"
+        subtitle="Decision support metrics: Timeline adherence, delay bottlenecks, corridor acquisition progress and treasury disbursements."
+      />
 
-      {hasLive ? (
-        <AlertBanner
-          tone="success"
-          title={t('prices.live')}
-          message={`${t('prices.source')}: ${selected.region}, ${selected.state} · ${formatIsoDate(summary?.price_date)}`}
-        />
-      ) : (
-        <AlertBanner tone="warning" title={t('common.mockData')} message={t('prices.disclaimer')} />
-      )}
-
-      <InfoCard title={t('prices.filters')}>
-        <View style={styles.chips}>
-          {['All', ...PRICES.map((item) => item.crop)].map((item) => (
-            <Button key={item} small label={item} variant={crop === item ? 'primary' : 'outline-secondary'} onPress={() => setCrop(item)} />
-          ))}
+      {/* Filter Bar: State | District | Project | Date Range */}
+      <View style={styles.filterCard}>
+        <Text style={[styles.filterTitle, { fontSize: fs(13) }]}>Analytics & Reporting Scope Filters</Text>
+        <View style={[styles.selectRow, !wide && styles.selectRowStack]}>
+          <View style={{ flex: 1 }}>
+            <SearchableSelect
+              label="Filter by State"
+              value={selectedState}
+              placeholder="All India"
+              options={stateOptions}
+              onSelect={(val) => {
+                setSelectedState(val || null);
+                setSelectedDistrict(null);
+              }}
+              onClear={() => {
+                setSelectedState(null);
+                setSelectedDistrict(null);
+              }}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <SearchableSelect
+              label="Filter by District"
+              value={selectedDistrict}
+              placeholder="All Districts"
+              options={districtOptions}
+              disabled={!selectedState}
+              onSelect={(val) => setSelectedDistrict(val || null)}
+              onClear={() => setSelectedDistrict(null)}
+            />
+          </View>
+          <View style={styles.dateRangeCol}>
+            <Text style={[styles.filterLabel, { fontSize: fs(11) }]}>Date Range:</Text>
+            <View style={styles.rangeChips}>
+              {['FY 2025-26', 'FY 2024-25', 'All Time'].map((dr) => (
+                <Pressable
+                  key={dr}
+                  onPress={() => setDateRange(dr)}
+                  style={[styles.rangeChip, dateRange === dr && styles.rangeChipActive]}
+                >
+                  <Text style={[styles.rangeChipText, dateRange === dr && styles.rangeChipTextActive, { fontSize: fs(11) }]}>
+                    {dr}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
         </View>
-      </InfoCard>
-
-      <View style={styles.list}>
-        {shown.map((item) => {
-          const isLiveRow = item.crop === selected.crop && hasLive;
-          return (
-            <InfoCard key={item.crop} accent={Colors.green} title={item.crop}>
-              <Text style={[styles.price, { fontSize: fs(30) }]}>
-                {isLiveRow ? `₹${formatInr(summary?.modal_price)}` : item.market}
-              </Text>
-              <Text style={styles.unit}>{t('prices.perQuintal')}</Text>
-              {loading && !isLiveRow ? (
-                <Text style={[styles.hint, { fontSize: fs(12) }]}>{t('common.loading')}</Text>
-              ) : null}
-              {isLiveRow ? (
-                <>
-                  <MetaRow label={t('prices.range')} value={`₹${formatInr(summary?.min_price)} – ₹${formatInr(summary?.max_price)}`} />
-                  <MetaRow label={t('prices.avg30')} value={`₹${formatInr(summary?.price_30d_avg)}`} />
-                  <MetaRow label={t('prices.updated')} value={formatIsoDate(summary?.price_date)} />
-                </>
-              ) : (
-                <>
-                  <MetaRow label={t('prices.msp')} value={item.msp} />
-                  <MetaRow label={t('prices.centre')} value={item.centre} />
-                  <MetaRow label={t('prices.updated')} value={item.updated} />
-                </>
-              )}
-            </InfoCard>
-          );
-        })}
       </View>
 
-      {crop !== 'All' ? (
-        <InfoCard title={t('prices.historyTitle')} accent={Colors.info}>
-          {history.series.length > 0 ? (
-            <>
-              <Text style={[styles.hint, { fontSize: fs(12) }]}>{t('prices.historyHint')}</Text>
-              <BarChart title={t('prices.historyTitle')} data={history.series} />
-            </>
-          ) : (
-            <Text style={[styles.hint, { fontSize: fs(12) }]}>
-              {history.loading ? t('common.loading') : t('prices.historyEmpty')}
-            </Text>
-          )}
-          {trend ? <AlertBanner tone="info" title={t('prices.avg30')} message={trend} /> : null}
-        </InfoCard>
-      ) : null}
-
-      {crop !== 'All' ? (
-        <InfoCard title={t('prices.checkTitle')} accent={Colors.saffron}>
-          <Text style={[styles.hint, { fontSize: fs(13) }]}>{t('prices.checkHint')}</Text>
-          <FormField
-            label={t('prices.checkLabel')}
-            value={offerPrice}
-            onChangeText={setOfferPrice}
-            keyboardType="numeric"
-            maxLength={8}
-            placeholder={hasLive ? formatInr(summary?.modal_price) : '1875'}
-            hint={t('prices.checkExample')}
+      {/* Analytics Charts Grid */}
+      <View style={[styles.chartsRow, wide && styles.chartsRowWide]}>
+        <View style={styles.chartCol}>
+          <BarChart
+            title="Quarterly Land Acquisition (ha)"
+            data={nationalAcquisitionData}
+            suffix=" ha"
           />
-          <Button
-            label={t('prices.checkAction')}
-            onPress={() => void runCheck()}
-            disabled={!canCheck}
-            loading={fair.checking}
+        </View>
+        <View style={styles.chartCol}>
+          <BarChart
+            title="State-wise Corridor Acquisition (ha)"
+            data={stateComparisonData}
+            color={Colors.saffronDark}
+            suffix=" ha"
           />
-          {fair.error ? <Text style={[styles.error, { fontSize: fs(13) }]}>{t('prices.checkError')}</Text> : null}
-          <View style={styles.badgeWrap}>
-            {fair.indicator ? <FairPriceBadge indicator={fair.indicator} showPrices showMessage /> : null}
-            {lowOffer ? <AlertBanner tone="error" title={t('prices.lowOffer')} message={lowOffer} /> : null}
-          </View>
-        </InfoCard>
-      ) : null}
+        </View>
+      </View>
 
-      <Button label={t('prices.viewMarketplace')} variant="secondary" onPress={() => router.push(path.marketplace)} />
-      <Button label={t('prices.findCentre')} onPress={() => router.push(path.centres)} />
+      <View style={[styles.chartsRow, wide && styles.chartsRowWide]}>
+        <View style={styles.chartCol}>
+          <BarChart
+            title="Delay Analysis (Number of Affected Projects by Cause)"
+            data={delayReasonData}
+            color={Colors.danger}
+          />
+        </View>
+        <View style={styles.chartCol}>
+          <BarChart
+            title="Statutory Timeline Adherence Rate (%)"
+            data={adherenceData}
+            color={Colors.green}
+            suffix="%"
+          />
+        </View>
+      </View>
+
+      {/* Reports Listing Table */}
+      <SectionHeading title="Statutory Audit Reports Register" />
+      <DataTable
+        columns={columns}
+        rows={reportRows}
+        rowKey={(r) => r.id}
+      />
     </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  list: { gap: 0 },
-  price: { color: Colors.primary, fontWeight: '800' },
-  unit: { color: Colors.textSecondary, marginBottom: Spacing.md },
-  hint: { color: Colors.textSecondary, marginBottom: Spacing.md },
-  error: { color: Colors.danger, fontWeight: '600', marginTop: Spacing.sm },
-  badgeWrap: { gap: Spacing.md, marginTop: Spacing.md },
+  filterCard: {
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.borderDark,
+    borderRadius: Radius.sm,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  filterTitle: {
+    color: Colors.primaryDark,
+    fontWeight: '800',
+    marginBottom: Spacing.sm,
+  },
+  selectRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  selectRowStack: {
+    flexDirection: 'column',
+    gap: 0,
+  },
+  dateRangeCol: {
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  filterLabel: {
+    color: Colors.textMuted,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  rangeChips: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  rangeChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surfaceAlt,
+  },
+  rangeChipActive: {
+    backgroundColor: Colors.primaryDark,
+    borderColor: Colors.primaryDark,
+  },
+  rangeChipText: {
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  rangeChipTextActive: {
+    color: Colors.white,
+  },
+  chartsRow: {
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  chartsRowWide: {
+    flexDirection: 'row',
+  },
+  chartCol: {
+    flex: 1,
+  },
+  reportName: {
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  reportId: {
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  cellText: {
+    color: Colors.text,
+  },
 });

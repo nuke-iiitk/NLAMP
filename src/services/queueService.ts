@@ -1,7 +1,7 @@
 /**
  * Real-time queue service (frontend architecture).
  *
- * The farmer/officer UIs subscribe to queue updates through this module only,
+ * The claimant/agency UIs subscribe to queue updates through this module only,
  * so the mock simulation below can later be replaced by a real WebSocket
  * connection to the FastAPI backend, e.g.:
  *

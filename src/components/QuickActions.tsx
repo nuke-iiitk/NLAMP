@@ -16,7 +16,6 @@ type Action = {
     | 'dash.qaCentres'
     | 'dash.qaHelp'
     | 'nav.prices'
-    | 'nav.marketplace'
     | 'nav.pools'
     | 'nav.offers'
     | 'nav.buyer'
@@ -32,9 +31,8 @@ const ACTIONS: Action[] = [
   { icon: APP_ICONS.notifications, labelKey: 'dash.qaNotifications', href: path.notifications, tone: 'navy' },
   { icon: APP_ICONS.business, labelKey: 'dash.qaCentres', href: path.centres, tone: 'green' },
   { icon: APP_ICONS.currency, labelKey: 'nav.prices', href: path.prices, tone: 'saffron' },
-  { icon: APP_ICONS.business, labelKey: 'nav.marketplace', href: path.marketplace, tone: 'green' },
-  { icon: APP_ICONS.people, labelKey: 'nav.pools', href: path.pools, tone: 'green' },
-  { icon: APP_ICONS.currency, labelKey: 'nav.offers', href: path.offers, tone: 'saffron' },
+  { icon: APP_ICONS.business, labelKey: 'nav.pools', href: path.pools, tone: 'green' },
+  { icon: APP_ICONS.people, labelKey: 'nav.offers', href: path.offers, tone: 'saffron' },
   { icon: APP_ICONS.person, labelKey: 'nav.buyer', href: path.buyer, tone: 'navy' },
   { icon: APP_ICONS.wallet, labelKey: 'nav.payments', href: path.payments, tone: 'green' },
   { icon: APP_ICONS.language, labelKey: 'dash.qaHelp', href: path.help, tone: 'navy' },

@@ -1,5 +1,5 @@
 /**
- * Local data model for the Farmer Procurement Portal.
+ * Local data model for the National Land Acquisition & Management System (NLAMS).
  *
  * All names, centres, numbers and IDs are sample records for development.
  * In production this module is replaced by the FastAPI backend
@@ -70,7 +70,7 @@ export type Slot = {
 
 export type Booking = {
   id: string;
-  token: string; // FPP-1042
+  token: string; // NLAMS-1042
   farmerId: string;
   farmerName: string;
   centreId: string;
@@ -169,15 +169,15 @@ export function slotRange(start: string, end: string): string {
 // ------------------------------------------------------------ mock seeds
 
 export const DEMO_MOBILE = '9876543210';
-export const DEMO_FARMER_ID = 'FPP-F-2026-0482';
-export const DEMO_TOKEN = 'FPP-1042';
+export const DEMO_FARMER_ID = 'NLAMS-2026-0482';
+export const DEMO_TOKEN = 'NLAMS-1042';
 export const DEMO_OTP = '123456';
 
 export const HELPLINE = '1800-180-1551';
-export const HELP_EMAIL = 'helpdesk@kisankrayaseva-demo.in';
+export const HELP_EMAIL = 'helpdesk@nlams-demo.in';
 export const PORTAL_VERSION = '1.0.0';
 
-export const crops = ['Paddy', 'Wheat', 'Maize', 'Coconut', 'Rubber', 'Banana', 'Pepper'];
+export const crops = ['Highways', 'Railways', 'Energy', 'Irrigation', 'Industrial', 'Urban Infra', 'Energy'];
 
 /** All 28 States and 8 Union Territories (single source of truth). */
 export const states = INDIAN_LOCATIONS.map((location) => location.name);
@@ -198,7 +198,7 @@ export const demoFarmer: Farmer = {
   village: 'Kumarapuram',
   address: 'Kizhakke Veettil, Kumarapuram P.O.',
   landSizeAcres: '2.5',
-  crop: 'Paddy',
+  crop: 'Highways',
   quantityKg: '850',
   preferredCentreId: 'c1',
 };
@@ -206,227 +206,227 @@ export const demoFarmer: Farmer = {
 export const officer: Officer = {
   id: 'OFF-2201',
   name: 'Suresh Nair',
-  designation: 'Procurement Officer',
+  designation: 'District Land Acquisition Officer',
   centreId: 'c1',
 };
 
 export const procurementCentres: ProcurementCentre[] = [
   {
     id: 'c1',
-    name: 'Kottayam Procurement Centre',
+    name: 'Kottayam District Land Acquisition Office',
     state: 'Kerala',
     district: 'Kottayam',
     address: 'Nagampadam, Kottayam',
     distanceKm: 4.2,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 150,
-    crops: ['Paddy', 'Coconut', 'Pepper', 'Banana'],
+    crops: ['Highways', 'Irrigation', 'Energy', 'Urban Infra'],
     status: 'Open',
   },
   {
     id: 'c2',
-    name: 'Changanassery Procurement Centre',
+    name: 'Changanassery District Land Acquisition Office',
     state: 'Kerala',
     district: 'Kottayam',
     address: 'Perunna, Changanassery',
     distanceKm: 12.8,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 120,
-    crops: ['Paddy', 'Banana', 'Pepper'],
+    crops: ['Highways', 'Urban Infra', 'Energy'],
     status: 'Open',
   },
   {
     id: 'c3',
-    name: 'Ettumanoor Procurement Centre',
+    name: 'Ettumanoor District Land Acquisition Office',
     state: 'Kerala',
     district: 'Kottayam',
     address: 'MC Road, Ettumanoor',
     distanceKm: 16.4,
     openingHours: '8:00 AM – 4:30 PM',
     capacityPerDay: 100,
-    crops: ['Paddy', 'Rubber', 'Pepper'],
+    crops: ['Highways', 'Industrial', 'Energy'],
     status: 'Busy',
   },
   {
     id: 'c4',
-    name: 'Alappuzha Procurement Centre',
+    name: 'Alappuzha District Land Acquisition Office',
     state: 'Kerala',
     district: 'Alappuzha',
     address: 'Civil Station Road, Alappuzha',
     distanceKm: 48.0,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 110,
-    crops: ['Paddy', 'Coconut'],
+    crops: ['Highways', 'Irrigation'],
     status: 'Open',
   },
   {
     id: 'c5',
-    name: 'Ernakulam Procurement Centre',
+    name: 'Ernakulam District Land Acquisition Office',
     state: 'Kerala',
     district: 'Ernakulam',
     address: 'Kaloor, Kochi',
     distanceKm: 65.5,
     openingHours: '8:30 AM – 5:00 PM',
     capacityPerDay: 140,
-    crops: ['Paddy', 'Coconut', 'Banana'],
+    crops: ['Highways', 'Irrigation', 'Urban Infra'],
     status: 'Open',
   },
   {
     id: 'c6',
-    name: 'Thrissur Procurement Centre',
+    name: 'Thrissur District Land Acquisition Office',
     state: 'Kerala',
     district: 'Thrissur',
     address: 'Kokkalai, Thrissur',
     distanceKm: 92.0,
     openingHours: '8:00 AM – 4:30 PM',
     capacityPerDay: 90,
-    crops: ['Paddy', 'Coconut', 'Pepper'],
+    crops: ['Highways', 'Irrigation', 'Energy'],
     status: 'Full',
   },
 
   // ---- demo centres across other states (keep the cascade demonstrable) ----
   {
     id: 'c7',
-    name: 'Coimbatore Procurement Centre',
+    name: 'Coimbatore District Land Acquisition Office',
     state: 'Tamil Nadu',
     district: 'Coimbatore',
     address: 'Gandhipuram, Coimbatore',
     distanceKm: 6.1,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 160,
-    crops: ['Paddy', 'Coconut', 'Banana'],
+    crops: ['Highways', 'Irrigation', 'Urban Infra'],
     status: 'Open',
   },
   {
     id: 'c8',
-    name: 'Erode Procurement Centre',
+    name: 'Erode District Land Acquisition Office',
     state: 'Tamil Nadu',
     district: 'Erode',
     address: 'Brough Road, Erode',
     distanceKm: 3.8,
     openingHours: '8:00 AM – 4:30 PM',
     capacityPerDay: 110,
-    crops: ['Paddy', 'Maize', 'Banana'],
+    crops: ['Highways', 'Energy', 'Urban Infra'],
     status: 'Busy',
   },
   {
     id: 'c9',
-    name: 'Mysuru Mandi Procurement Centre',
+    name: 'Mysuru Regional Land Acquisition Office',
     state: 'Karnataka',
     district: 'Mysuru',
-    address: 'APMC Yard, Mysuru',
+    address: 'Land Records Road, Mysuru',
     distanceKm: 7.4,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 150,
-    crops: ['Paddy', 'Wheat', 'Maize'],
+    crops: ['Highways', 'Railways', 'Energy'],
     status: 'Open',
   },
   {
     id: 'c10',
-    name: 'Mandya Procurement Centre',
+    name: 'Mandya District Land Acquisition Office',
     state: 'Karnataka',
     district: 'Mandya',
-    address: 'Market Road, Mandya',
+    address: 'Collectorate Road, Mandya',
     distanceKm: 5.2,
     openingHours: '8:30 AM – 5:00 PM',
     capacityPerDay: 100,
-    crops: ['Paddy', 'Coconut', 'Banana'],
+    crops: ['Highways', 'Irrigation', 'Urban Infra'],
     status: 'Closed',
   },
   {
     id: 'c11',
-    name: 'Ludhiana Grain Market Centre',
+    name: 'Ludhiana Land Records Centre',
     state: 'Punjab',
     district: 'Ludhiana',
-    address: 'Grain Market, Ludhiana',
+    address: 'Land Records Centre, Ludhiana',
     distanceKm: 4.6,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 200,
-    crops: ['Wheat', 'Maize', 'Paddy'],
+    crops: ['Railways', 'Energy', 'Highways'],
     status: 'Open',
   },
   {
     id: 'c12',
-    name: 'Patiala Mandi Procurement Centre',
+    name: 'Patiala District Land Acquisition Office',
     state: 'Punjab',
     district: 'Patiala',
-    address: 'New Grain Market, Patiala',
+    address: 'Civil Lines, Patiala',
     distanceKm: 6.9,
     openingHours: '8:00 AM – 4:30 PM',
     capacityPerDay: 140,
-    crops: ['Wheat', 'Paddy'],
+    crops: ['Railways', 'Highways'],
     status: 'Busy',
   },
   {
     id: 'c13',
-    name: 'Nashik APMC Procurement Centre',
+    name: 'Nashik District Land Acquisition Office',
     state: 'Maharashtra',
     district: 'Nashik',
-    address: 'APMC Market, Nashik',
+    address: 'Collectorate Campus, Nashik',
     distanceKm: 5.5,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 170,
-    crops: ['Paddy', 'Wheat', 'Maize'],
+    crops: ['Highways', 'Railways', 'Energy'],
     status: 'Open',
   },
   {
     id: 'c14',
-    name: 'Nagpur Procurement Centre',
+    name: 'Nagpur District Land Acquisition Office',
     state: 'Maharashtra',
     district: 'Nagpur',
-    address: 'Kalamna Market, Nagpur',
+    address: 'Land Records Colony, Nagpur',
     distanceKm: 8.3,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 130,
-    crops: ['Paddy', 'Wheat', 'Coconut'],
+    crops: ['Highways', 'Railways', 'Irrigation'],
     status: 'Full',
   },
   {
     id: 'c15',
-    name: 'Lucknow Mandi Samiti Centre',
+    name: 'Lucknow Divisional Land Acquisition Office',
     state: 'Uttar Pradesh',
     district: 'Lucknow',
-    address: 'Kisan Mandi, Lucknow',
+    address: 'Rajkiya Bhumi Vibhag, Lucknow',
     distanceKm: 5.0,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 190,
-    crops: ['Wheat', 'Paddy', 'Maize'],
+    crops: ['Railways', 'Highways', 'Energy'],
     status: 'Open',
   },
   {
     id: 'c16',
-    name: 'Kanpur Nagar Procurement Centre',
+    name: 'Kanpur Nagar Land Acquisition Office',
     state: 'Uttar Pradesh',
     district: 'Kanpur Nagar',
-    address: 'Kakadeo Mandi, Kanpur',
+    address: 'Civil Lines, Kanpur',
     distanceKm: 6.7,
     openingHours: '8:00 AM – 4:30 PM',
     capacityPerDay: 150,
-    crops: ['Wheat', 'Paddy'],
+    crops: ['Railways', 'Highways'],
     status: 'Busy',
   },
   {
     id: 'c17',
-    name: 'Ahmedabad APMC Procurement Centre',
+    name: 'Ahmedabad District Land Acquisition Office',
     state: 'Gujarat',
     district: 'Ahmedabad',
-    address: 'Vasna APMC, Ahmedabad',
+    address: 'Sachivalaya Road, Ahmedabad',
     distanceKm: 9.1,
     openingHours: '8:00 AM – 5:00 PM',
     capacityPerDay: 180,
-    crops: ['Wheat', 'Paddy', 'Banana'],
+    crops: ['Railways', 'Highways', 'Urban Infra'],
     status: 'Open',
   },
   {
     id: 'c18',
-    name: 'Rajkot Procurement Centre',
+    name: 'Rajkot District Land Acquisition Office',
     state: 'Gujarat',
     district: 'Rajkot',
-    address: 'Gondal Road Mandi, Rajkot',
+    address: 'Gondal Road, Rajkot',
     distanceKm: 4.9,
     openingHours: '8:30 AM – 5:00 PM',
     capacityPerDay: 120,
-    crops: ['Wheat', 'Paddy'],
+    crops: ['Railways', 'Highways'],
     status: 'Closed',
   },
 ];
@@ -503,7 +503,7 @@ function seedQueueForCentre(centreIndex: number, centreId: string): CentreQueue 
   if (centreId !== 'c1') {
     const base = 2100 + centreIndex * 40;
     const entries: QueueEntry[] = Array.from({ length: 6 }, (_, i) => ({
-      token: `FPP-${base + i}`,
+      token: `NLAMS-${base + i}`,
       farmerName: QUEUE_NAMES[(centreIndex * 3 + i) % QUEUE_NAMES.length],
       slot: ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30'][i % 6],
       produce: crops[i % crops.length],
@@ -519,10 +519,10 @@ function seedQueueForCentre(centreIndex: number, centreId: string): CentreQueue 
 
   const entries: QueueEntry[] = [];
   let nameIndex = 0;
-  // Completed: FPP-1020 .. FPP-1037
+  // Completed: NLAMS-1020 .. NLAMS-1037
   for (let token = 1020; token <= 1037; token += 1) {
     entries.push({
-      token: `FPP-${token}`,
+      token: `NLAMS-${token}`,
       farmerName: QUEUE_NAMES[nameIndex % QUEUE_NAMES.length],
       slot: '08:00',
       produce: crops[nameIndex % crops.length],
@@ -532,62 +532,62 @@ function seedQueueForCentre(centreIndex: number, centreId: string): CentreQueue 
   }
   // Currently processing
   entries.push({
-    token: 'FPP-1038',
+    token: 'NLAMS-1038',
     farmerName: 'Anil Das',
     slot: '10:00',
-    produce: 'Paddy',
+    produce: 'Highways',
     status: 'Processing',
   });
-  // Waiting ahead of the demo farmer
+  // Waiting ahead of the demo claimant
   entries.push({
-    token: 'FPP-1039',
+    token: 'NLAMS-1039',
     farmerName: 'Priya Devi',
     slot: '10:30',
-    produce: 'Paddy',
+    produce: 'Highways',
     status: 'Waiting',
   });
   entries.push({
-    token: 'FPP-1040',
+    token: 'NLAMS-1040',
     farmerName: 'Jose Mathew',
     slot: '10:30',
-    produce: 'Coconut',
+    produce: 'Irrigation',
     status: 'Waiting',
   });
   entries.push({
-    token: 'FPP-1041',
+    token: 'NLAMS-1041',
     farmerName: 'Lakshmi Amma',
     slot: '10:30',
-    produce: 'Paddy',
+    produce: 'Highways',
     status: 'Waiting',
   });
-  // The demo farmer's own token
+  // The demo claimant's own token
   entries.push({
     token: DEMO_TOKEN,
     farmerName: demoFarmer.name,
     slot: '10:30',
-    produce: 'Paddy',
+    produce: 'Highways',
     status: 'Waiting',
   });
-  // Behind the demo farmer
+  // Behind the demo claimant
   entries.push({
-    token: 'FPP-1043',
+    token: 'NLAMS-1043',
     farmerName: 'Suresh Nair',
     slot: '10:30',
-    produce: 'Paddy',
+    produce: 'Highways',
     status: 'Waiting',
   });
   entries.push({
-    token: 'FPP-1044',
+    token: 'NLAMS-1044',
     farmerName: 'Binu Varghese',
     slot: '11:00',
-    produce: 'Banana',
+    produce: 'Urban Infra',
     status: 'Waiting',
   });
   entries.push({
-    token: 'FPP-1045',
+    token: 'NLAMS-1045',
     farmerName: 'Shaji P Panicker',
     slot: '11:00',
-    produce: 'Pepper',
+    produce: 'Energy',
     status: 'Waiting',
   });
 
@@ -604,10 +604,10 @@ export function buildAllQueues(): Record<string, CentreQueue> {
 
 /** Next token number issued at a centre (based on the highest seeded token). */
 export function nextTokenForCentre(centreId: string): string {
-  if (centreId === 'c1') return 'FPP-1046';
+  if (centreId === 'c1') return 'NLAMS-1046';
   const centreIndex = procurementCentres.findIndex((c) => c.id === centreId);
   const base = 2100 + centreIndex * 40;
-  return `FPP-${base + 6}`;
+  return `NLAMS-${base + 6}`;
 }
 
 // --------------------------------------------------------------- bookings
@@ -617,16 +617,16 @@ function minutesAgo(minutes: number): number {
 }
 
 export const demoBooking: Booking = {
-  id: 'FPP-BKG-48291',
+  id: 'NLAMS-PROP-48291',
   token: DEMO_TOKEN,
   farmerId: DEMO_FARMER_ID,
   farmerName: demoFarmer.name,
   centreId: 'c1',
-  centreName: 'Kottayam Procurement Centre',
+  centreName: 'Kottayam Land Acquisition Cell',
   date: todayISO(),
   slotStart: '10:30',
   slotEnd: '11:00',
-  produce: 'Paddy',
+  produce: 'Highways',
   quantityKg: '850',
   status: 'Waiting',
   arrived: true,
@@ -635,48 +635,48 @@ export const demoBooking: Booking = {
 
 export const pastBookings: Booking[] = [
   {
-    id: 'FPP-BKG-47110',
-    token: 'FPP-0987',
+    id: 'NLAMS-PROP-47110',
+    token: 'NLAMS-0987',
     farmerId: DEMO_FARMER_ID,
     farmerName: demoFarmer.name,
     centreId: 'c1',
-    centreName: 'Kottayam Procurement Centre',
+    centreName: 'Kottayam Land Acquisition Cell',
     date: addDaysISO(todayISO(), -8),
     slotStart: '09:00',
     slotEnd: '09:30',
-    produce: 'Paddy',
+    produce: 'Highways',
     quantityKg: '760',
     status: 'Completed',
     arrived: true,
     createdAt: minutesAgo(60 * 24 * 9),
   },
   {
-    id: 'FPP-BKG-46204',
-    token: 'FPP-0812',
+    id: 'NLAMS-PROP-46204',
+    token: 'NLAMS-0812',
     farmerId: DEMO_FARMER_ID,
     farmerName: demoFarmer.name,
     centreId: 'c2',
-    centreName: 'Changanassery Procurement Centre',
+    centreName: 'Changanassery Land Acquisition Cell',
     date: addDaysISO(todayISO(), -15),
     slotStart: '11:00',
     slotEnd: '11:30',
-    produce: 'Banana',
+    produce: 'Urban Infra',
     quantityKg: '420',
     status: 'Completed',
     arrived: true,
     createdAt: minutesAgo(60 * 24 * 16),
   },
   {
-    id: 'FPP-BKG-45980',
-    token: 'FPP-0633',
+    id: 'NLAMS-PROP-45980',
+    token: 'NLAMS-0633',
     farmerId: DEMO_FARMER_ID,
     farmerName: demoFarmer.name,
     centreId: 'c1',
-    centreName: 'Kottayam Procurement Centre',
+    centreName: 'Kottayam Land Acquisition Cell',
     date: addDaysISO(todayISO(), -22),
     slotStart: '13:30',
     slotEnd: '14:00',
-    produce: 'Coconut',
+    produce: 'Irrigation',
     quantityKg: '300',
     status: 'Cancelled',
     arrived: false,
@@ -691,41 +691,41 @@ export const initialBookings: Booking[] = [demoBooking, ...pastBookings];
 export const initialNotifications: AppNotification[] = [
   {
     id: 'n1',
-    title: 'Booking confirmed',
-    message: 'Your procurement slot has been confirmed for Kottayam Procurement Centre.',
+    title: 'Land proposal acknowledged',
+    message: 'Your land proposal has been acknowledged for Kottayam land acquisition cell.',
     type: 'success',
     timestamp: minutesAgo(12),
     read: false,
   },
   {
     id: 'n2',
-    title: 'Token FPP-1042 is approaching',
-    message: 'There are 4 farmers ahead of you. Please stay near the procurement counter.',
+    title: 'Project PRJ-2026-001 stage advanced',
+    message: 'NH-66 corridor moved to Possession stage. Review pending parcels in the GIS map.',
     type: 'info',
     timestamp: minutesAgo(35),
     read: false,
   },
   {
     id: 'n3',
-    title: 'Centre delay notice',
+    title: 'Possession milestone delayed',
     message:
-      'Procurement at Kottayam Centre is currently delayed by approximately 20 minutes.',
+      'Possession at Kottayam corridor cell is delayed by approximately 20 days pending utility shifting.',
     type: 'warning',
     timestamp: minutesAgo(90),
     read: false,
   },
   {
     id: 'n4',
-    title: 'Documents reminder',
-    message: 'Please carry your Aadhaar or valid ID and keep your registered mobile active.',
+    title: 'Claims & objections reminder',
+    message: 'Titleholders should keep revenue title records and registered mobile active for Section 11 claims.',
     type: 'info',
     timestamp: minutesAgo(60 * 26),
     read: true,
   },
   {
     id: 'n5',
-    title: 'Previous procurement completed',
-    message: 'Your procurement on 21 August 2026 (FPP-0987) has been completed.',
+    title: 'Previous award disbursed',
+    message: 'Your award on 21 August 2026 (NLAMS-0987) has been disbursed via DBT.',
     type: 'success',
     timestamp: minutesAgo(60 * 24 * 8),
     read: true,
@@ -759,11 +759,11 @@ export const hourlyAvgWait: HourlyStat[] = [
 ];
 
 export const volumeByCrop: HourlyStat[] = [
-  { label: 'Paddy', value: 146 },
-  { label: 'Coconut', value: 58 },
-  { label: 'Banana', value: 37 },
-  { label: 'Pepper', value: 24 },
-  { label: 'Rubber', value: 12 },
+  { label: 'Highways', value: 146 },
+  { label: 'Irrigation', value: 58 },
+  { label: 'Urban Infra', value: 37 },
+  { label: 'Energy', value: 24 },
+  { label: 'Industrial', value: 12 },
 ];
 
 export const analyticsSummary = {

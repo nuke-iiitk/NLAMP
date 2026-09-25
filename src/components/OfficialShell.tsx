@@ -13,7 +13,7 @@ const NAV = [
   { href: '/official/analytics', labelKey: 'off.analytics.title' as const, icon: APP_ICONS.barChart },
 ];
 
-/** Government-admin chrome for the procurement officer portal. */
+/** Government-admin chrome for the implementing-agency portal. */
 export default function OfficialShell({ children }: { children: React.ReactNode }) {
   const { t, fs } = useI18n();
   const { officer, officerCentreId, centres, logout } = useStore();

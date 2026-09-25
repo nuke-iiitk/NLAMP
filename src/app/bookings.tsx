@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import Button from '../components/Button';
 import DataTable from '../components/DataTable';
@@ -11,168 +11,66 @@ import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import StatusBadge from '../components/StatusBadge';
 import { Colors, Spacing } from '../constants/theme';
-import { formatDateLong, slotRange, type Booking, type BookingStatus } from '../data/mockData';
+import { ALL_PROJECTS, type LandProject } from '../data/landAcquisitionData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
-import { canDownloadPdf, downloadTokenPdf } from '../services/pdfService';
-import { useStore } from '../store/AppStore';
 import { APP_ICONS } from '../components/AppIcon';
 
-const FILTERS: ('All' | BookingStatus)[] = ['All', 'Upcoming', 'Waiting', 'Processing', 'Completed', 'Cancelled'];
+const FILTERS = ['All', 'Active', 'Delayed', 'Completed', 'Pending Approval'] as const;
 
+/**
+ * My Projects / Submitted Proposals — reuses the old "My Bookings" layout,
+ * now tracking land acquisition proposals submitted by this nodal office.
+ */
 export default function BookingsScreen() {
   const { t, fs } = useI18n();
-  const { farmer, bookings, cancelBooking, centres } = useStore();
-  const [filter, setFilter] = useState<'All' | BookingStatus>('All');
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]>('All');
 
-  const mine = useMemo(() => {
-    if (!farmer) return [];
-    const own = bookings.filter((b) => b.farmerId === farmer.id);
+  const mine: LandProject[] = useMemo(() => {
+    const own = ALL_PROJECTS.slice(0, 3);
     return filter === 'All' ? own : own.filter((b) => b.status === filter);
-  }, [bookings, farmer, filter]);
-
-  function handleCancel(booking: Booking) {
-    Alert.alert(t('bookings.cancelAsk'), t('bookings.cancelBody'), [
-      { text: t('common.no'), style: 'cancel' },
-      {
-        text: t('bookings.cancel'),
-        style: 'destructive',
-        onPress: () => cancelBooking(booking.id),
-      },
-    ]);
-  }
-
-  function handleTokenPdf(booking: Booking) {
-    if (!canDownloadPdf()) {
-      Alert.alert(t('token.pdfBtn'), t('token.unavailable'));
-      return;
-    }
-    downloadTokenPdf({
-      booking,
-      farmer,
-      centre: centres.find((c) => c.id === booking.centreId),
-    }).then((result) => {
-      if (result.ok) {
-        Alert.alert(t('book.confirmed'), t('token.downloaded'));
-      } else {
-        Alert.alert(t('token.pdfBtn'), t('token.downloadError'));
-      }
-    });
-  }
+  }, [filter]);
 
   return (
     <ScreenShell breadcrumbs={[{ label: t('nav.bookings') }]} wide>
-      <SectionHeading title={t('bookings.title')} subtitle={t('bookings.subtitle')} />
+      <SectionHeading title="My Submitted Land Proposals" subtitle="Proposals filed by this nodal office across the 9-stage RFCTLARR lifecycle." />
 
-      {/* Status filter */}
       <View style={styles.filterRow}>
         {FILTERS.map((status) => {
           const active = filter === status;
-          return (
-            <Button
-              key={status}
-              label={status === 'All' ? t('bookings.filterAll') : t(`status.${status}` as never)}
-              onPress={() => setFilter(status)}
-              variant={active ? 'primary' : 'outline-secondary'}
-              small
-            />
-          );
+          return <Button key={status} label={status === 'All' ? 'All Proposals' : status} onPress={() => setFilter(status)} variant={active ? 'primary' : 'outline-secondary'} small />;
         })}
       </View>
 
-{mine.length === 0 ? (
-        <EmptyState
-          icon={APP_ICONS.list}
-          title={t('bookings.empty')}
-          message={t('bookings.emptyBody')}
-          action={
-                        <Button variant="outline-primary" label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />
-          }
-        />
+      {mine.length === 0 ? (
+        <EmptyState icon={APP_ICONS.list} title="No proposals found" message="No proposals match this status filter." action={<Button variant="outline-primary" label={t('dash.bookNow')} onPress={() => router.push(path.booking as never)} />} />
       ) : (
-        <DataTable<Booking>
+        <DataTable<LandProject>
           columns={[
-            {
-              key: 'date',
-              header: t('bookings.date'),
-              render: (b) => (
-                <Text style={[styles.cellMain, { fontSize: fs(13) }]}>{formatDateLong(b.date)}</Text>
-              ),
-            },
-            {
-              key: 'centre',
-              header: t('bookings.centre'),
-              render: (b) => (
-                <Text style={[styles.cellMain, { fontSize: fs(13) }]} numberOfLines={2}>
-                  {b.centreName}
-                </Text>
-              ),
-            },
-            {
-              key: 'token',
-              header: t('bookings.token'),
-              render: (b) => <Text style={[styles.cellToken, { fontSize: fs(13) }]}>{b.token}</Text>,
-            },
-            {
-              key: 'produce',
-              header: t('bookings.produce'),
-              render: (b) => (
-                <Text style={[styles.cellMain, { fontSize: fs(13) }]}>
-                  {b.produce} · {b.quantityKg} kg
-                </Text>
-              ),
-            },
-            {
-              key: 'slot',
-              header: t('dash.time'),
-              render: (b) => (
-                <Text style={[styles.cellMain, { fontSize: fs(12) }]}>
-                  {slotRange(b.slotStart, b.slotEnd)}
-                </Text>
-              ),
-            },
-            {
-              key: 'status',
-              header: t('bookings.status'),
-              render: (b) => <StatusBadge status={b.status} small />,
-            },
-            {
-              key: 'actions',
-              header: t('bookings.actions'),
-              render: (b) => (
-                <View style={styles.actionsRow}>
-                  {b.status === 'Upcoming' || b.status === 'Waiting' ? (
-                    <Button variant="link" label={t('bookings.cancel')} onPress={() => handleCancel(b)} small />
-                  ) : null}
-                  <Link href={b.status === 'Completed' ? path.bookings : path.queue} label={t('bookings.view')} variant="muted" />
-                </View>
-              ),
-            },
-            {
-              key: 'pdf',
-              header: t('token.pdfShort'),
-              render: (b) => (
-                <Button variant="link" label={t('token.pdfShort')} onPress={() => handleTokenPdf(b)} small />
-              ),
-            },
+            { key: 'code', header: 'Project Code', render: (b) => <Text style={[styles.cellToken, { fontSize: fs(13) }]}>{b.code}</Text> },
+            { key: 'name', header: 'Project Corridor', render: (b) => <Text style={[styles.cellMain, { fontSize: fs(13) }]} numberOfLines={2}>{b.name}</Text> },
+            { key: 'land', header: 'Land Proposed', render: (b) => <Text style={[styles.cellMain, { fontSize: fs(13) }]}>{b.landProposedHa} ha</Text> },
+            { key: 'stage', header: 'Current Stage', render: (b) => <Text style={[styles.cellMain, { fontSize: fs(12) }]}>{b.currentStage}</Text> },
+            { key: 'status', header: 'Status', render: (b) => <StatusBadge status={b.status === 'Delayed' ? 'Cancelled' : b.status === 'Completed' ? 'Completed' : 'Upcoming'} translatedLabel={b.status} small /> },
+            { key: 'actions', header: 'Actions', render: (b) => <View style={styles.actionsRow}><Link href={path.projects} label="Open" variant="muted" /></View> },
           ]}
           rows={mine}
           rowKey={(b) => b.id}
-          emptyLabel={t('bookings.empty')}
+          emptyLabel="No proposals"
         />
       )}
 
       {mine.length > 0 ? (
         <View style={styles.detail}>
-          <SectionHeading title={t('bookings.subtitle')} />
-          <InfoCard title={mine[0].token}>
-            <StatusBadge status={mine[0].status} />
+          <SectionHeading title="Lead Proposal Detail" />
+          <InfoCard title={mine[0].code}>
+            <StatusBadge status="Upcoming" translatedLabel={mine[0].status} />
             <View style={styles.spacer} />
-            <MetaRow label={t('dash.centre')} value={mine[0].centreName} />
-            <MetaRow label={t('dash.date')} value={formatDateLong(mine[0].date)} />
-            <MetaRow label={t('dash.time')} value={slotRange(mine[0].slotStart, mine[0].slotEnd)} />
-            <MetaRow label={t('dash.token')} value={mine[0].token} />
-            <MetaRow label={t('dash.produce')} value={`${mine[0].produce} · ${mine[0].quantityKg} kg`} />
+            <MetaRow label={t('dash.centre')} value={mine[0].agency} />
+            <MetaRow label={t('dash.date')} value={mine[0].targetDate} />
+            <MetaRow label={t('dash.time')} value={mine[0].currentStage} />
+            <MetaRow label={t('dash.token')} value={mine[0].code} />
+            <MetaRow label={t('dash.produce')} value={`${mine[0].landProposedHa} ha proposed`} />
           </InfoCard>
         </View>
       ) : null}
@@ -181,62 +79,10 @@ export default function BookingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  filterRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: Spacing.md,
-  },
-  filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.white,
-    minHeight: 36,
-    justifyContent: 'center',
-  },
-  filterChipActive: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary,
-  },
-  filterText: {
-    color: Colors.text,
-    fontWeight: '700',
-  },
-  filterTextActive: {
-    color: Colors.white,
-  },
-  cellMain: {
-    color: Colors.text,
-    fontWeight: '600',
-  },
-  cellToken: {
-    color: Colors.primary,
-    fontWeight: '800',
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  cancelLink: {
-    color: Colors.danger,
-    fontWeight: '700',
-  },
-  viewLink: {
-    color: Colors.info,
-    fontWeight: '700',
-  },
-  pdfLink: {
-    color: Colors.danger,
-    fontWeight: '800',
-    textDecorationLine: 'underline',
-  },
-  detail: {
-    marginTop: Spacing.lg,
-  },
-  spacer: {
-    height: Spacing.md,
-  },
+  filterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: Spacing.md },
+  cellMain: { color: Colors.text, fontWeight: '600' },
+  cellToken: { color: Colors.primary, fontWeight: '800' },
+  actionsRow: { flexDirection: 'row' },
+  detail: { marginTop: Spacing.lg },
+  spacer: { height: Spacing.sm },
 });

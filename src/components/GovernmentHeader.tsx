@@ -25,18 +25,21 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'home', label: 'Home', href: path.home },
-  { key: 'about', label: 'About the Portal', href: path.about },
-  { key: 'centres', label: 'Procurement Centres', href: path.centres },
-  { key: 'prices', label: 'Prices', href: path.prices },
-  { key: 'marketplace', label: 'Marketplace', href: path.marketplace },
-  { key: 'pools', label: 'Pooled Lots', href: path.pools },
-  { key: 'offers', label: 'Offers', href: path.offers },
-  { key: 'buyer', label: 'Buyer Console', href: path.buyer },
-  { key: 'payments', label: 'Payments', href: path.payments },
-  { key: 'booking', label: 'Slot Booking', href: path.booking },
-  { key: 'queue', label: 'Track Token', href: path.queue },
-  { key: 'status', label: 'Status', href: path.status },
-  { key: 'notices', label: 'Notices', href: path.notices },
+  { key: 'dashboard', label: 'Dashboard', href: path.dashboard },
+  { key: 'projects', label: 'Projects', href: path.projects },
+  { key: 'parcels', label: 'Land Parcels', href: path.parcels },
+  { key: 'workflow', label: 'Acquisition Workflow', href: path.workflow },
+  { key: 'gis', label: 'GIS Map', href: path.gis },
+  { key: 'awards', label: 'Awards', href: path.awards },
+  { key: 'compensation', label: 'Compensation', href: path.compensation },
+  { key: 'possession', label: 'Possession', href: path.possession },
+  { key: 'rr', label: 'R&R', href: path.rr },
+  { key: 'documents', label: 'Documents', href: path.documents },
+  { key: 'reports', label: 'Reports & Analytics', href: path.reports },
+  { key: 'alerts', label: 'Alerts', href: path.alerts },
+  { key: 'proposal', label: 'Submit Proposal', href: path.proposal },
+  { key: 'admin', label: 'Administration', href: path.administration },
+  { key: 'about', label: 'About', href: path.about },
   { key: 'help', label: 'Help', href: path.help },
 ];
 
@@ -46,8 +49,9 @@ const NAV_ITEMS: NavItem[] = [
  * `common.appName`; the line underneath is always the *other* script so the
  * header reads like a real Indian government website.
  */
-const HINDI_APP_NAME = 'राष्ट्रीय किसान क्रय';
-const ENGLISH_APP_NAME = 'National Farmer Procurement';
+const HINDI_APP_NAME = 'राष्ट्रीय भूमि अधिग्रहण एवं प्रबंधन प्रणाली';
+const ENGLISH_APP_NAME = 'National Land Acquisition & Management System';
+
 
 const LANG_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: 'en', label: 'English' },

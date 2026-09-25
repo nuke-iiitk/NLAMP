@@ -12,10 +12,12 @@ import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import StepIndicator from '../components/StepIndicator';
 import { Colors, Spacing } from '../constants/theme';
-import { crops, districtsByState, states, type Farmer } from '../data/mockData';
+import { districtsByState, states, type Farmer } from '../data/mockData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { useStore } from '../store/AppStore';
+
+const SECTORS = ['Highways', 'Railways', 'Energy', 'Industrial', 'Irrigation', 'Urban Infra'];
 
 type RegistrationForm = {
   name: string;
@@ -42,7 +44,7 @@ const INITIAL: RegistrationForm = {
   village: '',
   address: '',
   landSizeAcres: '',
-  crop: 'Paddy',
+  crop: 'Highways',
   quantityKg: '',
   preferredCentreId: 'c1',
 };
@@ -102,7 +104,7 @@ export default function RegisterScreen() {
 
   function submit() {
     const farmer: Farmer = {
-      id: `FPP-F-2026-${form.mobile.slice(-4)}`,
+      id: `NLAMS-2026-${form.mobile.slice(-4)}`,
       name: form.name.trim(),
       mobile: form.mobile,
       aadhaar: form.aadhaar,
@@ -231,7 +233,7 @@ export default function RegisterScreen() {
           <ChoiceChips
             value={form.crop}
             onChange={(id) => set('crop', id)}
-            items={crops.map((crop) => ({ id: crop, label: crop }))}
+            items={SECTORS.map((s) => ({ id: s, label: s }))}
           />
           {errors.crop ? <Text style={styles.error}>{errors.crop}</Text> : null}
           <FormField
@@ -262,8 +264,9 @@ export default function RegisterScreen() {
             <MetaRow label={t('reg.mobile')} value={form.mobile} />
             <MetaRow label={t('reg.district')} value={`${form.district}, ${form.state}`} />
             <MetaRow label={t('reg.village')} value={form.village} />
-            <MetaRow label={t('reg.crop')} value={`${form.crop} · ${form.quantityKg} kg`} />
-            <MetaRow label={t('reg.land')} value={`${form.landSizeAcres} acres`} />
+            <MetaRow label={t('reg.crop')} value={form.crop} />
+            <MetaRow label={t('reg.quantity')} value={`₹ ${form.quantityKg} Cr`} />
+            <MetaRow label={t('reg.land')} value={`${form.landSizeAcres} ha`} />
           </InfoCard>
         </View>
       ) : null}

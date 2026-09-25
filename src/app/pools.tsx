@@ -1,276 +1,198 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import AlertBanner from '../components/AlertBanner';
+import DataTable from '../components/DataTable';
 import Button from '../components/Button';
-import EmptyState from '../components/EmptyState';
-import FormField from '../components/FormField';
-import InfoCard, { MetaRow } from '../components/InfoCard';
-import ProgressTrack from '../components/ProgressTrack';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
+import StatCard from '../components/StatCard';
+import StatusBadge from '../components/StatusBadge';
 import { Colors, Radius, Spacing } from '../constants/theme';
-import { useOpenPools } from '../hooks/useMarketplace';
+import { MOCK_COMPENSATION, type CompensationRecord } from '../data/landAcquisitionData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
-import { api } from '../services/api';
-import type { ApiPayoutLine, ApiPooledLot } from '../services/api';
-import { useStore } from '../store/AppStore';
-import { formatInr, formatIsoDate, formatKg, formatRate } from '../utils/format';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
-/** Crops with a market price feed — keeps this filter aligned with /prices. */
-const CROPS = ['Paddy', 'Wheat', 'Maize', 'Coconut'];
-/** Backend bulk-order threshold for pooled lots (50 quintals). */
-const BULK_THRESHOLD_KG = 5000;
-/** Pool statuses a farmer can filter on (`''` = every status). */
-const STATUS_FILTERS: string[] = ['FORMING', 'READY', 'MATCHED', ''];
-
-const STATUS_TONE: Record<string, string> = {
-  FORMING: Colors.saffronDark,
-  READY: Colors.green,
-  MATCHED: Colors.info,
-  COMPLETED: Colors.textMuted,
-  CANCELLED: Colors.danger,
-};
-
-export default function PoolsScreen() {
+export default function AwardsScreen() {
   const { t, fs } = useI18n();
-  const { farmer } = useStore();
+  const [query, setQuery] = useState('');
 
-  const [crop, setCrop] = useState(farmer?.crop || CROPS[0]);
-  const [status, setStatus] = useState('FORMING');
-  const [mineOnly, setMineOnly] = useState(false);
-  const [quantity, setQuantity] = useState(farmer?.quantityKg || '500');
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [payouts, setPayouts] = useState<{ lotId: string; lines: ApiPayoutLine[] } | null>(null);
+  const totalAwardsDeclared = 18;
+  const totalValueLakhs = 475.9;
+  const solatiumValueLakhs = 237.95;
 
-  const pools = useOpenPools({
-    crop,
-    status: status || undefined,
-    farmerId: mineOnly ? farmer?.id : undefined,
-  });
-
-  /** Join a lot and confirm in one step, so the farmer's share is locked in. */
-  const join = async (lot: ApiPooledLot) => {
-    if (!farmer?.id) return;
-    setBusyId(lot.id);
-    setError(null);
-    setNotice(null);
-    const added = await api.addFarmerToPooledLot(lot.id, {
-      farmer_id: farmer.id,
-      quantity_kg: Number(quantity) || 0,
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return MOCK_COMPENSATION.filter((c) => {
+      if (q) {
+        return (
+          c.awardNo.toLowerCase().includes(q) ||
+          c.beneficiaryName.toLowerCase().includes(q) ||
+          c.projectName.toLowerCase().includes(q) ||
+          c.surveyNumber.toLowerCase().includes(q)
+        );
+      }
+      return true;
     });
-    if (!added.ok) {
-      setBusyId(null);
-      setError(t('pools.joinError'));
-      return;
-    }
-    await api.confirmPooledLotParticipation(lot.id, farmer.id);
-    setBusyId(null);
-    setNotice(t('pools.joinSuccess', { code: lot.lot_code }));
-    pools.reload();
-  };
+  }, [query]);
 
-  const confirmMine = async (lot: ApiPooledLot) => {
-    if (!farmer?.id) return;
-    setBusyId(lot.id);
-    await api.confirmPooledLotParticipation(lot.id, farmer.id);
-    setBusyId(null);
-    pools.reload();
-  };
-
-  const loadPayouts = async (lot: ApiPooledLot) => {
-    const response = await api.pooledLotPayout(lot.id);
-    if (response.ok) setPayouts({ lotId: lot.id, lines: response.data.payouts });
-  };
-
-  if (!farmer?.id) {
-    return (
-      <ScreenShell breadcrumbs={[{ label: t('nav.pools') }]}>
-        <SectionHeading title={t('pools.title')} subtitle={t('pools.subtitle')} />
-        <AlertBanner tone="info" title={t('marketplace.signInHint')} message={t('pools.signInHint')} />
-        <Button label={t('nav.login')} onPress={() => router.push(path.login)} />
-      </ScreenShell>
-    );
-  }
+  const columns = [
+    {
+      key: 'award',
+      header: 'Award Number',
+      width: 170,
+      render: (c: CompensationRecord) => (
+        <View>
+          <Text style={[styles.awardText, { fontSize: fs(12) }]}>{c.awardNo}</Text>
+          <Text style={[styles.subText, { fontSize: fs(10) }]}>RFCTLARR Sec 23, 26-30</Text>
+        </View>
+      ),
+    },
+    {
+      key: 'project',
+      header: 'Project & District',
+      render: (c: CompensationRecord) => (
+        <View>
+          <Text style={[styles.projTitle, { fontSize: fs(12) }]}>{c.projectName}</Text>
+          <Text style={[styles.subText, { fontSize: fs(11) }]}>{c.village}, {c.district}, {c.state}</Text>
+        </View>
+      ),
+    },
+    {
+      key: 'survey',
+      header: 'Khasra / Survey',
+      width: 110,
+      render: (c: CompensationRecord) => (
+        <Text style={[styles.cellBold, { fontSize: fs(12) }]}>{c.surveyNumber}</Text>
+      ),
+    },
+    {
+      key: 'beneficiary',
+      header: 'Titleholder',
+      render: (c: CompensationRecord) => (
+        <Text style={[styles.cellText, { fontSize: fs(12) }]}>{c.beneficiaryName}</Text>
+      ),
+    },
+    {
+      key: 'market',
+      header: 'Assessed Base',
+      width: 100,
+      render: (c: CompensationRecord) => (
+        <Text style={[styles.cellText, { fontSize: fs(12) }]}>₹{c.assessedAmountLakhs} L</Text>
+      ),
+    },
+    {
+      key: 'solatium',
+      header: '100% Solatium',
+      width: 100,
+      render: (c: CompensationRecord) => (
+        <Text style={[styles.cellText, { fontSize: fs(12) }]}>₹{c.solatiumLakhs} L</Text>
+      ),
+    },
+    {
+      key: 'total',
+      header: 'Total Award',
+      width: 105,
+      render: (c: CompensationRecord) => (
+        <Text style={[styles.cellBold, { color: Colors.primaryDark, fontSize: fs(12) }]}>
+          ₹{c.totalApprovedLakhs} L
+        </Text>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Award Status',
+      width: 110,
+      render: (c: CompensationRecord) => (
+        <StatusBadge status="Completed" translatedLabel="Declared" small />
+      ),
+    },
+  ];
 
   return (
-    <ScreenShell breadcrumbs={[{ label: t('nav.pools') }]}>
-      <SectionHeading title={t('pools.title')} subtitle={t('pools.subtitle')} />
-      {!pools.live && !pools.loading ? (
-        <AlertBanner tone="warning" title={t('common.mockData')} message={t('pools.offline')} />
-      ) : null}
-      <Text style={[styles.hint, { fontSize: fs(13) }]}>
-        {t('pools.bulkHint', { threshold: formatKg(BULK_THRESHOLD_KG) })}
-      </Text>
+    <ScreenShell wide breadcrumbs={[{ label: 'Home', href: path.home }, { label: 'Statutory Awards' }]}>
+      <SectionHeading
+        title="Land Acquisition Awards (Sections 23, 26–30 RFCTLARR Act 2013)"
+        subtitle="Final determination of land value, market rate multiplier, solatium (100%), interest and assets attached to land."
+      />
 
-      <InfoCard title={t('pools.filters')}>
-        <View style={styles.chips}>
-          {CROPS.map((item) => (
-            <Button
-              key={item}
-              small
-              label={item}
-              active={crop === item}
-              variant={crop === item ? 'primary' : 'outline-secondary'}
-              onPress={() => setCrop(item)}
-            />
-          ))}
-        </View>
-        <View style={styles.chips}>
-          {STATUS_FILTERS.map((item) => (
-            <Button
-              key={item || 'all'}
-              small
-              label={item || t('pools.all')}
-              active={status === item}
-              variant={status === item ? 'primary' : 'outline-secondary'}
-              onPress={() => setStatus(item)}
-            />
-          ))}
-          <Button
-            small
-            label={t('pools.mine')}
-            active={mineOnly}
-            variant={mineOnly ? 'primary' : 'outline-secondary'}
-            onPress={() => setMineOnly((current) => !current)}
+      <View style={styles.kpiRow}>
+        <StatCard label="Total Awards Declared" value={totalAwardsDeclared} tone="navy" />
+        <StatCard label="Total Sanctioned Value" value={`₹${totalValueLakhs} L`} tone="green" />
+        <StatCard label="100% Solatium Sanctioned" value={`₹${solatiumValueLakhs} L`} tone="saffron" />
+      </View>
+
+      <View style={styles.filterCard}>
+        <View style={styles.searchRow}>
+          <AppIcon name={APP_ICONS.search} size={16} color={Colors.textMuted} />
+          <TextInput
+            style={[styles.searchInput, { fontSize: fs(13) }]}
+            placeholder="Search award declaration by number, titleholder, project or survey number..."
+            placeholderTextColor={Colors.textMuted}
+            value={query}
+            onChangeText={setQuery}
           />
         </View>
-        <FormField
-          label={t('pools.yourQuantity')}
-          value={quantity}
-          onChangeText={setQuantity}
-          keyboardType="numeric"
-          maxLength={7}
-        />
-      </InfoCard>
+      </View>
 
-      {notice ? <AlertBanner tone="success" title={t('nav.pools')} message={notice} /> : null}
-      {error ? <AlertBanner tone="error" title={t('pools.join')} message={error} /> : null}
-      {pools.loading ? (
-        <Text style={[styles.hint, { fontSize: fs(13) }]}>{t('common.loading')}</Text>
-      ) : null}
-      {!pools.loading && pools.items.length === 0 ? (
-        <EmptyState title={t('pools.empty')} message={t('pools.subtitle')} />
-      ) : null}
-
-      {pools.items.map((lot) => {
-        const total = Number(lot.total_quantity_kg) || 0;
-        const target = Number(lot.target_quantity_kg) || BULK_THRESHOLD_KG;
-        const my = lot.members.find((member) => member.farmer_id === farmer.id) ?? null;
-        const share = total > 0 ? (Number(my?.quantity_kg ?? 0) / total) * 100 : 0;
-        return (
-          <InfoCard
-            key={lot.id}
-            accent={STATUS_TONE[lot.status] ?? Colors.green}
-            title={`${lot.crop} · ${lot.lot_code}`}
-          >
-            <Text
-              style={[
-                styles.status,
-                { fontSize: fs(12), color: STATUS_TONE[lot.status] ?? Colors.textMuted },
-              ]}
-            >
-              {lot.status}
-            </Text>
-            <ProgressTrack progress={target > 0 ? total / target : 0} />
-            <Text style={[styles.hint, { fontSize: fs(12) }]}>
-              {t('pools.progress', { total: formatKg(total), target: formatKg(target) })}
-            </Text>
-            <MetaRow label={t('marketplace.members')} value={String(lot.members.length)} />
-            <MetaRow
-              label={t('marketplace.suggestedRate')}
-              value={
-                lot.suggested_price_per_quintal ? formatRate(lot.suggested_price_per_quintal) : '—'
-              }
-            />
-            <MetaRow label={t('marketplace.expiresOn')} value={formatIsoDate(lot.expires_at)} />
-
-            {my ? (
-              <>
-                <MetaRow
-                  label={t('marketplace.share')}
-                  value={`${formatKg(my.quantity_kg)} · ${share.toFixed(1)}%`}
-                />
-                {my.is_confirmed ? (
-                  <Text style={[styles.hint, { fontSize: fs(12) }]}>{t('pools.joined')}</Text>
-                ) : (
-                  <Button
-                    small
-                    variant="secondary"
-                    label={t('marketplace.confirmMine')}
-                    loading={busyId === lot.id}
-                    onPress={() => void confirmMine(lot)}
-                  />
-                )}
-              </>
-            ) : (
-              <Button
-                small
-                label={t('pools.join')}
-                loading={busyId === lot.id}
-                onPress={() => void join(lot)}
-              />
-            )}
-
-            {lot.matched_requirement_id ? (
-              <>
-                <Button
-                  small
-                  variant="outline-primary"
-                  label={t('marketplace.payoutAction')}
-                  onPress={() => void loadPayouts(lot)}
-                />
-                {payouts?.lotId === lot.id
-                  ? payouts.lines.map((line) => (
-                      <Text key={line.farmer_id} style={[styles.hint, { fontSize: fs(12) }]}>
-                        {`${line.farmer_id.slice(0, 8)} · ₹${formatInr(line.amount)} · ${line.share_pct}%`}
-                      </Text>
-                    ))
-                  : null}
-              </>
-            ) : (
-              <Text style={[styles.hint, { fontSize: fs(12) }]}>
-                {t('marketplace.payoutPending')}
-              </Text>
-            )}
-          </InfoCard>
-        );
-      })}
-
-      <Button
-        label={t('prices.viewMarketplace')}
-        variant="secondary"
-        onPress={() => router.push(path.marketplace)}
-      />
-      <Button
-        label={t('marketplace.viewOffers')}
-        variant="outline-primary"
-        onPress={() => router.push(path.offers)}
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        rowKey={(c) => c.id}
+        emptyLabel="No award declarations match the query."
       />
     </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  hint: { color: Colors.textSecondary, marginBottom: Spacing.md },
-  status: { fontWeight: '800', letterSpacing: 0.4, marginBottom: Spacing.sm },
-  actionRow: {
+  kpiRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
   },
-  box: {
-    marginTop: Spacing.md,
+  filterCard: {
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.borderDark,
+    borderRadius: Radius.sm,
     padding: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceMuted,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: Radius.sm,
-    backgroundColor: Colors.surfaceAlt,
+    paddingHorizontal: Spacing.md,
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    minHeight: 40,
+    color: Colors.text,
+  },
+  awardText: {
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  projTitle: {
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  subText: {
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  cellText: {
+    color: Colors.text,
+  },
+  cellBold: {
+    fontWeight: '800',
+    color: Colors.text,
   },
 });

@@ -1,4 +1,4 @@
-import { usePathname } from 'expo-router';
+import { usePathname, type Href } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Spacing } from '../constants/theme';
@@ -6,7 +6,7 @@ import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import Link from './Link';
 
-export type Crumb = { label: string; href?: string };
+export type Crumb = { label: string; href?: Href | string };
 
 export default function Breadcrumbs({ items }: { items: Crumb[] }) {
   const { fs, t } = useI18n();

@@ -1,262 +1,280 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import AlertBanner from '../components/AlertBanner';
+import DataTable from '../components/DataTable';
 import Button from '../components/Button';
-import EmptyState from '../components/EmptyState';
-import FormField from '../components/FormField';
-import InfoCard, { MetaRow } from '../components/InfoCard';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
+import StatCard from '../components/StatCard';
+import StatusBadge from '../components/StatusBadge';
 import { Colors, Radius, Spacing } from '../constants/theme';
-import { useOfferInbox } from '../hooks/useMarketplace';
+import { MOCK_RR, type RRRecord } from '../data/landAcquisitionData';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
-import { api } from '../services/api';
-import type { ApiOffer } from '../services/api';
-import { useStore } from '../store/AppStore';
-import { formatDeviation, formatInr, formatIsoDate, formatKg, formatRate } from '../utils/format';
+import { APP_ICONS, AppIcon } from '../components/AppIcon';
 
-/** Status views; `key` is passed straight to the backend `status` filter. */
-const FILTERS: {
-  key: string;
-  label: 'offers.pending' | 'offers.accepted' | 'offers.rejected' | 'offers.countered' | 'offers.all';
-}[] = [
-  { key: 'PENDING', label: 'offers.pending' },
-  { key: 'ACCEPTED', label: 'offers.accepted' },
-  { key: 'REJECTED', label: 'offers.rejected' },
-  { key: 'COUNTERED', label: 'offers.countered' },
-  { key: '', label: 'offers.all' },
-];
-
-const STATUS_TONE: Record<string, string> = {
-  PENDING: Colors.saffronDark,
-  ACCEPTED: Colors.green,
-  REJECTED: Colors.danger,
-  COUNTERED: Colors.info,
-  CANCELLED: Colors.textMuted,
-  EXPIRED: Colors.textMuted,
-};
-
-/** Below-market threshold used by the backend low-offer alert (-10%). */
-const LOW_OFFER_PCT = -10;
-
-export default function OffersScreen() {
+export default function RRScreen() {
   const { t, fs } = useI18n();
-  const { farmer } = useStore();
+  const { width } = useWindowDimensions();
+  const wide = width >= 768;
 
-  const [status, setStatus] = useState('PENDING');
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [counterFor, setCounterFor] = useState<string | null>(null);
-  const [counterPrice, setCounterPrice] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
 
-  // `farmer.id` is the backend farmer id/code; the inbox also returns offers
-  // made against pooled lots this farmer has joined.
-  const inbox = useOfferInbox({ farmerId: farmer?.id, status: status || undefined });
+  // R&R Metrics
+  const affectedFamilies = 4980;
+  const displacedFamilies = 1175;
+  const rehabCompleted = 780;
+  const rehabPending = 395;
+  const resettleCompleted = 710;
+  const resettlePending = 465;
 
-  const respond = async (offer: ApiOffer, next: string) => {
-    setBusyId(offer.id);
-    setError(null);
-    setNotice(null);
-    const response = await api.updateOffer(offer.id, { status: next });
-    setBusyId(null);
-    if (!response.ok) {
-      setError(t('offers.updateError'));
-      return;
-    }
-    setNotice(t('offers.updated'));
-    inbox.reload();
-  };
-
-  const sendCounter = async (offer: ApiOffer) => {
-    const price = Number(counterPrice);
-    if (!(price > 0) || !offer.farmer_id) return;
-    setBusyId(offer.id);
-    setError(null);
-    setNotice(null);
-    const created = await api.createOffer({
-      requirement_id: offer.requirement_id,
-      farmer_id: offer.farmer_id,
-      parent_offer_id: offer.id,
-      price_per_quintal: price,
-      quantity_kg: Number(offer.quantity_kg),
+  const filtered = useMemo(() => {
+    return MOCK_RR.filter((r) => {
+      if (categoryFilter !== 'All' && r.category !== categoryFilter) return false;
+      return true;
     });
-    if (!created.ok) {
-      setBusyId(null);
-      setError(t('offers.counterError'));
-      return;
-    }
-    // The parent offer is answered by a counter, so it leaves the pending inbox.
-    await api.updateOffer(offer.id, { status: 'COUNTERED' });
-    setBusyId(null);
-    setCounterFor(null);
-    setCounterPrice('');
-    setNotice(t('offers.updated'));
-    inbox.reload();
-  };
+  }, [categoryFilter]);
 
-  if (!farmer?.id) {
-    return (
-      <ScreenShell breadcrumbs={[{ label: t('nav.offers') }]}>
-        <SectionHeading title={t('offers.title')} subtitle={t('offers.subtitle')} />
-        <AlertBanner tone="info" title={t('marketplace.signInHint')} message={t('offers.signInHint')} />
-        <Button label={t('nav.login')} onPress={() => router.push(path.login)} />
-      </ScreenShell>
-    );
-  }
+  const columns = [
+    {
+      key: 'family',
+      header: 'Head of Family',
+      render: (r: RRRecord) => (
+        <View>
+          <Text style={[styles.headName, { fontSize: fs(13) }]}>{r.familyHead}</Text>
+          <Text style={[styles.subText, { fontSize: fs(11) }]}>
+            {r.village}, {r.district} · {r.membersCount} Members ({r.category})
+          </Text>
+        </View>
+      ),
+    },
+    {
+      key: 'project',
+      header: 'Project Corridor',
+      render: (r: RRRecord) => (
+        <Text style={[styles.projName, { fontSize: fs(12) }]}>{r.projectName}</Text>
+      ),
+    },
+    {
+      key: 'housing',
+      header: 'House Allotment',
+      width: 130,
+      render: (r: RRRecord) => (
+        <StatusBadge
+          status={r.entitlementHouseAllotted ? 'Completed' : 'Waiting'}
+          translatedLabel={r.entitlementHouseAllotted ? 'House Handed Over' : 'Pending Allocation'}
+          small
+        />
+      ),
+    },
+    {
+      key: 'grant',
+      header: 'R&R Grant',
+      width: 100,
+      render: (r: RRRecord) => (
+        <Text style={[styles.cellBold, { color: Colors.green, fontSize: fs(12) }]}>
+          ₹{r.grantDisbursedLakhs} L
+        </Text>
+      ),
+    },
+    {
+      key: 'employment',
+      header: 'Livelihood Grant',
+      width: 120,
+      render: (r: RRRecord) => (
+        <Text style={[styles.cellText, { fontSize: fs(11) }]}>{r.employmentStatus}</Text>
+      ),
+    },
+    {
+      key: 'rehab',
+      header: 'Rehabilitation',
+      width: 110,
+      render: (r: RRRecord) => (
+        <StatusBadge
+          status={r.rehabilitationStatus === 'Completed' ? 'Completed' : 'Waiting'}
+          translatedLabel={r.rehabilitationStatus}
+          small
+        />
+      ),
+    },
+    {
+      key: 'resettle',
+      header: 'Resettlement',
+      width: 110,
+      render: (r: RRRecord) => (
+        <StatusBadge
+          status={r.resettlementStatus === 'Shifted' ? 'Completed' : 'Upcoming'}
+          translatedLabel={r.resettlementStatus}
+          small
+        />
+      ),
+    },
+  ];
 
   return (
-    <ScreenShell breadcrumbs={[{ label: t('nav.offers') }]}>
-      <SectionHeading title={t('offers.title')} subtitle={t('offers.subtitle')} />
-      {!inbox.live && !inbox.loading ? (
-        <AlertBanner tone="warning" title={t('common.mockData')} message={t('offers.offline')} />
-      ) : null}
-
-      <InfoCard title={t('pools.filters')}>
-        <View style={styles.chips}>
-          {FILTERS.map((filter) => (
-            <Button
-              key={filter.label}
-              small
-              label={t(filter.label)}
-              active={status === filter.key}
-              variant={status === filter.key ? 'primary' : 'outline-secondary'}
-              onPress={() => setStatus(filter.key)}
-            />
-          ))}
-        </View>
-      </InfoCard>
-
-      {notice ? <AlertBanner tone="success" title={t('offers.updated')} message={notice} /> : null}
-      {error ? <AlertBanner tone="error" title={t('offers.updateError')} message={error} /> : null}
-
-      {inbox.loading ? (
-        <Text style={[styles.hint, { fontSize: fs(13) }]}>{t('common.loading')}</Text>
-      ) : null}
-      {!inbox.loading && inbox.items.length === 0 ? (
-        <EmptyState title={t('offers.empty')} message={t('offers.signInHint')} />
-      ) : null}
-
-      {inbox.items.map((offer) => {
-        const deviation = Number(offer.deviation_pct ?? 0);
-        const low = offer.market_avg_price !== null && deviation <= LOW_OFFER_PCT;
-        return (
-          <InfoCard
-            key={offer.id}
-            accent={low ? Colors.danger : Colors.green}
-            title={`${formatRate(offer.price_per_quintal)} · ${
-              offer.pooled_lot_id ? t('nav.pools') : t('offers.buyer')
-            }`}
-          >
-            <Text
-              style={[
-                styles.status,
-                { fontSize: fs(12), color: STATUS_TONE[offer.status] ?? Colors.textMuted },
-              ]}
-            >
-              {offer.status}
-            </Text>
-            <MetaRow label={t('offers.quantity')} value={formatKg(offer.quantity_kg)} />
-            <MetaRow
-              label={t('offers.marketAvg')}
-              value={offer.market_avg_price ? formatRate(offer.market_avg_price) : '—'}
-            />
-            <MetaRow label={t('offers.deviation')} value={formatDeviation(offer.deviation_pct)} />
-            <MetaRow label={t('offers.buyer')} value={offer.buyer_id.slice(0, 8)} />
-            <MetaRow
-              label={t('offers.received')}
-              value={formatIsoDate(offer.created_at.slice(0, 10))}
-            />
-            {offer.is_counter ? (
-              <Text style={[styles.hint, { fontSize: fs(12) }]}>{t('offers.countered')}</Text>
-            ) : null}
-            {low && offer.market_avg_price ? (
-              <AlertBanner
-                tone="error"
-                title={t('prices.lowOffer')}
-                message={t('prices.counterAsk', { price: formatInr(offer.market_avg_price) })}
-              />
-            ) : null}
-
-            {offer.status === 'PENDING' ? (
-              <View style={styles.actions}>
-                <Button
-                  small
-                  variant="success"
-                  label={t('offers.accept')}
-                  loading={busyId === offer.id}
-                  onPress={() => void respond(offer, 'ACCEPTED')}
-                />
-                <Button
-                  small
-                  variant="danger"
-                  label={t('offers.reject')}
-                  disabled={busyId === offer.id}
-                  onPress={() => void respond(offer, 'REJECTED')}
-                />
-                <Button
-                  small
-                  variant="outline-primary"
-                  label={t('offers.counter')}
-                  disabled={busyId === offer.id}
-                  onPress={() => {
-                    setCounterFor(counterFor === offer.id ? null : offer.id);
-                    setCounterPrice(offer.market_avg_price ?? offer.price_per_quintal);
-                  }}
-                />
-              </View>
-            ) : null}
-
-            {counterFor === offer.id ? (
-              <View style={styles.counterBox}>
-                <FormField
-                  label={t('offers.counterLabel')}
-                  value={counterPrice}
-                  onChangeText={setCounterPrice}
-                  keyboardType="numeric"
-                  maxLength={8}
-                  placeholder={offer.market_avg_price ?? offer.price_per_quintal}
-                />
-                <Button
-                  small
-                  label={t('offers.counterAction')}
-                  loading={busyId === offer.id}
-                  onPress={() => void sendCounter(offer)}
-                />
-              </View>
-            ) : null}
-          </InfoCard>
-        );
-      })}
-
-      <Button
-        label={t('prices.viewMarketplace')}
-        variant="secondary"
-        onPress={() => router.push(path.marketplace)}
+    <ScreenShell wide breadcrumbs={[{ label: 'Home', href: path.home }, { label: 'Rehabilitation & Resettlement' }]}>
+      <SectionHeading
+        title="Rehabilitation & Resettlement (R&R) Monitoring"
+        subtitle="Mandatory entitlements under Schedule II & III of RFCTLARR Act 2013: Constructed houses, subsistence grants, job quotas and infrastructural amenities."
       />
-      <Button
-        label={t('marketplace.viewPools')}
-        variant="outline-primary"
-        onPress={() => router.push(path.pools)}
+
+      {/* Mandatory KPIs */}
+      <View style={styles.kpiRow}>
+        <StatCard label="Affected Families" value={affectedFamilies.toLocaleString()} tone="navy" sub="SIA Survey Enumerated" />
+        <StatCard label="Displaced Families" value={displacedFamilies.toLocaleString()} tone="saffron" sub="Eligible for Relocation" />
+        <StatCard label="Rehabilitation Completed" value={rehabCompleted} tone="green" sub="Livelihood Disbursed" />
+        <StatCard label="Rehabilitation Pending" value={rehabPending} tone="red" sub="Skill/Grant Underway" />
+      </View>
+
+      <View style={styles.kpiRow}>
+        <StatCard label="Resettlement Completed" value={resettleCompleted} tone="green" sub="Colonies Occupied" />
+        <StatCard label="Resettlement Pending" value={resettlePending} tone="red" sub="Plots/Houses Assigned" />
+      </View>
+
+      {/* R&R Progress Trackers */}
+      <View style={styles.progressCard}>
+        <Text style={[styles.cardTitle, { fontSize: fs(14) }]}>National R&R Execution Progress</Text>
+        <View style={styles.progressBarWrap}>
+          <View style={styles.progHeader}>
+            <Text style={[styles.progLabel, { fontSize: fs(12) }]}>Overall Rehabilitation Progress: {Math.round((rehabCompleted / (rehabCompleted + rehabPending)) * 100)}%</Text>
+            <Text style={[styles.progMeta, { fontSize: fs(12) }]}>{rehabCompleted} of {rehabCompleted + rehabPending} Families</Text>
+          </View>
+          <View style={styles.track}>
+            <View style={[styles.fill, { width: `${Math.round((rehabCompleted / (rehabCompleted + rehabPending)) * 100)}%`, backgroundColor: Colors.green }]} />
+          </View>
+        </View>
+
+        <View style={styles.progressBarWrap}>
+          <View style={styles.progHeader}>
+            <Text style={[styles.progLabel, { fontSize: fs(12) }]}>Overall Resettlement Colony Handover: {Math.round((resettleCompleted / (resettleCompleted + resettlePending)) * 100)}%</Text>
+            <Text style={[styles.progMeta, { fontSize: fs(12) }]}>{resettleCompleted} of {resettleCompleted + resettlePending} Relocated</Text>
+          </View>
+          <View style={styles.track}>
+            <View style={[styles.fill, { width: `${Math.round((resettleCompleted / (resettleCompleted + resettlePending)) * 100)}%`, backgroundColor: Colors.saffronDark }]} />
+          </View>
+        </View>
+      </View>
+
+      {/* Category Filter */}
+      <View style={styles.filterRow}>
+        <Text style={[styles.filterLabel, { fontSize: fs(11) }]}>Filter Category:</Text>
+        {['All', 'SC', 'ST', 'OBC', 'General'].map((cat) => (
+          <Pressable
+            key={cat}
+            onPress={() => setCategoryFilter(cat)}
+            style={[styles.chip, categoryFilter === cat && styles.chipActive]}
+          >
+            <Text style={[styles.chipText, categoryFilter === cat && styles.chipTextActive, { fontSize: fs(11) }]}>
+              {cat}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {/* Beneficiary Table */}
+      <SectionHeading title="Displaced & Affected Family Registry" />
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        rowKey={(r) => r.id}
+        emptyLabel="No R&R records found."
       />
     </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  hint: { color: Colors.textSecondary, marginBottom: Spacing.md },
-  status: { fontWeight: '800', letterSpacing: 0.4, marginBottom: Spacing.sm },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginTop: Spacing.sm },
-  counterBox: {
-    marginTop: Spacing.md,
+  kpiRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  progressCard: {
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.borderDark,
+    borderRadius: Radius.sm,
     padding: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  cardTitle: {
+    fontWeight: '800',
+    color: Colors.primaryDark,
+    marginBottom: Spacing.sm,
+  },
+  progressBarWrap: {
+    marginTop: Spacing.sm,
+  },
+  progHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  progLabel: {
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  progMeta: {
+    color: Colors.textMuted,
+    fontWeight: '600',
+  },
+  track: {
+    height: 10,
+    backgroundColor: Colors.surfaceMuted,
+    borderRadius: Radius.sm,
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+  },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: Spacing.md,
+    flexWrap: 'wrap',
+  },
+  filterLabel: {
+    color: Colors.textMuted,
+    fontWeight: '700',
+  },
+  chip: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.sm,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: Radius.sm,
     backgroundColor: Colors.surfaceAlt,
+  },
+  chipActive: {
+    backgroundColor: Colors.primaryDark,
+    borderColor: Colors.primaryDark,
+  },
+  chipText: {
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  chipTextActive: {
+    color: Colors.white,
+  },
+  headName: {
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  subText: {
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  projName: {
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  cellBold: {
+    fontWeight: '800',
+  },
+  cellText: {
+    color: Colors.text,
   },
 });

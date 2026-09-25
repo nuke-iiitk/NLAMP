@@ -5,8 +5,8 @@ import { useI18n } from '../i18n';
 import type { Booking } from '../data/mockData';
 
 /**
- * 5-stage procurement timeline:
- * Slot Booked → Arrived → In Queue → Procurement → Completed
+ * 5-stage case timeline:
+ * Slot Booked → Arrived → In Queue → Verification → Completed
  */
 export default function StatusTimeline({ booking }: { booking: Booking }) {
   const { t, fs } = useI18n();

@@ -10,7 +10,7 @@ import { useStore } from '../store/AppStore';
 import type { Booking } from '../data/mockData';
 
 /**
- * Institutional live-queue status panel for the farmer dashboard.
+ * Live-queue status panel for the nodal office dashboard.
  * Structured metrics in bordered cells rather than a dark SaaS card.
  */
 export default function QueueCard({ booking }: { booking: Booking }) {
@@ -36,12 +36,12 @@ export default function QueueCard({ booking }: { booking: Booking }) {
       <View style={styles.statsRow}>
         <View style={styles.stat}>
           <Text style={[styles.statLabel, { fontSize: fs(11) }]}>{t('dash.yourToken')}</Text>
-          <Text style={[styles.statBig, { fontSize: fs(28) }]}>{booking.token.replace('FPP-', '')}</Text>
+          <Text style={[styles.statBig, { fontSize: fs(28) }]}>{booking.token.replace('NLAMS-', '')}</Text>
         </View>
         <View style={[styles.stat, styles.statAlt]}>
           <Text style={[styles.statLabel, { fontSize: fs(11) }]}>{t('dash.currentToken')}</Text>
           <Text style={[styles.statBig, styles.statBigLight, { fontSize: fs(28) }]}>
-            {snapshot.currentlyServing ? snapshot.currentlyServing.replace('FPP-', '') : '—'}
+            {snapshot.currentlyServing ? snapshot.currentlyServing.replace('NLAMS-', '') : '—'}
           </Text>
         </View>
       </View>
