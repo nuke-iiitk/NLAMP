@@ -10,7 +10,7 @@ import InfoCard, { MetaRow } from '../components/InfoCard';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import { Colors, Spacing } from '../constants/theme';
-import { useFarmerMatches, useMarketPrice } from '../hooks/useMarketplace';
+import { useBuyerDirectory, useFarmerMatches, useMarketPrice } from '../hooks/useMarketplace';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { api } from '../services/api';
@@ -44,6 +44,8 @@ export default function MarketplaceScreen() {
       : null
   );
   const price = useMarketPrice({ crop, region: district, state: listingState });
+  // Who is buying this crop around me — the demand side of the same market.
+  const buyers = useBuyerDirectory({ crop, state: listingState, district, limit: 10 });
 
   const myMembership = useMemo(
     () => lot?.members.find((member) => member.farmer_id === farmer?.id) ?? null,
@@ -148,6 +150,32 @@ export default function MarketplaceScreen() {
         )}
       </InfoCard>
 
+      <InfoCard title={t('marketplace.buyersTitle')} accent={Colors.info}>
+        <Text style={[styles.hint, { fontSize: fs(13) }]}>{t('marketplace.buyersHint')}</Text>
+        {buyers.loading ? (
+          <Text style={[styles.empty, { fontSize: fs(14) }]}>{t('common.loading')}</Text>
+        ) : buyers.items.length === 0 ? (
+          <Text style={[styles.empty, { fontSize: fs(14) }]}>{t('marketplace.buyersEmpty')}</Text>
+        ) : (
+          buyers.items.map((buyer) => (
+            <View key={buyer.id} style={styles.block}>
+              <Text style={[styles.blockTitle, { fontSize: fs(15) }]}>
+                {buyer.company_name ?? buyer.name}
+              </Text>
+              <MetaRow label={t('marketplace.contact')} value={buyer.phone} />
+              <MetaRow
+                label={t('marketplace.location')}
+                value={`${buyer.district ? `${buyer.district}, ` : ''}${buyer.state ?? ''}`}
+              />
+              <MetaRow
+                label={t('marketplace.reliability')}
+                value={`${buyer.reliability_score}/100`}
+              />
+            </View>
+          ))
+        )}
+      </InfoCard>
+
       <InfoCard title={t('marketplace.poolingTitle')} accent={Colors.saffron}>
         <Text style={[styles.hint, { fontSize: fs(13) }]}>
           {t('marketplace.poolingHint', {
@@ -216,7 +244,26 @@ export default function MarketplaceScreen() {
         ) : null}
       </InfoCard>
 
-      <Button label={t('prices.findCentre')} variant="secondary" onPress={() => router.push(path.centres)} />
+      <Button
+        label={t('marketplace.viewOffers')}
+        variant="secondary"
+        onPress={() => router.push(path.offers)}
+      />
+      <Button
+        label={t('marketplace.viewPools')}
+        variant="outline-primary"
+        onPress={() => router.push(path.pools)}
+      />
+      <Button
+        label={t('marketplace.buyerConsole')}
+        variant="outline-primary"
+        onPress={() => router.push(path.buyer)}
+      />
+      <Button
+        label={t('nav.prices')}
+        variant="ghost"
+        onPress={() => router.push(path.prices)}
+      />
     </ScreenShell>
   );
 }

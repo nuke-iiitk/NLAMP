@@ -17,6 +17,9 @@ const ACTIONS: Action[] = [
   { icon: APP_ICONS.business, labelKey: 'dash.qaCentres', hintKey: 'dash.qaCentresHint', href: String(path.centres) },
   { icon: APP_ICONS.currency, labelKey: 'nav.prices', hintKey: 'prices.title', href: String(path.prices) },
   { icon: APP_ICONS.business, labelKey: 'nav.marketplace', hintKey: 'marketplace.title', href: String(path.marketplace) },
+  { icon: APP_ICONS.list, labelKey: 'nav.pools', hintKey: 'pools.title', href: String(path.pools) },
+  { icon: APP_ICONS.currency, labelKey: 'nav.offers', hintKey: 'offers.title', href: String(path.offers) },
+  { icon: APP_ICONS.wallet, labelKey: 'nav.buyer', hintKey: 'buyer.title', href: String(path.buyer) },
   { icon: APP_ICONS.wallet, labelKey: 'nav.payments', hintKey: 'payments.title', href: String(path.payments) },
   { icon: APP_ICONS.infoCircle, labelKey: 'dash.qaHelp', hintKey: 'dash.qaHelpHint', href: String(path.help) },
 ];

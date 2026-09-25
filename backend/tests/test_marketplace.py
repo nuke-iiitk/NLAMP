@@ -407,3 +407,114 @@ async def test_pooled_lot_matches_requirement_and_splits_payout(client):
         f"/api/marketplace/pooled-lots/{lot['id']}/match/{other['id']}"
     )
     assert bad.status_code == 400
+
+
+# ----------------------------------------------------------- listings
+
+
+async def test_buyer_directory_and_offer_inbox(client):
+    """The three browse endpoints that back the buyer console and offer inbox."""
+    await seed_prices()
+
+    # Buyer directory starts empty, then lists the registered buyer only.
+    assert (await client.get("/api/marketplace/buyers")).json() == []
+
+    buyer = await create_buyer(client, phone="9876500001")
+    req = await create_requirement(client, buyer["id"])
+
+    directory = await client.get("/api/marketplace/buyers", params={"crop": "Paddy"})
+    assert directory.status_code == 200, directory.text
+    assert [b["id"] for b in directory.json()] == [buyer["id"]]
+    assert (await client.get("/api/marketplace/buyers", params={"crop": "Coconut"})).json() == []
+    assert (await client.get("/api/marketplace/buyers", params={"district": "Kottayam"})).json()
+
+    # Requirements list honours ACTIVE (default) and ALL.
+    active = await client.get("/api/marketplace/requirements", params={"status": "ACTIVE"})
+    assert req["id"] in [r["id"] for r in active.json()]
+    every = await client.get("/api/marketplace/requirements", params={"status": "ALL"})
+    assert every.status_code == 200
+    assert req["id"] in [r["id"] for r in every.json()]
+
+    # A farmer's inbox is filterable by farmer_code, id and status.
+    farmer = (await register_farmer(client, "9876500002", name="Inbox Farmer"))["farmer"]
+    offer = (
+        await client.post(
+            "/api/marketplace/offers",
+            json={
+                "requirement_id": req["id"],
+                "farmer_id": farmer["id"],
+                "price_per_quintal": 1500,
+                "quantity_kg": 500,
+            },
+        )
+    ).json()
+    assert offer["status"] == "PENDING"
+
+    for params in ({"farmer_id": farmer["farmer_code"]}, {"farmer_id": farmer["id"]}):
+        inbox = await client.get("/api/marketplace/offers", params=params)
+        assert inbox.status_code == 200, inbox.text
+        assert [o["id"] for o in inbox.json()] == [offer["id"]]
+        assert Decimal(inbox.json()[0]["market_avg_price"]) > 0
+
+    outbox = await client.get("/api/marketplace/offers", params={"buyer_id": buyer["id"]})
+    assert outbox.status_code == 200
+    assert [o["id"] for o in outbox.json()] == [offer["id"]]
+
+    # Accepting the offer moves it out of the PENDING inbox view.
+    pending = {"farmer_id": farmer["id"], "status": "PENDING"}
+    assert [o["id"] for o in (await client.get("/api/marketplace/offers", params=pending)).json()] == [
+        offer["id"]
+    ]
+    accepted = await client.put(
+        f"/api/marketplace/offers/{offer['id']}", json={"status": "accepted"}
+    )
+    assert accepted.status_code == 200, accepted.text
+    assert accepted.json()["status"] == "ACCEPTED"
+    assert (await client.get("/api/marketplace/offers", params=pending)).json() == []
+
+    # An unrelated farmer sees an empty inbox.
+    other = (await register_farmer(client, "9876500003", name="Unrelated Farmer"))["farmer"]
+    assert (await client.get("/api/marketplace/offers", params={"farmer_id": other["id"]})).json() == []
+
+
+async def test_pooled_lot_browsing_endpoint(client):
+    """Open pools can be browsed, filtered, and are served with their members."""
+    for i in range(10):
+        await register_farmer(client, f"9876510{i:03d}", name=f"Pool Browser {i}")
+
+    lot = (
+        await client.post(
+            "/api/marketplace/pooled-lots/auto-create",
+            params={"crop": "Paddy", "state": "Kerala", "district": "Kottayam"},
+        )
+    ).json()
+    assert Decimal(lot["total_quantity_kg"]) >= Decimal("5000")
+
+    listed = await client.get(
+        "/api/marketplace/pooled-lots",
+        params={"crop": "Paddy", "state": "Kerala", "status": lot["status"]},
+    )
+    assert listed.status_code == 200, listed.text
+    ids = [l["id"] for l in listed.json()]
+    assert lot["id"] in ids
+
+    # Members arrive with the list (no async lazy-load), so counts agree.
+    found = next(l for l in listed.json() if l["id"] == lot["id"])
+    assert len(found["members"]) == len(lot["members"]) > 0
+    assert {m["farmer_id"] for m in found["members"]} == {
+        m["farmer_id"] for m in lot["members"]
+    }
+
+    # Filtering by a member farmer returns exactly the pools they belong to.
+    member_farmer_id = found["members"][0]["farmer_id"]
+    mine = await client.get(
+        "/api/marketplace/pooled-lots", params={"farmer_id": member_farmer_id}
+    )
+    assert mine.status_code == 200
+    assert [l["id"] for l in mine.json()] == [lot["id"]]
+
+    # Unmatched filters return an empty list rather than an error.
+    assert (await client.get("/api/marketplace/pooled-lots", params={"crop": "Coconut"})).json() == []
+    assert (
+        await client.get("/api/marketplace/pooled-lots", params={"district": "Idukki"})
+    ).json() == []

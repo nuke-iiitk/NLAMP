@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import AlertBanner from '../components/AlertBanner';
+import BarChart from '../components/BarChart';
 import Button from '../components/Button';
 import FairPriceBadge from '../components/FairPriceBadge';
 import FormField from '../components/FormField';
@@ -10,7 +11,7 @@ import InfoCard, { MetaRow } from '../components/InfoCard';
 import ScreenShell from '../components/ScreenShell';
 import SectionHeading from '../components/SectionHeading';
 import { Colors, Spacing } from '../constants/theme';
-import { useFairPriceCheck, useMarketPrice } from '../hooks/useMarketplace';
+import { useFairPriceCheck, useMarketPrice, useMarketPriceHistory } from '../hooks/useMarketplace';
 import { useI18n } from '../i18n';
 import { path } from '../navigation';
 import { formatInr, formatIsoDate } from '../utils/format';
@@ -37,12 +38,25 @@ export default function PricesScreen() {
   const scope = { crop: selected.crop, region: selected.region, state: selected.state };
   // Live feed for the selected crop; `null` keeps the hook idle on the "All" view.
   const { summary, loading, live } = useMarketPrice(crop === 'All' ? null : scope);
+  const history = useMarketPriceHistory(crop === 'All' ? null : scope, { days: 30, points: 14 });
   const fair = useFairPriceCheck(scope);
 
   const shown = crop === 'All' ? PRICES : [selected];
   const hasLive = live && summary !== null && crop !== 'All';
   const offered = Number(offerPrice);
   const canCheck = offered > 0 && !fair.checking;
+
+  // Today's modal price versus the 30-day average, in one sentence.
+  const trend = (() => {
+    if (!hasLive || !summary) return null;
+    const avg = Number(summary.price_30d_avg ?? 0);
+    const modal = Number(summary.modal_price ?? 0);
+    if (!(avg > 0)) return null;
+    const pct = ((modal - avg) / avg) * 100;
+    if (pct >= 1) return t('prices.trendUp', { pct: pct.toFixed(1) });
+    if (pct <= -1) return t('prices.trendDown', { pct: Math.abs(pct).toFixed(1) });
+    return t('prices.trendFlat');
+  })();
 
   const runCheck = async () => {
     setLowOffer(null);
@@ -105,6 +119,22 @@ export default function PricesScreen() {
           );
         })}
       </View>
+
+      {crop !== 'All' ? (
+        <InfoCard title={t('prices.historyTitle')} accent={Colors.info}>
+          {history.series.length > 0 ? (
+            <>
+              <Text style={[styles.hint, { fontSize: fs(12) }]}>{t('prices.historyHint')}</Text>
+              <BarChart title={t('prices.historyTitle')} data={history.series} />
+            </>
+          ) : (
+            <Text style={[styles.hint, { fontSize: fs(12) }]}>
+              {history.loading ? t('common.loading') : t('prices.historyEmpty')}
+            </Text>
+          )}
+          {trend ? <AlertBanner tone="info" title={t('prices.avg30')} message={trend} /> : null}
+        </InfoCard>
+      ) : null}
 
       {crop !== 'All' ? (
         <InfoCard title={t('prices.checkTitle')} accent={Colors.saffron}>

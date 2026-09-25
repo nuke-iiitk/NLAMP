@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_session
@@ -18,6 +18,8 @@ from ..models import (
     BuyerRequirementStatus,
     Offer,
     OfferStatus,
+    PooledLot,
+    PooledLotMember,
 )
 from ..schemas.marketplace import (
     BuyerCreate,
@@ -46,7 +48,7 @@ from ..services.marketplace import (
     MarketPriceService,
     PoolingService,
 )
-from ..services.resolvers import resolve_buyer, resolve_buyer_requirement
+from ..services.resolvers import resolve_buyer, resolve_buyer_requirement, resolve_farmer
 
 router = APIRouter(prefix="/marketplace", tags=["marketplace"])
 
@@ -218,6 +220,42 @@ async def create_buyer(
 
 
 @router.get(
+    "/buyers",
+    response_model=list[BuyerOut],
+    summary="List registered buyers (marketplace directory)",
+)
+async def list_buyers(
+    state: Optional[str] = Query(default=None),
+    district: Optional[str] = Query(default=None),
+    crop: Optional[str] = Query(default=None, description="Only buyers requiring this crop"),
+    active_only: bool = Query(default=True),
+    limit: int = Query(default=50, ge=1, le=200),
+    db: AsyncSession = Depends(get_session),
+) -> list[BuyerOut]:
+    """Browse buyers so a farmer can see who is procuring in their area.
+
+    Ordered by reliability score so trustworthy buyers surface first.
+    """
+    stmt = select(Buyer).order_by(Buyer.reliability_score.desc(), Buyer.name)
+    if active_only:
+        stmt = stmt.where(Buyer.is_active == True)
+    if state:
+        stmt = stmt.where(Buyer.state == state)
+    if district:
+        stmt = stmt.where(Buyer.district == district)
+    if crop:
+        stmt = stmt.join(
+            BuyerRequirement, BuyerRequirement.buyer_id == Buyer.id
+        ).where(BuyerRequirement.crop == crop)
+    result = await db.execute(stmt.limit(limit))
+    # One buyer may post several requirements for the same crop -> dedupe.
+    unique: dict[str, BuyerOut] = {}
+    for buyer in result.scalars().all():
+        unique.setdefault(str(buyer.id), BuyerOut.from_model(buyer))
+    return list(unique.values())
+
+
+@router.get(
     "/buyers/{buyer_id}",
     response_model=BuyerOut,
     summary="Get buyer by ID",
@@ -301,21 +339,29 @@ async def list_all_requirements(
     crop: Optional[str] = Query(default=None),
     state: Optional[str] = Query(default=None),
     district: Optional[str] = Query(default=None),
-    status: str = Query(default="ACTIVE"),
+    status: str = Query(
+        default=BuyerRequirementStatus.ACTIVE.value,
+        description="Requirement status, or ALL to include every status",
+    ),
+    limit: int = Query(default=100, ge=1, le=500),
     db: AsyncSession = Depends(get_session),
 ) -> list[BuyerRequirementOut]:
-    """List all active buyer requirements for marketplace browsing."""
-    stmt = select(BuyerRequirement).join(Buyer).where(
-        BuyerRequirement.status == BuyerRequirementStatus.ACTIVE,
-        Buyer.is_active == True,
+    """List buyer requirements for marketplace browsing (ACTIVE by default)."""
+    stmt = (
+        select(BuyerRequirement)
+        .join(Buyer)
+        .where(Buyer.is_active == True)
+        .order_by(BuyerRequirement.created_at.desc())
     )
+    if status and status.upper() != "ALL":
+        stmt = stmt.where(BuyerRequirement.status == status.upper())
     if crop:
         stmt = stmt.where(BuyerRequirement.crop == crop)
     if state:
         stmt = stmt.where(BuyerRequirement.state == state)
     if district:
         stmt = stmt.where(BuyerRequirement.district == district)
-    result = await db.execute(stmt)
+    result = await db.execute(stmt.limit(limit))
     return [BuyerRequirementOut.from_model(r) for r in result.scalars().all()]
 
 
@@ -451,6 +497,48 @@ async def create_offer(
 
 
 @router.get(
+    "/offers",
+    response_model=list[OfferOut],
+    summary="List offers (farmer inbox / buyer outbox)",
+)
+async def list_offers(
+    farmer_id: Optional[str] = Query(default=None, description="Direct offers + pooled lots I joined"),
+    buyer_id: Optional[str] = Query(default=None),
+    requirement_id: Optional[str] = Query(default=None),
+    pooled_lot_id: Optional[str] = Query(default=None),
+    status: Optional[str] = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=200),
+    db: AsyncSession = Depends(get_session),
+) -> list[OfferOut]:
+    """List offers newest-first.
+
+    A farmer sees both offers addressed to them and offers made against a
+    pooled lot they are a member of; a buyer sees everything they sent.
+    """
+    stmt = select(Offer).order_by(Offer.created_at.desc())
+    if farmer_id:
+        farmer = await resolve_farmer(db, farmer_id)
+        member_lots = select(PooledLotMember.pooled_lot_id).where(
+            PooledLotMember.farmer_id == farmer.id
+        )
+        stmt = stmt.where(
+            or_(Offer.farmer_id == farmer.id, Offer.pooled_lot_id.in_(member_lots))
+        )
+    if buyer_id:
+        buyer = await resolve_buyer(db, buyer_id)
+        stmt = stmt.where(Offer.buyer_id == buyer.id)
+    if requirement_id:
+        req = await resolve_buyer_requirement(db, requirement_id)
+        stmt = stmt.where(Offer.requirement_id == req.id)
+    if pooled_lot_id:
+        stmt = stmt.where(Offer.pooled_lot_id == pooled_lot_id)
+    if status:
+        stmt = stmt.where(Offer.status == status.upper())
+    result = await db.execute(stmt.limit(limit))
+    return [OfferOut.from_model(o) for o in result.scalars().all()]
+
+
+@router.get(
     "/offers/{offer_id}",
     response_model=OfferOut,
     summary="Get offer by ID",
@@ -497,6 +585,45 @@ async def update_offer(
 
 
 # ==================== Pooled Lot Endpoints ====================
+
+@router.get(
+    "/pooled-lots",
+    response_model=list[PooledLotOut],
+    summary="List pooled lots (open pools a farmer can join)",
+)
+async def list_pooled_lots(
+    crop: Optional[str] = Query(default=None),
+    state: Optional[str] = Query(default=None),
+    district: Optional[str] = Query(default=None),
+    status: Optional[str] = Query(default=None),
+    farmer_id: Optional[str] = Query(
+        default=None, description="Only lots this farmer is already a member of"
+    ),
+    limit: int = Query(default=50, ge=1, le=200),
+    db: AsyncSession = Depends(get_session),
+) -> list[PooledLotOut]:
+    """Browse pooled lots newest-first, members included.
+
+    The `members` relationship is `lazy="selectin"`, so members arrive in one
+    extra query instead of an async-unsafe implicit lazy load.
+    """
+    stmt = select(PooledLot).order_by(PooledLot.created_at.desc())
+    if crop:
+        stmt = stmt.where(PooledLot.crop == crop)
+    if state:
+        stmt = stmt.where(PooledLot.state == state)
+    if district:
+        stmt = stmt.where(PooledLot.district == district)
+    if status:
+        stmt = stmt.where(PooledLot.status == status.upper())
+    if farmer_id:
+        farmer = await resolve_farmer(db, farmer_id)
+        stmt = stmt.join(
+            PooledLotMember, PooledLotMember.pooled_lot_id == PooledLot.id
+        ).where(PooledLotMember.farmer_id == farmer.id)
+    result = await db.execute(stmt.limit(limit))
+    return [PooledLotOut.from_model(lot) for lot in result.scalars().unique().all()]
+
 
 @router.post(
     "/pooled-lots",

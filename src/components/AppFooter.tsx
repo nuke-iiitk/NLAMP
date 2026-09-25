@@ -25,6 +25,8 @@ export default function AppFooter() {
     { label: t('nav.centres'), href: path.centres },
     { label: t('nav.prices'), href: path.prices },
     { label: t('nav.marketplace'), href: path.marketplace },
+    { label: t('nav.pools'), href: path.pools },
+    { label: t('nav.offers'), href: path.offers },
     { label: t('nav.payments'), href: path.payments },
     { label: t('nav.notices'), href: path.notices },
   ];
@@ -33,6 +35,7 @@ export default function AppFooter() {
     { label: t('nav.slotBooking'), href: path.booking },
     { label: t('nav.trackToken'), href: path.queue },
     { label: t('nav.bookings'), href: path.bookings },
+    { label: t('nav.buyer'), href: path.buyer },
     { label: t('nav.register'), href: path.register },
     { label: t('nav.officialPortal'), href: path.officialLogin },
   ];

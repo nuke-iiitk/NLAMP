@@ -90,3 +90,5 @@ class OfferStatus(str, enum.Enum):
     REJECTED = "REJECTED"
     COUNTERED = "COUNTERED"
     EXPIRED = "EXPIRED"
+    # A buyer can withdraw an offer before the farmer responds.
+    CANCELLED = "CANCELLED"

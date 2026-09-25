@@ -196,7 +196,7 @@ function put<T>(path: string, payload?: unknown): Promise<ApiResult<T>> {
 }
 
 /** Build a `?a=1&b=2` query string, skipping empty / undefined values. */
-function qs(params: Record<string, string | number | undefined | null>): string {
+function qs(params: Record<string, string | number | boolean | undefined | null>): string {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') search.set(key, String(value));
@@ -580,7 +580,7 @@ export type ApiOffer = {
   pooled_lot_id: string | null;
   price_per_quintal: string;
   quantity_kg: string;
-  status: string; // PENDING | ACCEPTED | REJECTED | COUNTERED | EXPIRED
+  status: string; // PENDING | ACCEPTED | REJECTED | COUNTERED | EXPIRED | CANCELLED
   market_avg_price: string | null;
   deviation_pct: number | null;
   is_counter: boolean;
@@ -835,6 +835,23 @@ export const api = {
   getBuyer: (buyerId: string) => get<ApiBuyer>(`/api/marketplace/buyers/${buyerId}`),
   updateBuyer: (buyerId: string, body: Record<string, unknown>) =>
     put<ApiBuyer>(`/api/marketplace/buyers/${buyerId}`, body),
+  /** Buyer directory — who is procuring in my area / for my crop. */
+  listBuyers: (filters?: {
+    state?: string;
+    district?: string;
+    crop?: string;
+    activeOnly?: boolean;
+    limit?: number;
+  }) =>
+    get<ApiBuyer[]>(
+      `/api/marketplace/buyers${qs({
+        state: filters?.state,
+        district: filters?.district,
+        crop: filters?.crop,
+        active_only: filters?.activeOnly,
+        limit: filters?.limit,
+      })}`
+    ),
 
   listRequirements: (filters?: {
     crop?: string;
@@ -896,6 +913,25 @@ export const api = {
     ),
 
   // marketplace — offers -------------------------------------------------
+  /** Offer inbox / outbox. A farmer also sees offers on lots they joined. */
+  listOffers: (filters?: {
+    farmerId?: string;
+    buyerId?: string;
+    requirementId?: string;
+    pooledLotId?: string;
+    status?: string;
+    limit?: number;
+  }) =>
+    get<ApiOffer[]>(
+      `/api/marketplace/offers${qs({
+        farmer_id: filters?.farmerId,
+        buyer_id: filters?.buyerId,
+        requirement_id: filters?.requirementId,
+        pooled_lot_id: filters?.pooledLotId,
+        status: filters?.status,
+        limit: filters?.limit,
+      })}`
+    ),
   createOffer: (input: {
     requirement_id: string;
     price_per_quintal: number;
@@ -917,6 +953,25 @@ export const api = {
   ) => put<ApiOffer>(`/api/marketplace/offers/${offerId}`, body),
 
   // marketplace — pooled lots -------------------------------------------
+  /** Open pools that can be browsed and joined. */
+  listPooledLots: (filters?: {
+    crop?: string;
+    state?: string;
+    district?: string;
+    status?: string;
+    farmerId?: string;
+    limit?: number;
+  }) =>
+    get<ApiPooledLot[]>(
+      `/api/marketplace/pooled-lots${qs({
+        crop: filters?.crop,
+        state: filters?.state,
+        district: filters?.district,
+        status: filters?.status,
+        farmer_id: filters?.farmerId,
+        limit: filters?.limit,
+      })}`
+    ),
   createPooledLot: (input: {
     crop: string;
     state: string;

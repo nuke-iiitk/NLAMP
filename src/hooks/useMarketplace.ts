@@ -10,9 +10,16 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { api } from '../services/api';
 import type {
+  ApiBuyer,
+  ApiBuyerRequirement,
   ApiFairPriceIndicator,
+  ApiMarketPrice,
   ApiMarketPriceSummary,
   ApiMatchedBuyerRequirement,
+  ApiMatchedFarmerListing,
+  ApiOffer,
+  ApiPooledLot,
+  ApiResult,
 } from '../services/api';
 
 /** Crop + region that all price endpoints are keyed by. */
@@ -187,4 +194,218 @@ export function useFarmerMatches(listing: FarmerListing | null): FarmerMatchesRe
     error: loaded.error,
     reload,
   };
+}
+
+// ---------------------------------------------------------------- shared
+
+/** Result shape shared by every keyed list hook below. */
+export type KeyedListResult<T> = {
+  items: T[];
+  loading: boolean;
+  live: boolean;
+  error: string | null;
+  reload: () => void;
+};
+
+/**
+ * Keyed-fetch helper: `key` encodes every input that affects the request, so a
+ * changed key reports "loading" instead of flashing the previous payload.
+ * `key === null` keeps the hook idle; `load` must be memoized on those inputs.
+ */
+function useKeyedList<T>(
+  key: string | null,
+  load: () => Promise<ApiResult<T[]>>
+): KeyedListResult<T> {
+  const [reloadCount, setReloadCount] = useState(0);
+  const reload = useCallback(() => setReloadCount((count) => count + 1), []);
+  const fullKey = key ? `${key}|r${reloadCount}` : null;
+
+  const [loaded, setLoaded] = useState<
+    (Omit<KeyedListResult<T>, 'reload'> & { key: string }) | null
+  >(null);
+
+  useEffect(() => {
+    if (!fullKey) return;
+    let cancelled = false;
+
+    void (async () => {
+      const response = await load();
+      if (cancelled) return;
+      if (response.ok) {
+        setLoaded({ key: fullKey, items: response.data, loading: false, live: true, error: null });
+      } else {
+        setLoaded({ key: fullKey, items: [], loading: false, live: false, error: response.error });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fullKey, load]);
+
+  if (!fullKey) return { items: [], loading: false, live: false, error: null, reload };
+  if (loaded?.key !== fullKey) return { items: [], loading: true, live: false, error: null, reload };
+  return { items: loaded.items, loading: false, live: loaded.live, error: loaded.error, reload };
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** `2026-08-29` -> `29 Aug`, so chart axis labels stay short. */
+function shortDate(iso: string): string {
+  const parts = iso.split('-');
+  const index = Number(parts[1]) - 1;
+  return index >= 0 && index < 12 ? `${Number(parts[2])} ${MONTHS[index]}` : iso;
+}
+
+// ------------------------------------------------------------ price history
+
+export type PriceHistoryResult = {
+  /** Oldest → newest, ready for `<BarChart/>`. */
+  series: { label: string; value: number }[];
+  rows: ApiMarketPrice[];
+  loading: boolean;
+  live: boolean;
+};
+
+/** Daily market-price trend for one crop/region (`null` scope = idle). */
+export function useMarketPriceHistory(
+  scope: MarketPriceScope | null,
+  options?: { days?: number; points?: number }
+): PriceHistoryResult {
+  const crop = scope?.crop;
+  const region = scope?.region;
+  const state = scope?.state;
+  const grade = scope?.grade;
+  const days = options?.days ?? 30;
+  const points = options?.points ?? 14;
+  const key = crop && region && state ? `${crop}|${region}|${state}|${grade ?? ''}|${days}` : null;
+
+  const [loaded, setLoaded] = useState<(PriceHistoryResult & { key: string }) | null>(null);
+
+  useEffect(() => {
+    if (!key || !crop || !region || !state) return;
+    let cancelled = false;
+
+    void (async () => {
+      const response = await api.marketPriceHistory({ crop, region, state, grade, days });
+      if (cancelled) return;
+      if (!response.ok) {
+        setLoaded({ key, series: [], rows: [], loading: false, live: false });
+        return;
+      }
+      // The API returns newest-first; charts read left-to-right in time order.
+      const series = [...response.data]
+        .slice(0, points)
+        .reverse()
+        .map((row) => ({
+          label: shortDate(row.price_date),
+          value: Math.round(Number(row.modal_price) || 0),
+        }));
+      setLoaded({ key, series, rows: response.data, loading: false, live: true });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [key, crop, region, state, grade, days, points]);
+
+  if (!key) return { series: [], rows: [], loading: false, live: false };
+  if (loaded?.key !== key) return { series: [], rows: [], loading: true, live: false };
+  return { series: loaded.series, rows: loaded.rows, loading: false, live: loaded.live };
+}
+
+// ---------------------------------------------------------- buyer directory
+
+export type BuyerDirectoryFilters = {
+  state?: string;
+  district?: string;
+  /** Only buyers who posted a requirement for this crop. */
+  crop?: string;
+  limit?: number;
+};
+
+/** Registered buyers, most reliable first (`null` filters = idle). */
+export function useBuyerDirectory(filters: BuyerDirectoryFilters): KeyedListResult<ApiBuyer> {
+  const { state, district, crop, limit } = filters;
+  const load = useCallback(
+    () => api.listBuyers({ state, district, crop, limit }),
+    [state, district, crop, limit]
+  );
+  const key =
+    state || district || crop
+      ? `${state ?? ''}|${district ?? ''}|${crop ?? ''}|${limit ?? ''}`
+      : null;
+  return useKeyedList(key, load);
+}
+
+/** Requirements posted by one buyer — the buyer console's own list. */
+export function useBuyerRequirements(
+  buyerId: string | null,
+  status?: string
+): KeyedListResult<ApiBuyerRequirement> {
+  const load = useCallback(
+    () => api.listBuyerRequirements(buyerId ?? '', status),
+    [buyerId, status]
+  );
+  return useKeyedList(buyerId ? `${buyerId}|${status ?? ''}` : null, load);
+}
+
+// --------------------------------------------------------------- offers
+
+export type OfferFilters = {
+  /** Farmer inbox: direct offers plus offers on pooled lots they joined. */
+  farmerId?: string;
+  /** Buyer outbox: everything this buyer has sent. */
+  buyerId?: string;
+  status?: string;
+  limit?: number;
+};
+
+/** Offer inbox/outbox — idle until a farmer or a buyer is known. */
+export function useOfferInbox(filters: OfferFilters): KeyedListResult<ApiOffer> {
+  const { farmerId, buyerId, status, limit } = filters;
+  const load = useCallback(
+    () => api.listOffers({ farmerId, buyerId, status, limit }),
+    [farmerId, buyerId, status, limit]
+  );
+  const key =
+    farmerId || buyerId ? `${farmerId ?? ''}|${buyerId ?? ''}|${status ?? ''}|${limit ?? ''}` : null;
+  return useKeyedList(key, load);
+}
+
+// ------------------------------------------------------------ pooled lots
+
+export type OpenPoolFilters = {
+  crop?: string;
+  state?: string;
+  district?: string;
+  status?: string;
+  /** Restrict to the lots this farmer already belongs to. */
+  farmerId?: string;
+  limit?: number;
+};
+
+/** Browsable pooled lots; the backend sends each lot with its members. */
+export function useOpenPools(filters: OpenPoolFilters): KeyedListResult<ApiPooledLot> {
+  const { crop, state, district, status, farmerId, limit } = filters;
+  const load = useCallback(
+    () => api.listPooledLots({ crop, state, district, status, farmerId, limit }),
+    [crop, state, district, status, farmerId, limit]
+  );
+  const key = `${crop ?? ''}|${state ?? ''}|${district ?? ''}|${status ?? ''}|${farmerId ?? ''}|${limit ?? ''}`;
+  return useKeyedList(key, load);
+}
+
+// ------------------------------------------------- buyer-side smart matching
+
+/** Ranked farmers for one buyer requirement (`null` id = idle). */
+export function useBuyerMatches(
+  requirementId: string | null,
+  limit = 5
+): KeyedListResult<ApiMatchedFarmerListing> {
+  const load = useCallback(
+    () => api.matchBuyerToFarmers(requirementId ?? '', limit),
+    [requirementId, limit]
+  );
+  return useKeyedList(requirementId ? `${requirementId}|${limit}` : null, load);
 }
