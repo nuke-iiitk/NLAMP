@@ -31,7 +31,7 @@ type Props = {
  *
  * On web this shell also keeps browser metadata in sync with the page:
  * `document.title` follows the current breadcrumb (meaningful tab titles,
- * correct titles on refresh/direct links under /sih-farmer-queue/) and
+ * correct titles on refresh/direct links under the Pages sub-path (/NLAMP/) and
  * `<html lang>` follows the selected language for screen readers.
  */
 export default function ScreenShell({ children, breadcrumbs, wide, showFooter = true }: Props) {

@@ -9,8 +9,8 @@ import type { PropsWithChildren } from 'react';
  * needed — the head stays lean and paints immediately.
  *
  * On GitHub Pages the site is served under the repo path (experiments.baseUrl
- * in app.json, e.g. /sih-farmer-queue), so the asset hrefs must be prefixed
- * with that path — otherwise the root-absolute URLs would 404.
+ * set from EXPO_PUBLIC_BASE_PATH, e.g. /NLAMP), so the asset hrefs must be
+ * prefixed with that path — otherwise the root-absolute URLs would 404.
  */
 const IS_DEV = process.env.NODE_ENV === 'development';
 const BASE_URL = IS_DEV ? '' : (Constants.expoConfig?.experiments?.baseUrl ?? '');

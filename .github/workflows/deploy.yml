@@ -34,8 +34,12 @@ jobs:
         run: npx expo export --platform web
         env:
           # Pages hosts the site under the repo sub-path → asset URLs must be
-          # prefixed (app.config.js reads EXPO_PUBLIC_BASE_PATH).
-          EXPO_PUBLIC_BASE_PATH: /sih-farmer-queue
+          # prefixed (app.config.js reads EXPO_PUBLIC_BASE_PATH). Derived from
+          # the repository name at build time so a repo rename (sih-farmer-queue
+          # → NLAMP) can't silently bake a stale prefix into the bundle again:
+          # a wrong prefix makes the HTML reference another site's JS/CSS, which
+          # 404s (blank page) or serves the old build's styles (wrong UI).
+          EXPO_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
           EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || 'https://kisan-kraya-api.onrender.com' }}
           EXPO_PUBLIC_USE_BACKEND: ${{ vars.EXPO_PUBLIC_USE_BACKEND || 'true' }}
 
