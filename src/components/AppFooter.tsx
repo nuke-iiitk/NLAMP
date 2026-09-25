@@ -24,6 +24,7 @@ export default function AppFooter() {
     { label: t('nav.howItWorks'), href: path.howItWorks },
     { label: t('nav.centres'), href: path.centres },
     { label: t('nav.prices'), href: path.prices },
+    { label: t('nav.marketplace'), href: path.marketplace },
     { label: t('nav.payments'), href: path.payments },
     { label: t('nav.notices'), href: path.notices },
   ];

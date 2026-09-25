@@ -5,9 +5,12 @@ from ..database import Base
 from .centre import ProcurementCentre
 from .enums import (
     ACTIVE_QUEUE_STATUSES,
+    BuyerRequirementStatus,
     CentreStatus,
     NotificationType,
+    OfferStatus,
     PaymentStatus,
+    PooledLotStatus,
     ProcurementStatus,
     QualityStatus,
     QueueEntryStatus,
@@ -15,6 +18,14 @@ from .enums import (
     UserRole,
 )
 from .farmer import Farmer
+from .marketplace import (
+    Buyer,
+    BuyerRequirement,
+    MarketPrice,
+    Offer,
+    PooledLot,
+    PooledLotMember,
+)
 from .mixins import TimestampMixin, utcnow
 from .notification import Notice, Notification
 from .officer import Officer
@@ -27,13 +38,21 @@ from .token_counter import TokenCounter
 __all__ = [
     "ACTIVE_QUEUE_STATUSES",
     "Base",
+    "Buyer",
+    "BuyerRequirement",
     "CentreStatus",
     "Farmer",
+    "MarketPrice",
     "Notification",
     "NotificationType",
+    "Offer",
     "Officer",
+    "OfferStatus",
     "Payment",
     "PaymentStatus",
+    "PooledLot",
+    "PooledLotMember",
+    "PooledLotStatus",
     "ProcurementCentre",
     "ProcurementRecord",
     "ProcurementStatus",

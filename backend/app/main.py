@@ -18,6 +18,7 @@ from .routers import (
     auth,
     centres,
     farmers,
+    marketplace,
     notifications,
     payments,
     procurements,
@@ -71,6 +72,7 @@ def create_app() -> FastAPI:
     app.include_router(notifications.router, prefix=API_PREFIX)
     app.include_router(notifications.notices_router, prefix=API_PREFIX)
     app.include_router(analytics.router, prefix=API_PREFIX)
+    app.include_router(marketplace.router, prefix=API_PREFIX)
     app.include_router(ws.router)  # /ws/queue/{centre_id}
 
     @app.exception_handler(DomainError)

@@ -195,6 +195,16 @@ function put<T>(path: string, payload?: unknown): Promise<ApiResult<T>> {
   return request<T>(path, { method: 'PUT', body: payload ? JSON.stringify(payload) : undefined });
 }
 
+/** Build a `?a=1&b=2` query string, skipping empty / undefined values. */
+function qs(params: Record<string, string | number | undefined | null>): string {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') search.set(key, String(value));
+  });
+  const encoded = search.toString();
+  return encoded ? `?${encoded}` : '';
+}
+
 // ------------------------------------------------------------ backend DTOs
 
 export type ApiCentre = {
@@ -441,6 +451,193 @@ export type BookingInput = {
   farmerId?: string;
 };
 
+// ------------------------------------------------------ marketplace DTOs
+//
+// Fair Price Discovery & Smart Matching Engine (backend/app/routers/marketplace.py).
+// Decimal columns are serialized as strings by FastAPI, so prices/quantities
+// arrive as strings and must be parsed with Number() before display/maths.
+
+export type ApiMarketPriceSummary = {
+  crop: string;
+  region: string;
+  state: string;
+  price_date: string;
+  min_price: string;
+  max_price: string;
+  modal_price: string;
+  unit: string;
+  price_30d_avg: string | null;
+  price_30d_min: string | null;
+  price_30d_max: string | null;
+};
+
+export type ApiMarketPrice = {
+  id: string;
+  crop: string;
+  region: string;
+  state: string;
+  district: string | null;
+  market_name: string | null;
+  grade: string | null;
+  price_date: string;
+  min_price: string;
+  max_price: string;
+  modal_price: string;
+  unit: string;
+  source: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ApiFairPriceStatus = 'below_market' | 'near_market' | 'above_market';
+
+/** Response of GET /api/marketplace/fair-price — the fair-price badge payload. */
+export type ApiFairPriceIndicator = {
+  market_avg_price: string;
+  offer_price: string;
+  deviation_pct: number;
+  status: ApiFairPriceStatus;
+  badge_color: 'green' | 'yellow' | 'red';
+  message: string;
+};
+
+/** Response of POST /api/marketplace/check-low-offer. */
+export type ApiLowOfferAlert = {
+  is_low_offer: boolean;
+  deviation_pct?: number;
+  suggested_counter_price?: string;
+  market_avg?: string;
+  message?: string;
+};
+
+export type ApiMatchScore = {
+  price_score: number;
+  distance_score: number;
+  quantity_score: number;
+  reliability_score: number;
+  total_score: number;
+};
+
+export type ApiBuyer = {
+  id: string;
+  buyer_code: string;
+  name: string;
+  company_name: string | null;
+  contact_person: string | null;
+  phone: string;
+  email: string | null;
+  state: string | null;
+  district: string | null;
+  reliability_score: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ApiBuyerRequirement = {
+  id: string;
+  buyer_id: string;
+  crop: string;
+  variety: string | null;
+  grade: string | null;
+  min_quantity_kg: string;
+  max_quantity_kg: string;
+  offered_price_per_quintal: string;
+  state: string;
+  district: string | null;
+  max_distance_km: number | null;
+  delivery_deadline: string | null;
+  quality_requirements: string | null;
+  status: string; // ACTIVE | FILLED | EXPIRED | CANCELLED
+  valid_until: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ApiMatchedBuyerRequirement = {
+  requirement: ApiBuyerRequirement;
+  match_score: ApiMatchScore;
+  fair_price: ApiFairPriceIndicator;
+};
+
+export type ApiMatchedFarmerListing = {
+  farmer_id: string;
+  farmer_name: string;
+  crop: string;
+  quantity_kg: string;
+  state: string;
+  district: string;
+  price_per_quintal: string | null;
+  match_score: ApiMatchScore;
+  fair_price: ApiFairPriceIndicator;
+};
+
+export type ApiOffer = {
+  id: string;
+  buyer_id: string;
+  requirement_id: string;
+  farmer_id: string | null;
+  pooled_lot_id: string | null;
+  price_per_quintal: string;
+  quantity_kg: string;
+  status: string; // PENDING | ACCEPTED | REJECTED | COUNTERED | EXPIRED
+  market_avg_price: string | null;
+  deviation_pct: number | null;
+  is_counter: boolean;
+  parent_offer_id: string | null;
+  expires_at: string | null;
+  responded_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ApiPooledLotMember = {
+  id: string;
+  pooled_lot_id: string;
+  farmer_id: string;
+  quantity_kg: string;
+  agreed_price_per_quintal: string | null;
+  is_confirmed: boolean;
+  confirmed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ApiPooledLot = {
+  id: string;
+  lot_code: string;
+  crop: string;
+  variety: string | null;
+  grade: string | null;
+  state: string;
+  district: string;
+  total_quantity_kg: string;
+  target_quantity_kg: string;
+  status: string; // FORMING | READY | MATCHED | COMPLETED | EXPIRED | CANCELLED
+  suggested_price_per_quintal: string | null;
+  matched_requirement_id: string | null;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+  members: ApiPooledLotMember[];
+};
+
+export type ApiPayoutLine = {
+  farmer_id: string;
+  quantity_kg: string;
+  share_pct: number;
+  amount: string;
+  price_per_quintal: string;
+};
+
+/** Query accepted by the market-price / fair-price endpoints. */
+export type MarketPriceQuery = {
+  crop: string;
+  region: string;
+  state: string;
+  grade?: string;
+};
+
 /**
  * 1:1 mapping to the FastAPI endpoints (see backend/app/routers).
  * All functions return ApiResult so the store can fall back to the mock
@@ -592,5 +789,173 @@ export const api = {
     get<ApiNotification[]>(`/api/notifications?farmer_id=${farmerId}`),
   markAllNotificationsRead: (farmerId: string) =>
     patch<{ updated: number }>('/api/notifications/read-all', { farmer_id: farmerId }),
+
+  // marketplace — market price ------------------------------------------
+  marketPrice: (query: MarketPriceQuery) =>
+    get<ApiMarketPriceSummary>(`/api/marketplace/market-price${qs({ ...query })}`),
+  marketPriceHistory: (query: MarketPriceQuery & { days?: number }) =>
+    get<ApiMarketPrice[]>(`/api/marketplace/market-price/history${qs({ ...query })}`),
+
+  // marketplace — fair price --------------------------------------------
+  fairPrice: (query: MarketPriceQuery & { offerPrice: number | string }) =>
+    get<ApiFairPriceIndicator>(
+      `/api/marketplace/fair-price${qs({
+        offer_price: query.offerPrice,
+        crop: query.crop,
+        region: query.region,
+        state: query.state,
+        grade: query.grade,
+      })}`
+    ),
+  checkLowOffer: (query: MarketPriceQuery & { offerPrice: number | string }) =>
+    post<ApiLowOfferAlert>(
+      `/api/marketplace/check-low-offer${qs({
+        offer_price: query.offerPrice,
+        crop: query.crop,
+        region: query.region,
+        state: query.state,
+        grade: query.grade,
+      })}`
+    ),
+
+  // marketplace — buyers & requirements ---------------------------------
+  createBuyer: (input: {
+    name: string;
+    phone: string;
+    password: string;
+    company_name?: string;
+    contact_person?: string;
+    email?: string;
+    address?: string;
+    state?: string;
+    district?: string;
+    gstin?: string;
+    license_number?: string;
+  }) => post<ApiBuyer>('/api/marketplace/buyers', input),
+  getBuyer: (buyerId: string) => get<ApiBuyer>(`/api/marketplace/buyers/${buyerId}`),
+  updateBuyer: (buyerId: string, body: Record<string, unknown>) =>
+    put<ApiBuyer>(`/api/marketplace/buyers/${buyerId}`, body),
+
+  listRequirements: (filters?: {
+    crop?: string;
+    state?: string;
+    district?: string;
+    status?: string;
+  }) => get<ApiBuyerRequirement[]>(`/api/marketplace/requirements${qs({ ...filters })}`),
+  listBuyerRequirements: (buyerId: string, status?: string) =>
+    get<ApiBuyerRequirement[]>(
+      `/api/marketplace/buyers/${buyerId}/requirements${qs({ status })}`
+    ),
+  getRequirement: (requirementId: string) =>
+    get<ApiBuyerRequirement>(`/api/marketplace/requirements/${requirementId}`),
+  createRequirement: (
+    buyerId: string,
+    input: {
+      crop: string;
+      min_quantity_kg: number;
+      max_quantity_kg: number;
+      offered_price_per_quintal: number;
+      state: string;
+      district?: string;
+      variety?: string;
+      grade?: string;
+      max_distance_km?: number;
+      delivery_deadline?: string;
+      quality_requirements?: string;
+      valid_until?: string;
+    }
+  ) => post<ApiBuyerRequirement>(`/api/marketplace/buyers/${buyerId}/requirements`, input),
+  updateRequirement: (requirementId: string, body: Record<string, unknown>) =>
+    put<ApiBuyerRequirement>(`/api/marketplace/requirements/${requirementId}`, body),
+
+  // marketplace — smart matching ----------------------------------------
+  matchFarmerToBuyers: (
+    farmerId: string,
+    query: {
+      crop: string;
+      quantityKg: number | string;
+      state: string;
+      district: string;
+      grade?: string;
+      limit?: number;
+    }
+  ) =>
+    get<ApiMatchedBuyerRequirement[]>(
+      `/api/marketplace/match/farmer/${farmerId}${qs({
+        crop: query.crop,
+        quantity_kg: query.quantityKg,
+        state: query.state,
+        district: query.district,
+        grade: query.grade,
+        limit: query.limit,
+      })}`
+    ),
+  matchBuyerToFarmers: (requirementId: string, limit?: number) =>
+    get<ApiMatchedFarmerListing[]>(
+      `/api/marketplace/match/buyer/${requirementId}${qs({ limit })}`
+    ),
+
+  // marketplace — offers -------------------------------------------------
+  createOffer: (input: {
+    requirement_id: string;
+    price_per_quintal: number;
+    quantity_kg: number;
+    farmer_id?: string;
+    pooled_lot_id?: string;
+    parent_offer_id?: string;
+    expires_at?: string;
+  }) => post<ApiOffer>('/api/marketplace/offers', input),
+  getOffer: (offerId: string) => get<ApiOffer>(`/api/marketplace/offers/${offerId}`),
+  updateOffer: (
+    offerId: string,
+    body: {
+      price_per_quintal?: number;
+      quantity_kg?: number;
+      status?: string;
+      expires_at?: string;
+    }
+  ) => put<ApiOffer>(`/api/marketplace/offers/${offerId}`, body),
+
+  // marketplace — pooled lots -------------------------------------------
+  createPooledLot: (input: {
+    crop: string;
+    state: string;
+    district: string;
+    target_quantity_kg: number;
+    variety?: string;
+    grade?: string;
+    suggested_price_per_quintal?: number;
+  }) => post<ApiPooledLot>('/api/marketplace/pooled-lots', input),
+  autoCreatePooledLot: (query: {
+    crop: string;
+    state: string;
+    district: string;
+    bulkThresholdKg?: number;
+    radiusKm?: number;
+  }) =>
+    post<ApiPooledLot>(
+      `/api/marketplace/pooled-lots/auto-create${qs({
+        crop: query.crop,
+        state: query.state,
+        district: query.district,
+        bulk_threshold_kg: query.bulkThresholdKg,
+        radius_km: query.radiusKm,
+      })}`
+    ),
+  getPooledLot: (lotId: string) => get<ApiPooledLot>(`/api/marketplace/pooled-lots/${lotId}`),
+  addFarmerToPooledLot: (
+    lotId: string,
+    input: { farmer_id: string; quantity_kg: number; agreed_price_per_quintal?: number }
+  ) => post<ApiPooledLot>(`/api/marketplace/pooled-lots/${lotId}/members`, input),
+  confirmPooledLotParticipation: (lotId: string, farmerId: string) =>
+    post<{ success: boolean; message: string }>(
+      `/api/marketplace/pooled-lots/${lotId}/confirm/${farmerId}`
+    ),
+  matchPooledLotToRequirement: (lotId: string, requirementId: string) =>
+    post<{ success: boolean; message: string }>(
+      `/api/marketplace/pooled-lots/${lotId}/match/${requirementId}`
+    ),
+  pooledLotPayout: (lotId: string) =>
+    get<{ payouts: ApiPayoutLine[] }>(`/api/marketplace/pooled-lots/${lotId}/payout`),
 } as const;
 

@@ -7,6 +7,7 @@ export const path = {
   howItWorks: '/how-it-works' as Href,
   centres: '/centres' as Href,
   prices: '/prices' as Href,
+  marketplace: '/marketplace' as Href,
   payments: '/payments' as Href,
   help: '/help' as Href,
   login: '/login' as Href,

@@ -9,7 +9,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Farmer, ProcurementCentre, Slot
+from ..models import Buyer, BuyerRequirement, Farmer, ProcurementCentre, Slot
 from .errors import DomainValidationError, NotFoundError
 
 
@@ -88,6 +88,47 @@ async def resolve_slot(
         return slot
 
     raise DomainValidationError("Provide slot_id, or both date and start_time")
+
+
+async def resolve_buyer(db: AsyncSession, identifier: str) -> Buyer:
+    """Accepts a buyer UUID or a buyer_code (BYR-...)."""
+    try:
+        buyer_id = uuid.UUID(identifier)
+    except ValueError:
+        buyer_id = None
+    if buyer_id is not None:
+        buyer = await db.get(Buyer, buyer_id)
+    else:
+        buyer = (
+            await db.execute(select(Buyer).where(Buyer.buyer_code == identifier))
+        ).scalar_one_or_none()
+    if buyer is None:
+        raise NotFoundError(f"Buyer {identifier!r} not found", code="buyer_not_found")
+    return buyer
+
+
+async def resolve_buyer_requirement(
+    db: AsyncSession, identifier: str
+) -> BuyerRequirement:
+    """Accepts a buyer-requirement UUID or its numeric id."""
+    try:
+        req_id = uuid.UUID(identifier)
+    except ValueError:
+        req_id = None
+    if req_id is not None:
+        req = await db.get(BuyerRequirement, req_id)
+    else:
+        req = (
+            await db.execute(
+                select(BuyerRequirement).where(BuyerRequirement.id == identifier)
+            )
+        ).scalar_one_or_none()
+    if req is None:
+        raise NotFoundError(
+            f"Buyer requirement {identifier!r} not found",
+            code="requirement_not_found",
+        )
+    return req
 
 
 async def resolve_preferred_centre(

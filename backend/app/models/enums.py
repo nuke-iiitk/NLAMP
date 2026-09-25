@@ -66,3 +66,27 @@ class NotificationType(str, enum.Enum):
 class UserRole(str, enum.Enum):
     FARMER = "FARMER"
     OFFICER = "OFFICER"
+    BUYER = "BUYER"
+
+
+class BuyerRequirementStatus(str, enum.Enum):
+    ACTIVE = "ACTIVE"
+    FILLED = "FILLED"
+    CANCELLED = "CANCELLED"
+    EXPIRED = "EXPIRED"
+
+
+class PooledLotStatus(str, enum.Enum):
+    FORMING = "FORMING"
+    READY = "READY"
+    MATCHED = "MATCHED"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
+
+
+class OfferStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+    COUNTERED = "COUNTERED"
+    EXPIRED = "EXPIRED"

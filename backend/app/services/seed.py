@@ -40,6 +40,7 @@ from ..models import (
     TokenCounter,
 )
 from .security import hash_password
+from .marketplace import MarketPriceService
 
 # --------------------------------------------------------------- definitions
 
@@ -609,7 +610,9 @@ async def _reset(db: AsyncSession) -> None:
     await db.execute(
         text(
             "TRUNCATE notifications, payments, procurement_records, queue_entries, "
-            "token_counters, slots, officers, farmers, procurement_centres RESTART IDENTITY CASCADE"
+            "token_counters, slots, officers, farmers, procurement_centres, "
+            "offers, pooled_lot_members, pooled_lots, buyer_requirements, buyers, "
+            "market_prices RESTART IDENTITY CASCADE"
         )
     )
 
@@ -671,6 +674,10 @@ async def seed(reset: bool = False) -> None:
         await seed_officer(db)
         await db.commit()
         print("• notifications + officer OFF-2201 (password officer1234)")
+
+        market_prices = await MarketPriceService(db).get_or_create_demo_prices()
+        print(f"• market prices — {len(market_prices)} Agmarknet-style rows (30-day history)")
+
         print("Seed complete ✔")
 
 

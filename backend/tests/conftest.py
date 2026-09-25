@@ -80,9 +80,23 @@ from app.models import Base, CentreStatus, ProcurementCentre  # noqa: E402
 
 
 async def _truncate() -> None:
-    tables = ", ".join(t.name for t in reversed(Base.metadata.sorted_tables))
     async with database.engine.begin() as conn:
-        await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
+        # Only wipe tables that actually exist: a model without a matching
+        # migration must not poison every teardown for the whole suite.
+        existing = set(
+            (
+                await conn.execute(
+                    text("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
+                )
+            )
+            .scalars()
+            .all()
+        )
+        tables = ", ".join(
+            t.name for t in reversed(Base.metadata.sorted_tables) if t.name in existing
+        )
+        if tables:
+            await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
         await conn.execute(text("ALTER SEQUENCE IF EXISTS farmer_code_seq RESTART WITH 500"))
 
 
